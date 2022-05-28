@@ -19,7 +19,7 @@ cd next
 git check out dev
 make dev
 export LOG_LEVEL=INFO # Optional: supports DEBUG, ERROR
-poetry run next --version
+poetry run Next --version
 ```
 
 ### Versioning

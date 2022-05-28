@@ -8,6 +8,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "^3.9"
 loguru = "^0.5.3"
+argparse = "^1.4.0"
 
 [tool.poetry.dev-dependencies]
 pycodestyle = "^2.8.0"
