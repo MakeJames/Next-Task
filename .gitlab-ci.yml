@@ -1,0 +1,19 @@
+image: python:latest
+
+build-job:
+  stage: build
+  script:
+    - echo "Hello, $GITLAB_USER_LOGIN"
+
+before_script:
+  - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
+  - export PATH=$PATH:$HOME/.poetry/bin
+  - poetry --version
+  - poetry install
+  - poetry env use python3
+
+test:
+  stage: test
+  script:
+    - make lint
+    - make test
