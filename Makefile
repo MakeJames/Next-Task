@@ -3,7 +3,7 @@ EXECUTE=poetry run
 VERSION=$$(cat VERSION)
 
 # code
-PACKAGE=next
+PACKAGE=next_task
 
 # file groups
 TEST_GROUP=tests/*/test_*.py

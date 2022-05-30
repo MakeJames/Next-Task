@@ -2,8 +2,8 @@
 
 import pytest
 
-from next.interface import cli
-from next import __version__
+from next_task.interface import cli
+from next_task import __version__
 
 
 class TestCliMainMethod:

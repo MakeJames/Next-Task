@@ -1,4 +1,4 @@
-# Next
+# Next-task
 
 A barebones task management solution
 
@@ -6,9 +6,9 @@ A barebones task management solution
 
 ```bash
 git clone git@gitlab.com:{}
-cd next
+cd unearth
 make 
-next --version
+unearth --version
 ```
 
 ## Development
@@ -19,7 +19,7 @@ cd next
 git check out dev
 make dev
 export LOG_LEVEL=INFO # Optional: supports DEBUG, ERROR
-poetry run Next --version
+poetry run Unearth --version
 ```
 
 ### Versioning

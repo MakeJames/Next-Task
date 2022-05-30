@@ -4,7 +4,7 @@ import argparse
 import os
 import sys
 
-import next
+import next_task
 
 
 def main(argv=None):
@@ -15,7 +15,7 @@ def main(argv=None):
         "--version",
         help="show current version",
         action="version",
-        version=f"Next: {next.__version__}"
+        version=f"Next: {next_task.__version__}"
     )
 
     args = parser.parse_args(argv)
