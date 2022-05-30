@@ -1,7 +1,7 @@
 [tool.poetry]
-name = "Next-task"
+name = "Next"
 version = "0.0.0"
-description = "A task management solution"
+description = "A barebones task management solution"
 authors = ["J-McB <jmcbean3@gmail.com>"]
 license = "MIT"
 
@@ -24,3 +24,6 @@ isort = "^5.10.1"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+next-task = "next_task.interface.cli:main"
