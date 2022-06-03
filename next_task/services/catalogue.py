@@ -11,17 +11,25 @@ class Check:
 
     def __init__(self):
         """Instansiate the Check class."""
-        self.home = str(Path.home())
-        logger.debug(f"Home directory: {self.home}")
-        self.file = f"{self.home}/.tasks.json"
+        self.file = self._file_path_builder()
         self.exists()
+
+    def _file_path_builder(self):
+        home = str(Path.home())
+        return f"{home}/.tasks.json"
 
     def exists(self):
         """Check that the path exists."""
         if not Path(self.file).exists():
             logger.debug(f"{self.file} does not exist, creating file")
-            file = open(self.file, "a")
-            file.close()
+            # TODO: Move to a template write class
+            with open(self.file, "a+") as file:
+                file.seek(0)
+                json.dump(
+                    {"tasks": []},
+                    file,
+                    indent=4
+                )
             print("created .tasks.json")
         else:
-            logger.debug(f"{self.file} exists")
+            logger.debug(f"Task file path exists: {self.file}")

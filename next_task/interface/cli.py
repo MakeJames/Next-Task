@@ -5,7 +5,7 @@ import os
 import sys
 
 import next_task
-from next_task.services import file
+from next_task.services import catalogue, tasks
 
 
 def main(argv=None):
@@ -26,11 +26,19 @@ def main(argv=None):
         """,
         action="store_true"
     )
+    parser.add_argument(
+        "-a",
+        "--add",
+        type=str
+    )
 
     args = parser.parse_args(argv)
 
     if args.check_file:
-        check = file.Check()
+        catalogue.Check()
+        sys.exit()
+    if args.add:
+        tasks.CreateTask(args.add)
         sys.exit()
 
 

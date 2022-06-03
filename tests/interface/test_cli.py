@@ -4,7 +4,7 @@ import pytest
 
 from pytest_mock import mocker
 
-from next_task.services import file
+from next_task.services import catalogue
 from next_task.interface import cli
 from next_task import __version__
 
@@ -25,3 +25,10 @@ class TestCliMainMethod:
             cli.main(["--check-file"])
         captured = capsys.readouterr()
         assert captured.out == "created .tasks.json\n"
+
+    def test_task_creation(self, capsys) -> None:
+        """R-BICEP: Right."""
+        with pytest.raises(SystemExit):
+            cli.main(["--add", "This is a task"])
+        captured = capsys.readouterr()
+        assert "Created task 1: This is a task" in captured.out

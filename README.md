@@ -2,13 +2,16 @@
 
 A barebones task management solution
 
+## About
+Tasks are stored in a json file stored in the users Home directory `.tasks.json`. This file is updated and managed by various functions within the package.
+
 ## Getting Started
 
 ```bash
 git clone git@gitlab.com:{}
-cd unearth
+cd next-task
 make 
-unearth --version
+Next --version
 ```
 
 ## Development
@@ -19,7 +22,7 @@ cd next
 git check out dev
 make dev
 export LOG_LEVEL=INFO # Optional: supports DEBUG, ERROR
-poetry run Unearth --version
+poetry run Next --version
 ```
 
 ### Versioning

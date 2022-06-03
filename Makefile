@@ -44,7 +44,7 @@ lint:
 	$(EXECUTE) mypy --ignore-missing-imports $(LINT_GROUP)
 
 test:
-	$(EXECUTE) pytest $(TEST_GROUP) -v
+	$(EXECUTE) pytest $(TEST_GROUP) -v --durations=0
 
 coverage:
 	$(EXECUTE) pytest --cov=$(PACKAGE) $(TEST_GROUP) --cov-report term-missing

@@ -11,4 +11,4 @@ def mock_pathlib_home(tmpdir, mocker):
     """Create a mocked temp directory."""
     def home_directory():
         return tmpdir
-    mocker.patch.object(Path, "home", side_effect=[home_directory()])
+    mocker.patch.object(Path, "home", return_value=home_directory())
