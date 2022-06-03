@@ -8,7 +8,7 @@ Tasks are stored in a json file stored in the users Home directory `.tasks.json`
 ## Getting Started
 
 ```bash
-git clone git@gitlab.com:{}
+git clone git@gitlab.com:mcbean-workspace/next-task.git
 cd next-task
 make 
 Next --version
@@ -17,7 +17,7 @@ Next --version
 ## Development
 
 ```bash
-git clone git@gitlab.com:{}
+git clone git@gitlab.com:mcbean-workspace/next-task.git
 cd next
 git check out dev
 make dev
