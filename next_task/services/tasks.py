@@ -2,7 +2,7 @@
 
 import datetime
 import json
-from nis import cat
+import sys
 
 from loguru import logger
 
@@ -102,8 +102,6 @@ class GetPriority:
         """Instansiate the class."""
         self.data = data
         self.data.sort(key=self.calculate)
-        self.task = self.data[0]
-        logger.debug(f"{self.task['id']}: {self.task['summary']}")
 
     def calculate(self, item):
         """Compound function of the due date and created date."""
@@ -117,9 +115,9 @@ class GetPriority:
             item["due"],
             "%Y-%m-%d %H:%M:%S"
         ).timestamp()
-        call = created * \
-            (due - created)
-        return call * 0.6
+        call = created * (due - created) * 0.6
+        # logger.debug(f"Priority: {call}")
+        return call
 
 
 class GetNextTask:
@@ -127,13 +125,81 @@ class GetNextTask:
 
     def __init__(self):
         """Instansiate the get task wrapper class."""
-        self._file = open(catalogue.Check().file, "r")
-        self.data = json.load(self._file)
-        self.open_tasks = FilterOpenTasks(self.data).data
-        self.task = GetPriority(self.open_tasks).task
-        self._file.close()
+        self.file_data = self.get_file_data()
+        self.open_tasks = FilterOpenTasks(self.file_data).data
+        self.ordered_tasks = GetPriority(self.open_tasks).data
+        self.get_task()
+
+    def get_file_data(self):
+        """Open and return file data from .tasks.json."""
+        with open(catalogue.Check().file, "r") as file:
+            file_data = json.load(file)
+        return file_data
+
+    def get_task(self):
+        """Get the next task, handles the error of no tasks."""
+        try:
+            self.task = self.ordered_tasks[0]
+            logger.debug(f"{self.task['id']}: {self.task['summary']}")
+        except IndexError:
+            logger.debug("list index 0 out of range")
+            print(
+                "Congratulations!\n",
+                "There are no tasks on your to do list, ",
+                "take a break and have a cup of tea."
+            )
+            sys.exit()
 
     def print_task(self):
         """Print the next task."""
         print(f"{self.task['id']}: {self.task['summary']}")
         print(f"due {self.task['due']}")
+
+
+class UpdateDueDate:
+    """Update Task due date."""
+
+    def __init__(self, task):
+        """Update the due date on a task."""
+        self.task = task
+        self.date = datetime.datetime.strptime(
+            self.task["due"],
+            "%Y-%m-%d %H:%M:%S"
+        )
+        self.new_date = self.date + datetime.timedelta(days=1)
+        self.task["due"] = self.new_date.strftime("%Y-%m-%d %H:%M:%S")
+
+
+class SkipTask:
+    """Skip the next task."""
+
+    def __init__(self):
+        """Instansiate the class."""
+        self.all_tasks = GetNextTask()
+        self.task = self.all_tasks.ordered_tasks[0]
+        self.update_file_data()
+        self.write()
+        GetNextTask().print_task()
+        # TODO: Write and get new Task
+
+    def update_file_data(self):
+        """Find task and update due date."""
+        tasks = self.all_tasks.file_data["tasks"]
+
+        for index in range(len(tasks)):
+
+            if tasks[index]["id"] == self.task["id"]:
+                tasks[index] = UpdateDueDate(self.task).task
+
+                print(
+                    f"updated {tasks[index]['id']}, ",
+                    f"now due: {tasks[index]['due']}"
+                )
+                break
+
+    def write(self):
+        """Write to file."""
+        print("skipping...")
+        with open(catalogue.Check().file, "r+") as file:
+            logger.debug("Updating tasks.json with new task data.")
+            json.dump(self.all_tasks.file_data, file, indent=4)

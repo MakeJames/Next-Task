@@ -4,6 +4,7 @@ import pytest
 import json
 from loguru import logger
 from pytest_mock import mocker
+import datetime
 from time import time
 
 from next_task.services import catalogue
@@ -101,9 +102,11 @@ class TestCreateTask:
 
     def test_when_there_are_a_thousand_tasks_then_creation_is_performative(
         self,
-        mock_tasks_file
+        mock_tasks_file,
+        mocker
     ) -> None:
         """R-BICEP: Performance."""
+        mocker.patch("json.dump")
         start = time()
         tasks.CreateTask(
             "test_when_there_are_a_thousand_tasks " +
@@ -152,7 +155,7 @@ class TestGetPriority:
             file_data = json.load(file)
         test_data = tasks.FilterOpenTasks(file_data).data
         test_call = tasks.GetPriority(test_data)
-        assert test_call.task["id"] == 5102
+        assert test_call.data[0]["id"] == 5102
 
     def test_when_called_higest_priority_task_is_returned_performatvely(
         self
@@ -188,3 +191,78 @@ class TestGetNextTask:
         tasks.GetNextTask().print_task()
         captured = capsys.readouterr()
         assert "5102" in captured.out
+
+    def test_when_task_data_is_empty_then_error(
+        self,
+        capsys
+    ) -> None:
+        """R-BICEP: Right."""
+        with pytest.raises(SystemExit):
+            tasks.GetNextTask()
+        captured = capsys.readouterr()
+        assert "Congratulations!" in captured.out
+
+
+class TestUpdateDueDate:
+    """Test the Methods of the Update Due date class."""
+
+    def test_when_provided_data_then_due_date_incrememented_by_one_day(
+        self
+    ) -> None:
+        """R-BICEP: Right."""
+        data = {"due": "2022-06-04 20:21:34"}
+        test = tasks.UpdateDueDate(data).task
+        assert test["due"] == "2022-06-05 20:21:34"
+
+    def test_when_no_data_provided_then_error(self) -> None:
+        """R-BICEP: Error."""
+        data = {}
+        with pytest.raises(KeyError):
+            tasks.UpdateDueDate(data)
+
+    def test_when_time_formatting_is_wrong_then_error(self) -> None:
+        """R-BICEP: Error."""
+        data = {"due": "04-06-2022 20:21"}
+        with pytest.raises(ValueError):
+            tasks.UpdateDueDate(data)
+
+
+class TestSkipTask:
+    """Test the methods of the Skip task class."""
+
+    @pytest.fixture
+    def mock_json_dump(self, mocker):
+        """Mock the write aspect of the writer function."""
+        mocker.patch("json.dump")
+
+    @pytest.fixture
+    def mock_get_next_task(self, mocker):
+        """Mock the GetNextTask class."""
+
+        def ordered_tasks():
+            with open("tests/data_mocks/tasks_1.json", "r") as file:
+                file_data = json.load(file)
+            return file_data
+
+        mocker.patch.object(
+            tasks.GetNextTask,
+            "get_file_data",
+            return_value=ordered_tasks()
+        )
+
+    def test_when_called_task_is_skipped(
+        self,
+        mock_get_next_task,
+        mock_json_dump
+    ) -> None:
+        """R-BICEP: Right."""
+        test_call = tasks.SkipTask()
+        due_1 = datetime.datetime.strptime(
+            "2022-06-12 09:00:28",
+            "%Y-%m-%d %H:%M:%S"
+        )
+        due_2 = datetime.datetime.strptime(
+            test_call.task["due"],
+            "%Y-%m-%d %H:%M:%S"
+        )
+        assert due_1 < due_2

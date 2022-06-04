@@ -1,11 +1,13 @@
 """Test the methods of the cli module."""
 
 import pytest
+import json
 
 from pytest_mock import mocker
 
 from next_task.services import catalogue
 from next_task.interface import cli
+from next_task.services import tasks
 from next_task import __version__
 
 
@@ -63,3 +65,47 @@ class TestCliMainMethod:
             cli.main(["--task"])
         captured = capsys.readouterr()
         assert "5102" in captured.out
+
+    @pytest.fixture
+    def mock_json_dump(self, mocker):
+        """Mock the write aspect of the writer function."""
+        mocker.patch("json.dump")
+
+    @pytest.fixture
+    def mock_get_next_task(self, mocker):
+        """Mock the GetNextTask class."""
+
+        def ordered_tasks():
+            with open("tests/data_mocks/tasks_1.json", "r") as file:
+                file_data = json.load(file)
+            return file_data
+
+        mocker.patch.object(
+            tasks.GetNextTask,
+            "get_file_data",
+            return_value=ordered_tasks()
+        )
+
+    def test_when_called_task_is_skipped(
+        self,
+        mocker,
+        mock_get_next_task,
+        mock_json_dump,
+        capsys
+    ) -> None:
+        """R-BICEP: Right."""
+
+        def mock_file_path():
+            return "tests/data_mocks/tasks_1.json"
+
+        mocker.patch.object(
+            catalogue.Check,
+            "_file_path_builder",
+            return_value=mock_file_path()
+        )
+
+        with pytest.raises(SystemExit):
+            cli.main(["--skip"])
+        captured = capsys.readouterr()
+        assert "updated 5102,  now due: 2022-06-13 09:00:28" \
+            in captured.out

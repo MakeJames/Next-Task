@@ -39,6 +39,14 @@ def main(argv=None):
         """,
         action="store_true"
     )
+    parser.add_argument(
+        "-s",
+        "--skip",
+        help="""
+            Skips the current top task.
+        """,
+        action="store_true"
+    )
 
     args = parser.parse_args(argv)
 
@@ -50,6 +58,9 @@ def main(argv=None):
         sys.exit()
     if args.task:
         tasks.GetNextTask().print_task()
+        sys.exit()
+    if args.skip:
+        tasks.SkipTask()
         sys.exit()
 
 
