@@ -117,7 +117,7 @@ class GetPriority:
             item["due"],
             "%Y-%m-%d %H:%M:%S"
         ).timestamp()
-        call = due * \
+        call = created * \
             (due - created)
         return call * 0.6
 
