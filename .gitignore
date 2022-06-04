@@ -7,3 +7,4 @@ dist
 poetry.lock
 .env
 .config
+*.txt

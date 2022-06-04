@@ -36,4 +36,4 @@ class TestCheckClass:
         captured = capsys.readouterr()
         with open("tests/data_mocks/tasks_1.json", "r") as file:
             file_data = json.load(file)
-        assert len(file_data["tasks"]) == 2
+        assert len(file_data["tasks"]) == 4

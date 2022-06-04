@@ -31,6 +31,14 @@ def main(argv=None):
         "--add",
         type=str
     )
+    parser.add_argument(
+        "-t",
+        "--task",
+        help="""
+            Returns the next task to be done
+        """,
+        action="store_true"
+    )
 
     args = parser.parse_args(argv)
 
@@ -39,6 +47,9 @@ def main(argv=None):
         sys.exit()
     if args.add:
         tasks.CreateTask(args.add)
+        sys.exit()
+    if args.task:
+        tasks.GetNextTask().print_task()
         sys.exit()
 
 

@@ -2,6 +2,7 @@
 
 import datetime
 import json
+from nis import cat
 
 from loguru import logger
 
@@ -82,3 +83,57 @@ class CreateTask:
             f"Created task {self.id}: {self.summary} " +
             f"- Due: {self.due.strftime('%Y-%m-%d %H:%M:%S')}"
         )
+
+
+class FilterOpenTasks:
+    """Filter for open tasks."""
+
+    def __init__(self, data):
+        """Instansiate Filter Open Tasks class."""
+        self.data = [
+            item for item in data["tasks"] if item['status'] == 'open'
+        ]
+
+
+class GetPriority:
+    """Return the next priority task."""
+
+    def __init__(self, data):
+        """Instansiate the class."""
+        self.data = data
+        self.data.sort(key=self.calculate)
+        self.task = self.data[0]
+        logger.debug(f"{self.task['id']}: {self.task['summary']}")
+
+    def calculate(self, item):
+        """Compound function of the due date and created date."""
+        # TODO: with a skip function, this should divide by skips
+        # TODO: priority should be inherited from project
+        created = datetime.datetime.strptime(
+            item["created"],
+            "%Y-%m-%d %H:%M:%S"
+        ).timestamp()
+        due = datetime.datetime.strptime(
+            item["due"],
+            "%Y-%m-%d %H:%M:%S"
+        ).timestamp()
+        call = due * \
+            (due - created)
+        return call * 0.6
+
+
+class GetNextTask:
+    """Print the next task to the command line."""
+
+    def __init__(self):
+        """Instansiate the get task wrapper class."""
+        self._file = open(catalogue.Check().file, "r")
+        self.data = json.load(self._file)
+        self.open_tasks = FilterOpenTasks(self.data).data
+        self.task = GetPriority(self.open_tasks).task
+        self._file.close()
+
+    def print_task(self):
+        """Print the next task."""
+        print(f"{self.task['id']}: {self.task['summary']}")
+        print(f"due {self.task['due']}")

@@ -79,7 +79,7 @@ class TestCreateTask:
     """Test the methods to creating a task."""
 
     @pytest.fixture
-    def mock_tasks_file(self, mocker):
+    def mock_tasks_file(self, mocker) -> None:
         """Return a file in the mock data file."""
         def mock_file_path():
             return "tests/data_mocks/tasks_2.json"
@@ -102,7 +102,7 @@ class TestCreateTask:
     def test_when_there_are_a_thousand_tasks_then_creation_is_performative(
         self,
         mock_tasks_file
-    ):
+    ) -> None:
         """R-BICEP: Performance."""
         start = time()
         tasks.CreateTask(
@@ -110,4 +110,81 @@ class TestCreateTask:
             f"{start}"
         )
         end = time()
-        assert (end - start) < (start + 0.5)
+        dif = (end - start)
+        assert dif < 1
+
+
+class TestFilterOpenTasks:
+    """Test the methods of the filter open tasks."""
+
+    def test_that_closed_tasks_are_removed_from_working_dictionary(
+        self
+    ) -> None:
+        """R-BICEP: Right."""
+        with open("tests/data_mocks/tasks_1.json", "r") as file:
+            file_data = json.load(file)
+        test_data = tasks.FilterOpenTasks(file_data).data
+        logger.debug(test_data)
+        assert len(test_data) == 2
+        assert test_data[0]["id"] == 5101
+
+    def test_that_closed_tasks_are_removed_performatvely(
+        self
+    ) -> None:
+        """R-BICEP: Performance."""
+        with open("tests/data_mocks/tasks_2.json", "r") as file:
+            file_data = json.load(file)
+        start = time()
+        tasks.FilterOpenTasks(file_data).data
+        end = time()
+        dif = (end - start)
+        assert dif < 0.1
+
+
+class TestGetPriority:
+    """Test the methods of the priority calculation class."""
+
+    def test_when_called_higest_priority_task_is_returned(
+        self
+    ) -> None:
+        """R-BICEP: Right."""
+        with open("tests/data_mocks/tasks_1.json", "r") as file:
+            file_data = json.load(file)
+        test_data = tasks.FilterOpenTasks(file_data).data
+        test_call = tasks.GetPriority(test_data)
+        assert test_call.task["id"] == 5102
+
+    def test_when_called_higest_priority_task_is_returned_performatvely(
+        self
+    ) -> None:
+        """R-BICEP: Performance."""
+        with open("tests/data_mocks/tasks_2.json", "r") as file:
+            file_data = json.load(file)
+        test_data = tasks.FilterOpenTasks(file_data).data
+        start = time()
+        tasks.GetPriority(test_data)
+        end = time()
+        dif = end - start
+        logger.debug(dif)
+        assert dif <= 1
+
+
+class TestGetNextTask:
+    """Test the get Next Task class."""
+
+    def test_when_next_task_is_identified_then_print_task(
+        self,
+        capsys,
+        mocker
+    ) -> None:
+        """R-BICEP: Right."""
+        def mock_file_path():
+            return "tests/data_mocks/tasks_1.json"
+        mocker.patch.object(
+            catalogue.Check,
+            "_file_path_builder",
+            return_value=mock_file_path()
+        )
+        tasks.GetNextTask().print_task()
+        captured = capsys.readouterr()
+        assert "5102" in captured.out
