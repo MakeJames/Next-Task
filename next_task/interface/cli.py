@@ -5,7 +5,7 @@ import os
 import sys
 
 import next_task
-from next_task.services import catalogue, tasks
+from next_task.services import store, tasks
 
 
 def main(argv=None):
@@ -51,7 +51,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     if args.check_file:
-        catalogue.Check()
+        store.Check()
         sys.exit()
     if args.add:
         tasks.CreateTask(args.add)

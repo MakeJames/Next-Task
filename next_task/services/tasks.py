@@ -6,7 +6,7 @@ import sys
 
 from loguru import logger
 
-from next_task.services import catalogue
+from next_task.services import store
 
 
 class FetchLastId:
@@ -49,7 +49,7 @@ class GetTasks:
 
     def __init__(self):
         """Instansiate the class."""
-        with open(catalogue.Check().file, "r") as file:
+        with open(store.Check().file, "r") as file:
             self.file_data = json.load(file)
 
 
@@ -58,7 +58,7 @@ class WriteTask:
 
     def __init__(self, data: dict):
         """Instansiate the Write Class."""
-        self.file = catalogue.Check().file
+        self.file = store.Check().file
         self.data = data
         self.validate_data_input()
         logger.debug(

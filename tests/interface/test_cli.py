@@ -5,7 +5,7 @@ import json
 
 from pytest_mock import mocker
 
-from next_task.services import catalogue
+from next_task.services import store
 from next_task.interface import cli
 from next_task.services import tasks
 from next_task import __version__
@@ -56,7 +56,7 @@ class TestCliMainMethod:
             return "tests/data_mocks/tasks_1.json"
 
         mocker.patch.object(
-            catalogue.Check,
+            store.Check,
             "_file_path_builder",
             return_value=mock_file_path()
         )
@@ -79,7 +79,7 @@ class TestCliMainMethod:
             return "tests/data_mocks/tasks_1.json"
 
         mocker.patch.object(
-            catalogue.Check,
+            store.Check,
             "_file_path_builder",
             return_value=mock_file()
         )
@@ -97,7 +97,7 @@ class TestCliMainMethod:
             return "tests/data_mocks/tasks_1.json"
 
         mocker.patch.object(
-            catalogue.Check,
+            store.Check,
             "_file_path_builder",
             return_value=mock_file_path()
         )

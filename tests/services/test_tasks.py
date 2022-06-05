@@ -8,7 +8,7 @@ from pytest_mock import mocker
 import datetime
 from time import time
 
-from next_task.services import catalogue
+from next_task.services import store
 from next_task.services import tasks
 
 
@@ -86,7 +86,7 @@ class TestCreateTask:
         def mock_file_path():
             return "tests/data_mocks/tasks_2.json"
         mocker.patch.object(
-            catalogue.Check,
+            store.Check,
             "_file_path_builder",
             return_value=mock_file_path()
         )
@@ -94,7 +94,7 @@ class TestCreateTask:
     def test_when_there_are_no_tasks_then_id_is_one(self):
         """R-BICEP: Right."""
         test_call = tasks.CreateTask("test_call")
-        with open(catalogue.Check().file, "r") as file:
+        with open(store.Check().file, "r") as file:
             file_data = json.load(file)
             print(json.dumps(file_data, indent=4))
 
@@ -185,7 +185,7 @@ class TestGetNextTask:
         def mock_file_path():
             return "tests/data_mocks/tasks_1.json"
         mocker.patch.object(
-            catalogue.Check,
+            store.Check,
             "_file_path_builder",
             return_value=mock_file_path()
         )
@@ -244,7 +244,7 @@ class TestSkipTask:
             return "tests/data_mocks/tasks_1.json"
 
         mocker.patch.object(
-            catalogue.Check,
+            store.Check,
             "_file_path_builder",
             return_value=mock_file()
         )

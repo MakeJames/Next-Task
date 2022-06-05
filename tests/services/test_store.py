@@ -6,7 +6,7 @@ from loguru import logger
 from pathlib import Path
 from pytest_mock import mocker
 
-from next_task.services import catalogue
+from next_task.services import store
 
 
 class TestCheckClass:
@@ -14,7 +14,7 @@ class TestCheckClass:
 
     def test_when_task_file_does_not_exit_then_file_is_created(self) -> None:
         """R-BICEP: Right."""
-        _file = catalogue.Check()
+        _file = store.Check()
         with open(_file.file, "r") as file:
             _file_data = json.load(file)
         assert Path(_file.file).exists() \
@@ -29,7 +29,7 @@ class TestCheckClass:
         def mock_file_path():
             return "tests/data_mocks/tasks_1.json"
         mocker.patch.object(
-            catalogue.Check,
+            store.Check,
             "_file_path_builder",
             return_value=mock_file_path()
         )
