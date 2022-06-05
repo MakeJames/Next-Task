@@ -73,17 +73,15 @@ class TestCliMainMethod:
 
     @pytest.fixture
     def mock_get_next_task(self, mocker):
-        """Mock the GetNextTask class."""
+        """Mock the catalogue check, file_path builder method."""
 
-        def ordered_tasks():
-            with open("tests/data_mocks/tasks_1.json", "r") as file:
-                file_data = json.load(file)
-            return file_data
+        def mock_file():
+            return "tests/data_mocks/tasks_1.json"
 
         mocker.patch.object(
-            tasks.GetNextTask,
-            "get_file_data",
-            return_value=ordered_tasks()
+            catalogue.Check,
+            "_file_path_builder",
+            return_value=mock_file()
         )
 
     def test_when_called_task_is_skipped(

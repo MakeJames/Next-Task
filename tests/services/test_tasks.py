@@ -1,5 +1,6 @@
 """Test the methods of the tasks module."""
 
+from enum import auto
 import pytest
 import json
 from loguru import logger
@@ -237,17 +238,15 @@ class TestSkipTask:
 
     @pytest.fixture
     def mock_get_next_task(self, mocker):
-        """Mock the GetNextTask class."""
+        """Mock the catalogue check, file_path builder method."""
 
-        def ordered_tasks():
-            with open("tests/data_mocks/tasks_1.json", "r") as file:
-                file_data = json.load(file)
-            return file_data
+        def mock_file():
+            return "tests/data_mocks/tasks_1.json"
 
         mocker.patch.object(
-            tasks.GetNextTask,
-            "get_file_data",
-            return_value=ordered_tasks()
+            catalogue.Check,
+            "_file_path_builder",
+            return_value=mock_file()
         )
 
     def test_when_called_task_is_skipped(
@@ -266,3 +265,27 @@ class TestSkipTask:
             "%Y-%m-%d %H:%M:%S"
         )
         assert due_1 < due_2
+
+
+class TestWriteTask:
+    """Test the methods of the Write Task class."""
+
+    @pytest.fixture(autouse=True)
+    def mock_json_dump(self, mocker):
+        """Ensure that data is not added to test file."""
+        mocker.patch("json.dump")
+
+    def test_when_dictionary_is_empty_then_error(self) -> None:
+        """R-BICEP: Error."""
+        with pytest.raises(AttributeError):
+            tasks.WriteTask(data={})
+
+    def test_when_task_list_is_empty_then_error(self) -> None:
+        """R-BICEP: Error."""
+        with pytest.raises(AttributeError):
+            tasks.WriteTask(data={"tasks": []})
+
+    def test_when_wrong_type_is_supplied_then_error(self) -> None:
+        """R-BICEP: Error."""
+        with pytest.raises(TypeError):
+            tasks.WriteTask(True)

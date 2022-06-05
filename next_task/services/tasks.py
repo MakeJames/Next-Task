@@ -44,45 +44,78 @@ class FetchLastId:
             self.id = last_task["id"]
 
 
+class GetTasks:
+    """Opens up the task file and returns the json as a python dictionary."""
+
+    def __init__(self):
+        """Instansiate the class."""
+        with open(catalogue.Check().file, "r") as file:
+            self.file_data = json.load(file)
+
+
+class WriteTask:
+    """Write to .tasks.json."""
+
+    def __init__(self, data: dict):
+        """Instansiate the Write Class."""
+        self.file = catalogue.Check().file
+        self.data = data
+        self.validate_data_input()
+        logger.debug(
+            f"Writing {len(self.data['tasks'])} tasks to {self.file}"
+        )
+        with open(self.file, "r+") as file:
+            file.seek(0)
+            json.dump(self.data, file, indent=4)
+
+    def validate_data_input(self):
+        """Provide defensive steps to guard against deletion of task data."""
+        if self.data == {}:
+            logger.warning(
+                "Task data is empty, this opperation will ",
+                "override all data in .tasks.json"
+            )
+            # TODO: call template function
+            raise AttributeError("Task data is empty.")
+        if self.data["tasks"] == []:
+            logger.warning(
+                "This oppoeration will overide all data in .tasks.json"
+            )
+            # TODO: call an 'are you sure' function
+            raise AttributeError("Task data is empty.")
+
+
 class CreateTask:
     """Setup class to create the structure of the json file."""
 
     def __init__(self, summary: str):
         """Instansiate the Write task class."""
         self.summary = summary
-        self.now = datetime.datetime.now()
-        self.due = (self.now + datetime.timedelta(days=7))
-        self._file = open(catalogue.Check().file, "r+")
-        self.file_data = json.load(self._file)
+        self.file_data = GetTasks().file_data
         self.id = (FetchLastId(self.file_data).id + 1)
         self.task_formatter()
-        self.write()
-
-    def task_formatter(self):
-        """Build task dictionary."""
-        self.data = {
-            "id": self.id,
-            "summary": self.summary,
-            "created": self.now.strftime("%Y-%m-%d %H:%M:%S"),
-            "due": self.due.strftime("%Y-%m-%d %H:%M:%S"),
-            "status": "open"
-        }
-        logger.debug(
-            f"Creating task {self.data['id']}: {self.data['summary']}" +
-            f" - {self.data['created']}"
-        )
-
-    def write(self):
-        """Write the task to the task file."""
-        logger.debug("writing task to .tasks.json")
-        self.file_data["tasks"].append(self.data)
-        self._file.seek(0)
-        json.dump(self.file_data, self._file, indent=4)
-        self._file.close()
+        WriteTask(self.file_data)
         print(
             f"Created task {self.id}: {self.summary} " +
             f"- Due: {self.due.strftime('%Y-%m-%d %H:%M:%S')}"
         )
+
+    def task_formatter(self):
+        """Build task dictionary."""
+        now = datetime.datetime.now()
+        self.due = now + datetime.timedelta(days=7)
+        task = {
+            "id": self.id,
+            "summary": self.summary,
+            "created": now.strftime("%Y-%m-%d %H:%M:%S"),
+            "due": self.due.strftime("%Y-%m-%d %H:%M:%S"),
+            "status": "open"
+        }
+        logger.debug(
+            f"Creating task {task['id']}: {task['summary']}" +
+            f" - {task['created']}"
+        )
+        self.file_data["tasks"].append(task)
 
 
 class FilterOpenTasks:
@@ -98,14 +131,13 @@ class FilterOpenTasks:
 class GetPriority:
     """Return the next priority task."""
 
-    def __init__(self, data):
+    def __init__(self, task_data):
         """Instansiate the class."""
-        self.data = data
+        self.data = task_data
         self.data.sort(key=self.calculate)
 
     def calculate(self, item):
         """Compound function of the due date and created date."""
-        # TODO: with a skip function, this should divide by skips
         # TODO: priority should be inherited from project
         created = datetime.datetime.strptime(
             item["created"],
@@ -125,16 +157,10 @@ class GetNextTask:
 
     def __init__(self):
         """Instansiate the get task wrapper class."""
-        self.file_data = self.get_file_data()
+        self.file_data = GetTasks().file_data
         self.open_tasks = FilterOpenTasks(self.file_data).data
         self.ordered_tasks = GetPriority(self.open_tasks).data
         self.get_task()
-
-    def get_file_data(self):
-        """Open and return file data from .tasks.json."""
-        with open(catalogue.Check().file, "r") as file:
-            file_data = json.load(file)
-        return file_data
 
     def get_task(self):
         """Get the next task, handles the error of no tasks."""
@@ -178,9 +204,8 @@ class SkipTask:
         self.all_tasks = GetNextTask()
         self.task = self.all_tasks.ordered_tasks[0]
         self.update_file_data()
-        self.write()
+        WriteTask(self.all_tasks.file_data)
         GetNextTask().print_task()
-        # TODO: Write and get new Task
 
     def update_file_data(self):
         """Find task and update due date."""
@@ -196,10 +221,3 @@ class SkipTask:
                     f"now due: {tasks[index]['due']}"
                 )
                 break
-
-    def write(self):
-        """Write to file."""
-        print("skipping...")
-        with open(catalogue.Check().file, "r+") as file:
-            logger.debug("Updating tasks.json with new task data.")
-            json.dump(self.all_tasks.file_data, file, indent=4)
