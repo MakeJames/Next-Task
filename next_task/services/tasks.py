@@ -6,42 +6,7 @@ import sys
 
 from loguru import logger
 
-from next_task.services import store
-
-
-class FetchLastId:
-    """Identify and return the id of the last task."""
-
-    def __init__(self, data: dict):
-        """Instansiate the class."""
-        self.data = data
-        self.check_formating()
-        self.fetch_id()
-
-    def check_formating(self):
-        """Validate that .tasks.json file meets the expected format."""
-        # TODO: These errors should promt user to reformat .tasks.json
-        # Consider that if an empty or formatted string gets passed in
-        # then none of these checks explicitly guard against it. How
-        # would this impact the reformatting of the file data
-        if self.data == {}:
-            raise NameError(".tasks.json not formatted.")
-
-        if "tasks" not in self.data:
-            logger.debug(self.data)
-            raise KeyError("tasks not in dictonary.")
-
-        if type(self.data["tasks"]) is not list:
-            logger.debug(type(self.data["tasks"]))
-            raise AttributeError(".tasks.json not formatted correctly.")
-
-    def fetch_id(self):
-        """Return the id of the last task."""
-        if self.data["tasks"] == []:
-            self.id = 0
-        else:
-            last_task = self.data["tasks"][-1]
-            self.id = last_task["id"]
+from next_task.services import models, store
 
 
 class CreateTask:
@@ -51,7 +16,7 @@ class CreateTask:
         """Instansiate the Write task class."""
         self.summary = summary
         self.file_data = store.GetTasks().file_data
-        self.id = (FetchLastId(self.file_data).id + 1)
+        self.id = (models.FetchLastId(self.file_data).id + 1)
         self.task_formatter()
         store.WriteTask(self.file_data)
         print(
@@ -77,48 +42,14 @@ class CreateTask:
         self.file_data["tasks"].append(task)
 
 
-class FilterOpenTasks:
-    """Filter for open tasks."""
-
-    def __init__(self, data):
-        """Instansiate Filter Open Tasks class."""
-        self.data = [
-            item for item in data["tasks"] if item['status'] == 'open'
-        ]
-
-
-class GetPriority:
-    """Return the next priority task."""
-
-    def __init__(self, task_data):
-        """Instansiate the class."""
-        self.data = task_data
-        self.data.sort(key=self.calculate)
-
-    def calculate(self, item):
-        """Compound function of the due date and created date."""
-        # TODO: priority should be inherited from project
-        created = datetime.datetime.strptime(
-            item["created"],
-            "%Y-%m-%d %H:%M:%S"
-        ).timestamp()
-        due = datetime.datetime.strptime(
-            item["due"],
-            "%Y-%m-%d %H:%M:%S"
-        ).timestamp()
-        call = created * (due - created) * 0.6
-        # logger.debug(f"Priority: {call}")
-        return call
-
-
 class GetNextTask:
     """Print the next task to the command line."""
 
     def __init__(self):
         """Instansiate the get task wrapper class."""
         self.file_data = store.GetTasks().file_data
-        self.open_tasks = FilterOpenTasks(self.file_data).data
-        self.ordered_tasks = GetPriority(self.open_tasks).data
+        self.open_tasks = models.FilterOpenTasks(self.file_data).data
+        self.ordered_tasks = models.GetPriority(self.open_tasks).data
         self.get_task()
 
     def get_task(self):
@@ -141,20 +72,6 @@ class GetNextTask:
         print(f"due {self.task['due']}")
 
 
-class UpdateDueDate:
-    """Update Task due date."""
-
-    def __init__(self, task):
-        """Update the due date on a task."""
-        self.task = task
-        self.date = datetime.datetime.strptime(
-            self.task["due"],
-            "%Y-%m-%d %H:%M:%S"
-        )
-        self.new_date = self.date + datetime.timedelta(days=1)
-        self.task["due"] = self.new_date.strftime("%Y-%m-%d %H:%M:%S")
-
-
 class SkipTask:
     """Skip the next task."""
 
@@ -166,6 +83,15 @@ class SkipTask:
         store.WriteTask(self.all_tasks.file_data)
         GetNextTask().print_task()
 
+    def update_due_date(self):
+        """Update Task due date."""
+        self.date = datetime.datetime.strptime(
+            self.task["due"],
+            "%Y-%m-%d %H:%M:%S"
+        )
+        self.new_date = self.date + datetime.timedelta(days=1)
+        self.task["due"] = self.new_date.strftime("%Y-%m-%d %H:%M:%S")
+
     def update_file_data(self):
         """Find task and update due date."""
         tasks = self.all_tasks.file_data["tasks"]
@@ -173,7 +99,8 @@ class SkipTask:
         for index in range(len(tasks)):
 
             if tasks[index]["id"] == self.task["id"]:
-                tasks[index] = UpdateDueDate(self.task).task
+                self.update_due_date()
+                tasks[index] = self.task
 
                 print(
                     f"updated {tasks[index]['id']}, ",
