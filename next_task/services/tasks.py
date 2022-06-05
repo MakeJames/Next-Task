@@ -44,57 +44,16 @@ class FetchLastId:
             self.id = last_task["id"]
 
 
-class GetTasks:
-    """Opens up the task file and returns the json as a python dictionary."""
-
-    def __init__(self):
-        """Instansiate the class."""
-        with open(store.Check().file, "r") as file:
-            self.file_data = json.load(file)
-
-
-class WriteTask:
-    """Write to .tasks.json."""
-
-    def __init__(self, data: dict):
-        """Instansiate the Write Class."""
-        self.file = store.Check().file
-        self.data = data
-        self.validate_data_input()
-        logger.debug(
-            f"Writing {len(self.data['tasks'])} tasks to {self.file}"
-        )
-        with open(self.file, "r+") as file:
-            file.seek(0)
-            json.dump(self.data, file, indent=4)
-
-    def validate_data_input(self):
-        """Provide defensive steps to guard against deletion of task data."""
-        if self.data == {}:
-            logger.warning(
-                "Task data is empty, this opperation will ",
-                "override all data in .tasks.json"
-            )
-            # TODO: call template function
-            raise AttributeError("Task data is empty.")
-        if self.data["tasks"] == []:
-            logger.warning(
-                "This oppoeration will overide all data in .tasks.json"
-            )
-            # TODO: call an 'are you sure' function
-            raise AttributeError("Task data is empty.")
-
-
 class CreateTask:
     """Setup class to create the structure of the json file."""
 
     def __init__(self, summary: str):
         """Instansiate the Write task class."""
         self.summary = summary
-        self.file_data = GetTasks().file_data
+        self.file_data = store.GetTasks().file_data
         self.id = (FetchLastId(self.file_data).id + 1)
         self.task_formatter()
-        WriteTask(self.file_data)
+        store.WriteTask(self.file_data)
         print(
             f"Created task {self.id}: {self.summary} " +
             f"- Due: {self.due.strftime('%Y-%m-%d %H:%M:%S')}"
@@ -157,7 +116,7 @@ class GetNextTask:
 
     def __init__(self):
         """Instansiate the get task wrapper class."""
-        self.file_data = GetTasks().file_data
+        self.file_data = store.GetTasks().file_data
         self.open_tasks = FilterOpenTasks(self.file_data).data
         self.ordered_tasks = GetPriority(self.open_tasks).data
         self.get_task()
@@ -204,7 +163,7 @@ class SkipTask:
         self.all_tasks = GetNextTask()
         self.task = self.all_tasks.ordered_tasks[0]
         self.update_file_data()
-        WriteTask(self.all_tasks.file_data)
+        store.WriteTask(self.all_tasks.file_data)
         GetNextTask().print_task()
 
     def update_file_data(self):

@@ -37,3 +37,27 @@ class TestCheckClass:
         with open("tests/data_mocks/tasks_1.json", "r") as file:
             file_data = json.load(file)
         assert len(file_data["tasks"]) == 4
+
+
+class TestWriteTask:
+    """Test the methods of the Write Task class."""
+
+    @pytest.fixture(autouse=True)
+    def mock_json_dump(self, mocker):
+        """Ensure that data is not added to test file."""
+        mocker.patch("json.dump")
+
+    def test_when_dictionary_is_empty_then_error(self) -> None:
+        """R-BICEP: Error."""
+        with pytest.raises(AttributeError):
+            store.WriteTask(data={})
+
+    def test_when_task_list_is_empty_then_error(self) -> None:
+        """R-BICEP: Error."""
+        with pytest.raises(AttributeError):
+            store.WriteTask(data={"tasks": []})
+
+    def test_when_wrong_type_is_supplied_then_error(self) -> None:
+        """R-BICEP: Error."""
+        with pytest.raises(TypeError):
+            store.WriteTask(True)

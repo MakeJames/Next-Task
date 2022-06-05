@@ -265,27 +265,3 @@ class TestSkipTask:
             "%Y-%m-%d %H:%M:%S"
         )
         assert due_1 < due_2
-
-
-class TestWriteTask:
-    """Test the methods of the Write Task class."""
-
-    @pytest.fixture(autouse=True)
-    def mock_json_dump(self, mocker):
-        """Ensure that data is not added to test file."""
-        mocker.patch("json.dump")
-
-    def test_when_dictionary_is_empty_then_error(self) -> None:
-        """R-BICEP: Error."""
-        with pytest.raises(AttributeError):
-            tasks.WriteTask(data={})
-
-    def test_when_task_list_is_empty_then_error(self) -> None:
-        """R-BICEP: Error."""
-        with pytest.raises(AttributeError):
-            tasks.WriteTask(data={"tasks": []})
-
-    def test_when_wrong_type_is_supplied_then_error(self) -> None:
-        """R-BICEP: Error."""
-        with pytest.raises(TypeError):
-            tasks.WriteTask(True)

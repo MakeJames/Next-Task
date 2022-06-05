@@ -29,6 +29,10 @@ def main(argv=None):
     parser.add_argument(
         "-a",
         "--add",
+        help="""
+            Create a task in the format --add 'Your Task name'.
+            Adds one task at a time.
+        """,
         type=str
     )
     parser.add_argument(
