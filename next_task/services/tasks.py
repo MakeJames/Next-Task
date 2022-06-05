@@ -60,9 +60,9 @@ class GetNextTask:
         except IndexError:
             logger.debug("list index 0 out of range")
             print(
-                "Congratulations!\n",
-                "There are no tasks on your to do list, ",
-                "take a break and have a cup of tea."
+                "Congratulations!\nThere are no tasks",
+                "on your to do list, take a break",
+                "and have a cup of tea."
             )
             sys.exit()
 
@@ -105,5 +105,43 @@ class SkipTask:
                 print(
                     f"updated {tasks[index]['id']}, ",
                     f"now due: {tasks[index]['due']}"
+                )
+                break
+
+
+class MarkAsClosed:
+    """Mark a task as closed."""
+
+    def __init__(self):
+        """Instansiate the class."""
+        self.all_tasks = GetNextTask()
+        self.task = self.all_tasks.task
+        self.task["status"] = "closed"
+        self.now = datetime.datetime.now()
+        self.task.update(
+            {"completed": self.now.strftime("%Y-%m-%d %H:%M:%S")}
+        )
+        logger.debug(f"Updating {self.task['id']}: {self.task['summary']}'")
+        self.update_file_data()
+
+        store.WriteTask(self.all_tasks.file_data)
+
+    def update_file_data(self):
+        """Find task and update."""
+        self.tasks = self.all_tasks.file_data
+        logger.debug(f"{len(self.tasks['tasks'])} tasks in file data")
+
+        for index in range(len(self.tasks["tasks"])):
+            logger.debug(f"checking index {index} of task data")
+            if self.tasks["tasks"][index]["id"] == self.task["id"]:
+                self.tasks["tasks"][index] = self.task
+                logger.debug(
+                    f"{self.tasks['tasks'][index]['id']} - " +
+                    f"{self.tasks['tasks'][index]['status']}: " +
+                    f"{self.tasks['tasks'][index]['completed']}"
+                )
+                print(
+                    f"updated {self.tasks['tasks'][index]['id']}, ",
+                    f"completed: {self.tasks['tasks'][index]['due']}"
                 )
                 break

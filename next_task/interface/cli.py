@@ -51,6 +51,14 @@ def main(argv=None):
         """,
         action="store_true"
     )
+    parser.add_argument(
+        "-d",
+        "--done",
+        help="""
+            Mark the current task as done
+        """,
+        action="store_true"
+    )
 
     args = parser.parse_args(argv)
 
@@ -65,6 +73,9 @@ def main(argv=None):
         sys.exit()
     if args.skip:
         tasks.SkipTask()
+        sys.exit()
+    if args.done:
+        tasks.MarkAsClosed()
         sys.exit()
 
 

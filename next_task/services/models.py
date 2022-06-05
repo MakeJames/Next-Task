@@ -50,7 +50,7 @@ class FilterOpenTasks:
     def __init__(self, data):
         """Instansiate Filter Open Tasks class."""
         self.data = [
-            item for item in data["tasks"] if item['status'] == 'open'
+            item for item in data["tasks"] if item["status"] == "open"
         ]
 
 

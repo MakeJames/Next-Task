@@ -120,3 +120,35 @@ class TestSkipTask:
             "%Y-%m-%d %H:%M:%S"
         )
         assert due_1 < due_2
+
+
+class TestMarkAsClosedClass:
+    """Test the methods of the Mark as closed class."""
+
+    @pytest.fixture
+    def mock_json_dump(self, mocker):
+        """Mock the write aspect of the writer function."""
+        mocker.patch("json.dump")
+
+    @pytest.fixture
+    def mock_get_next_task(self, mocker):
+        """Mock the catalogue check, file_path builder method."""
+
+        def mock_file():
+            return "tests/data_mocks/tasks_1.json"
+
+        mocker.patch.object(
+            store.Check,
+            "_file_path_builder",
+            return_value=mock_file()
+        )
+
+    def test_when_called_task_is_closed(
+        self,
+        mock_get_next_task,
+        mock_json_dump
+    ) -> None:
+        """R-BICEP: Right."""
+        test_call = tasks.MarkAsClosed()
+        assert test_call.task["status"] == "closed" \
+            and test_call.all_tasks.file_data["tasks"][3]["status"] == "closed"

@@ -84,7 +84,7 @@ class TestCliMainMethod:
             return_value=mock_file()
         )
 
-    def test_when_called_task_is_skipped(
+    def test_when_skipped_next_task_is_returned(
         self,
         mocker,
         mock_get_next_task,
@@ -106,4 +106,17 @@ class TestCliMainMethod:
             cli.main(["--skip"])
         captured = capsys.readouterr()
         assert "updated 5102,  now due: 2022-06-13 09:00:28" \
+            in captured.out
+
+    def test_when_closed_task_is_closed(
+        self,
+        mock_get_next_task,
+        mock_json_dump,
+        capsys
+    ) -> None:
+        """R-BICEP: Right."""
+        with pytest.raises(SystemExit):
+            cli.main(["--done"])
+        captured = capsys.readouterr()
+        assert "updated 5102" \
             in captured.out
