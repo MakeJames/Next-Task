@@ -1,9 +1,21 @@
 """Service module containing methods relating to the task file."""
 
 import json
+import sys
 from pathlib import Path
 
 from loguru import logger
+
+
+class LoadTemplate:
+    """Load the template file."""
+
+    def __init__(self):
+        """Instansiate the class."""
+        with open("next_task/services/template.json", "r") as file:
+            self.data = json.load(file)
+        if self.data == {}:
+            sys.exit()
 
 
 class Check:
@@ -25,11 +37,7 @@ class Check:
             # TODO: Move to a template write class
             with open(self.file, "a+") as file:
                 file.seek(0)
-                json.dump(
-                    {"tasks": []},
-                    file,
-                    indent=4
-                )
+                json.dump(LoadTemplate().data, file, indent=4)
             print("created .tasks.json")
         else:
             logger.debug(f"Task file path exists: {self.file}")

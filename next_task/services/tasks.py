@@ -16,6 +16,7 @@ class CreateTask:
         """Instansiate the Write task class."""
         self.summary = summary
         self.file_data = store.GetTasks().file_data
+        # TODO: call the check formatting class
         self.id = (models.FetchLastId(self.file_data).id + 1)
         self.task_formatter()
         store.WriteTask(self.file_data)

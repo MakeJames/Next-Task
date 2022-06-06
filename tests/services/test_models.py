@@ -31,13 +31,6 @@ class TestFetchLastIdClass:
         id = models.FetchLastId(data).id
         assert id == 2
 
-    def test_when_data_is_an_empty_string_then_error(self) -> None:
-        """R-BICEP: Error."""
-        with pytest.raises(KeyError):
-            # This is currently erroring on tasks not being in the data
-            data = ""
-            models.FetchLastId(data)
-
     def test_when_data_is_a_string_then_error(self) -> None:
         """R-BICEP: Error."""
         with pytest.raises(TypeError):
@@ -50,18 +43,6 @@ class TestFetchLastIdClass:
         with pytest.raises(TypeError):
             # currently caught when trying to itterate through a string
             data = 1000
-            models.FetchLastId(data)
-
-    def test_when_data_is_empty_dictionary_then_error(self) -> None:
-        """R-BICEP: Error."""
-        with pytest.raises(NameError):
-            data = {}
-            models.FetchLastId(data)
-
-    def test_when_tasks_data_is_not_a_list_then_error(self) -> None:
-        """R-BICEP: Error."""
-        with pytest.raises(AttributeError):
-            data = {"tasks": 1}
             models.FetchLastId(data)
 
     def test_when_tasks_is_not_in_data_then_error(self) -> None:
@@ -129,3 +110,87 @@ class TestGetPriority:
         dif = end - start
         logger.debug(dif)
         assert dif <= 1
+
+
+class TestCheckTasks:
+    """Test the Methods of the Check Tasks class."""
+
+    def test_when_data_is_empty_dict_then_data_is_reformated(self) -> None:
+        """R-BICEP: Right."""
+        data = {}
+        assert "tasks" in models.CheckTasks(data).data
+
+    def test_when_tasks_is_not_in_dict_then_data_is_reformated(self) -> None:
+        """R-BICEP: Right."""
+        data = {"tests": 400}
+        assert "tasks" in models.CheckTasks(data).data
+
+    def test_when_tasks_data_is_not_a_list_then_data_reformated(self) -> None:
+        """R-BICEP: Right."""
+        data = {"tasks": 1}
+        assert type(models.CheckTasks(data).data["tasks"]) == list
+
+    def test_when_data_is_an_empty_string_then_dict_reformatted(self) -> None:
+        """R-BICEP: Right."""
+        data = ""
+        assert type(models.CheckTasks(data).data) == dict
+
+    def test_when_data_is_present_then_data_is_not_overwritten(self) -> None:
+        """R-BICEP: Right."""
+        with open("tests/data_mocks/tasks_1.json", "r") as file:
+            file_data = json.load(file)
+        assert len(models.CheckTasks(file_data).data["tasks"]) \
+            == len(file_data["tasks"])
+
+    def test_when_data_is_present_then_data_is_not_overwritten(self) -> None:
+        """R-BICEP: Right."""
+        with open("tests/data_mocks/tasks_1.json", "r") as file:
+            file_data = json.load(file)
+        assert len(models.CheckTasks(file_data).data["tasks"]) \
+            == len(file_data["tasks"])
+
+    def test_when_tasks_are_empty_then_data_is_retained(self) -> None:
+        """R-BICEP: Right."""
+        with open("tests/data_mocks/tasks_3.json", "r") as file:
+            file_data = json.load(file)
+        assert len(models.CheckTasks(file_data).data["completed_tasks"]) \
+            == len(file_data["completed_tasks"])
+
+    def test_when_checked_pre_0_3_0_files_are_compatable(self) -> None:
+        """R-BICEP: Right."""
+        with open("tests/data_mocks/0-3-0-tasks.json", "r") as file:
+            file_data = json.load(file)
+        assert len(models.CheckTasks(file_data).data["tasks"]) \
+            == len(file_data["tasks"])
+
+
+class TestCheckTaskCount:
+    """Test the check task count class."""
+
+    def test_when_checked_pre_0_3_0_files_are_compatable(self) -> None:
+        """R-BICEP: Right."""
+        with open("tests/data_mocks/0-3-0-tasks.json", "r") as file:
+            file_data = json.load(file)
+        assert models.CheckTaskCount(file_data).data["task_count"] == 5102
+
+
+class TestCheckCompleted:
+    """Test the check migration of completed issues to a completed list."""
+
+    def test_when_checked_pre_0_3_0_files_are_compatable(self) -> None:
+        """R-BICEP: Right."""
+        with open("tests/data_mocks/0-3-0-tasks.json", "r") as file:
+            file_data = json.load(file)
+        test = models.CheckCompleted(file_data).data
+        assert len(test["completed_tasks"]) == 2
+
+
+class TestCheckCompleted:
+    """Test the check migration of completed issues to a completed list."""
+
+    def test_when_checked_pre_0_3_0_files_are_compatable(self) -> None:
+        """R-BICEP: Right."""
+        with open("tests/data_mocks/0-3-0-tasks.json", "r") as file:
+            file_data = json.load(file)
+        test = models.CheckFormatting(file_data).data
+        assert len(test["completed_tasks"]) == 2

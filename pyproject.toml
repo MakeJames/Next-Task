@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "next_task"
-version = "0.3.0"
+version = "0.3.1"
 description = "A barebones task management solution"
 authors = ["J-McB <jmcbean3@gmail.com>"]
 license = "MIT"
