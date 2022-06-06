@@ -16,8 +16,8 @@ class CreateTask:
         """Instansiate the Write task class."""
         self.summary = summary
         self.file_data = store.GetTasks().file_data
-        # TODO: call the check formatting class
-        self.id = (models.FetchLastId(self.file_data).id + 1)
+        self.id = self.file_data["task_count"] + 1
+        self.file_data["task_count"] = self.id
         self.task_formatter()
         store.WriteTask(self.file_data)
         print(
@@ -49,14 +49,13 @@ class GetNextTask:
     def __init__(self):
         """Instansiate the get task wrapper class."""
         self.file_data = store.GetTasks().file_data
-        self.open_tasks = models.FilterOpenTasks(self.file_data).data
-        self.ordered_tasks = models.GetPriority(self.open_tasks).data
+        self.ordered_tasks = models.GetPriority(self.file_data).data
         self.get_task()
 
     def get_task(self):
         """Get the next task, handles the error of no tasks."""
         try:
-            self.task = self.ordered_tasks[0]
+            self.task = self.ordered_tasks["tasks"][0]
             logger.debug(f"{self.task['id']}: {self.task['summary']}")
         except IndexError:
             logger.debug("list index 0 out of range")
@@ -79,7 +78,7 @@ class SkipTask:
     def __init__(self):
         """Instansiate the class."""
         self.all_tasks = GetNextTask()
-        self.task = self.all_tasks.ordered_tasks[0]
+        self.task = self.all_tasks.task
         self.update_file_data()
         store.WriteTask(self.all_tasks.file_data)
         GetNextTask().print_task()
@@ -115,34 +114,22 @@ class MarkAsClosed:
 
     def __init__(self):
         """Instansiate the class."""
-        self.all_tasks = GetNextTask()
-        self.task = self.all_tasks.task
+        self.get_tasks = GetNextTask()
+        self.task = self.get_tasks.task
+        self.file_data = self.get_tasks.file_data
+        self.file_data["tasks"].remove(self.task)
+        self.update()
+        self.file_data["completed_tasks"].append(self.task)
+        logger.debug(f"removed {self.task['id']} from task data")
+        store.WriteTask(self.file_data)
+
+    def update(self):
+        """Update the task."""
         self.task["status"] = "closed"
-        self.now = datetime.datetime.now()
-        self.task.update(
-            {"completed": self.now.strftime("%Y-%m-%d %H:%M:%S")}
-        )
+        now = datetime.datetime.now()
+        self.task["completed"] = now.strftime("%Y-%m-%d %H:%M:%S")
         logger.debug(f"Updating {self.task['id']}: {self.task['summary']}'")
-        self.update_file_data()
-
-        store.WriteTask(self.all_tasks.file_data)
-
-    def update_file_data(self):
-        """Find task and update."""
-        self.tasks = self.all_tasks.file_data
-        logger.debug(f"{len(self.tasks['tasks'])} tasks in file data")
-
-        for index in range(len(self.tasks["tasks"])):
-            logger.debug(f"checking index {index} of task data")
-            if self.tasks["tasks"][index]["id"] == self.task["id"]:
-                self.tasks["tasks"][index] = self.task
-                logger.debug(
-                    f"{self.tasks['tasks'][index]['id']} - " +
-                    f"{self.tasks['tasks'][index]['status']}: " +
-                    f"{self.tasks['tasks'][index]['completed']}"
+        print(
+                    f"updated {self.task['id']}, ",
+                    f"completed: {self.task['completed']}"
                 )
-                print(
-                    f"updated {self.tasks['tasks'][index]['id']}, ",
-                    f"completed: {self.tasks['tasks'][index]['due']}"
-                )
-                break

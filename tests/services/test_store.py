@@ -36,7 +36,7 @@ class TestCheckClass:
         captured = capsys.readouterr()
         with open("tests/data_mocks/tasks_1.json", "r") as file:
             file_data = json.load(file)
-        assert len(file_data["tasks"]) == 4
+        assert len(file_data["tasks"]) == 2
 
 
 class TestWriteTask:
@@ -47,17 +47,14 @@ class TestWriteTask:
         """Ensure that data is not added to test file."""
         mocker.patch("json.dump")
 
-    def test_when_dictionary_is_empty_then_error(self) -> None:
+    def test_when_dictionary_is_empty_then_data_corrected(self) -> None:
         """R-BICEP: Error."""
-        with pytest.raises(AttributeError):
-            store.WriteTask(data={})
+        assert "tasks" in store.WriteTask(data={}).data
 
-    def test_when_task_list_is_empty_then_error(self) -> None:
+    def test_when_task_list_is_empty_then_file_format_corrected(self) -> None:
         """R-BICEP: Error."""
-        with pytest.raises(AttributeError):
-            store.WriteTask(data={"tasks": []})
+        assert "completed_tasks" in store.WriteTask(data={"tasks": []}).data
 
     def test_when_wrong_type_is_supplied_then_error(self) -> None:
         """R-BICEP: Error."""
-        with pytest.raises(TypeError):
-            store.WriteTask(True)
+        assert "tasks" in store.WriteTask(True).data

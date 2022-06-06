@@ -6,6 +6,8 @@ from pathlib import Path
 
 from loguru import logger
 
+from next_task.services import models
+
 
 class LoadTemplate:
     """Load the template file."""
@@ -34,7 +36,6 @@ class Check:
         """Check that the path exists."""
         if not Path(self.file).exists():
             logger.debug(f"{self.file} does not exist, creating file")
-            # TODO: Move to a template write class
             with open(self.file, "a+") as file:
                 file.seek(0)
                 json.dump(LoadTemplate().data, file, indent=4)
@@ -50,6 +51,7 @@ class GetTasks:
         """Instansiate the class."""
         with open(Check().file, "r") as file:
             self.file_data = json.load(file)
+        self.file_data = models.CheckFormatting(self.file_data).data
 
 
 class WriteTask:
@@ -58,27 +60,11 @@ class WriteTask:
     def __init__(self, data: dict):
         """Instansiate the Write Class."""
         self.file = Check().file
-        self.data = data
-        self.validate_data_input()
+        self.data = models.CheckFormatting(data).data
+        tasks = len(self.data['tasks']) + len(self.data['completed_tasks'])
         logger.debug(
-            f"Writing {len(self.data['tasks'])} tasks to {self.file}"
+            f"Writing {tasks} tasks to {self.file}"
         )
         with open(self.file, "r+") as file:
             file.seek(0)
             json.dump(self.data, file, indent=4)
-
-    def validate_data_input(self):
-        """Provide defensive steps to guard against deletion of task data."""
-        if self.data == {}:
-            logger.warning(
-                "Task data is empty, this opperation will ",
-                "override all data in .tasks.json"
-            )
-            # TODO: call template function
-            raise AttributeError("Task data is empty.")
-        if self.data["tasks"] == []:
-            logger.warning(
-                "This oppoeration will overide all data in .tasks.json"
-            )
-            # TODO: call an 'are you sure' function
-            raise AttributeError("Task data is empty.")

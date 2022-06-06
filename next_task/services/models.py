@@ -44,7 +44,7 @@ class GetPriority:
     def __init__(self, task_data):
         """Instansiate the class."""
         self.data = task_data
-        self.data.sort(key=self.calculate)
+        self.data["tasks"].sort(key=self.calculate)
 
     def calculate(self, item):
         """Compound function of the due date and created date."""
@@ -114,9 +114,8 @@ class CheckCompleted:
             completed = []
             open_tasks = []
             for item in self.data["tasks"]:
-                logger.debug(f"Checking {item['id']}")
                 if item["status"] == "closed":
-                    logger.debug("Removing item from tasks")
+                    logger.debug(f"Removing task {item['id']} from tasks")
                     completed.append(item)
                 else:
                     open_tasks.append(item)

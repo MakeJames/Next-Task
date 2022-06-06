@@ -88,24 +88,37 @@ class TestGetPriority:
     """Test the methods of the priority calculation class."""
 
     def test_when_called_higest_priority_task_is_returned(
-        self
+        self,
+        mocker
     ) -> None:
         """R-BICEP: Right."""
-        with open("tests/data_mocks/tasks_1.json", "r") as file:
-            file_data = json.load(file)
-        test_data = models.FilterOpenTasks(file_data).data
-        test_call = models.GetPriority(test_data)
-        assert test_call.data[0]["id"] == 5102
+        def mock_file_path():
+            return "tests/data_mocks/tasks_1.json"
+        mocker.patch.object(
+            store.Check,
+            "_file_path_builder",
+            return_value=mock_file_path()
+        )
+        test_call = store.GetTasks()
+        test = models.GetPriority(test_call.file_data)
+        assert test.data["tasks"][0]["id"] == 5102
 
     def test_when_called_higest_priority_task_is_returned_performatvely(
-        self
+        self,
+        mocker
     ) -> None:
         """R-BICEP: Performance."""
-        with open("tests/data_mocks/tasks_2.json", "r") as file:
-            file_data = json.load(file)
-        test_data = models.FilterOpenTasks(file_data).data
+        def mock_file_path():
+            return "tests/data_mocks/tasks_2.json"
+        mocker.patch.object(
+            store.Check,
+            "_file_path_builder",
+            return_value=mock_file_path()
+        )
+        test_call = store.GetTasks()
+
         start = time()
-        models.GetPriority(test_data)
+        models.GetPriority(test_call.file_data)
         end = time()
         dif = end - start
         logger.debug(dif)

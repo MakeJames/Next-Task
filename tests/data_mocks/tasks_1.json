@@ -1,19 +1,6 @@
 {
+    "task_count": 4,
     "tasks": [
-        {
-            "id": 5099,
-            "summary": "Test task 3098",
-            "created": "2022-06-03 09:00:26",
-            "due": "2022-06-10 09:00:26",
-            "status": "closed"
-        },
-        {
-            "id": 5100,
-            "summary": "Test task 3099",
-            "created": "2022-06-03 09:00:26",
-            "due": "2022-06-10 09:00:26",
-            "status": "closed"
-        },
         {
             "id": 5101,
             "summary": "Test task 3100",
@@ -27,6 +14,22 @@
             "created": "2022-06-07 09:00:28",
             "due": "2022-06-12 09:00:28",
             "status": "open"
+        }
+    ],
+    "completed_tasks": [
+        {
+            "id": 5099,
+            "summary": "Test task 3098",
+            "created": "2022-06-03 09:00:26",
+            "due": "2022-06-10 09:00:26",
+            "status": "closed"
+        },
+        {
+            "id": 5100,
+            "summary": "Test task 3099",
+            "created": "2022-06-03 09:00:26",
+            "due": "2022-06-10 09:00:26",
+            "status": "closed"
         }
     ]
 }
