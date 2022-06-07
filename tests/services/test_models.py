@@ -57,33 +57,6 @@ class TestFetchLastIdClass:
             models.FetchLastId(data)
 
 
-class TestFilterOpenTasks:
-    """Test the methods of the filter open tasks."""
-
-    def test_that_closed_tasks_are_removed_from_working_dictionary(
-        self
-    ) -> None:
-        """R-BICEP: Right."""
-        with open("tests/data_mocks/tasks_1.json", "r") as file:
-            file_data = json.load(file)
-        test_data = models.FilterOpenTasks(file_data).data
-        logger.debug(test_data)
-        assert len(test_data) == 2
-        assert test_data[0]["id"] == 5101
-
-    def test_that_closed_tasks_are_removed_performatvely(
-        self
-    ) -> None:
-        """R-BICEP: Performance."""
-        with open("tests/data_mocks/tasks_2.json", "r") as file:
-            file_data = json.load(file)
-        start = time()
-        models.FilterOpenTasks(file_data).data
-        end = time()
-        dif = (end - start)
-        assert dif < 0.1
-
-
 class TestGetPriority:
     """Test the methods of the priority calculation class."""
 

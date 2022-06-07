@@ -26,18 +26,6 @@ class FetchLastId:
             self.id = last_task["id"]
 
 
-class FilterOpenTasks:
-    """Filter for open tasks."""
-
-    # TODO: Remove when done updates the list the task is in
-
-    def __init__(self, data):
-        """Instansiate Filter Open Tasks class."""
-        self.data = [
-            item for item in data["tasks"] if item["status"] == "open"
-        ]
-
-
 class GetPriority:
     """Return the next priority task."""
 

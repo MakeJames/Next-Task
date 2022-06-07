@@ -19,7 +19,7 @@
 - [ ] Manage logging levels
 - [x] Store completed tasks in a seperate list
 - [x] Store last task id as a called out value
-- [x] Create a Clean-up function to handle updates
+- [x] Create a Clean-up function to handle updates -- runs on writing to the task file.
 
 ## Future considerations
 - Config file, to manage defaults like due date, default file location
