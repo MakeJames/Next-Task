@@ -2,6 +2,7 @@
 
 import datetime
 import json
+import random
 import sys
 
 from loguru import logger
@@ -85,7 +86,9 @@ class SkipTask:
             self.task["due"],
             "%Y-%m-%d %H:%M:%S"
         )
-        self.new_date = self.date + datetime.timedelta(days=1)
+        add_days = random.uniform(0.5, 8)
+        logger.info(f"Increase by {add_days}")
+        self.new_date = self.date + datetime.timedelta(days=add_days)
         logger.info(f"Updating due date from {self.task['due']}, "
                     f"now due {self.new_date}")
         self.task["due"] = self.new_date.strftime("%Y-%m-%d %H:%M:%S")
