@@ -17,6 +17,9 @@ class LoadTemplate:
         with open("next_task/services/template.json", "r") as file:
             self.data = json.load(file)
         if self.data == {}:
+            logger.warning("Template file is empty\n"
+                           "\tPackage template file is located in"
+                           "next_task_services/")
             sys.exit()
 
 
@@ -35,7 +38,7 @@ class Check:
     def exists(self):
         """Check that the path exists."""
         if not Path(self.file).exists():
-            logger.debug(f"{self.file} does not exist, creating file")
+            logger.info(f"{self.file} does not exist, creating file")
             with open(self.file, "a+") as file:
                 file.seek(0)
                 json.dump(LoadTemplate().data, file, indent=4)
@@ -61,9 +64,8 @@ class WriteTask:
         """Instansiate the Write Class."""
         self.file = Check().file
         self.data = models.CheckFormatting(data).data
-        tasks = len(self.data['tasks']) + len(self.data['completed_tasks'])
-        logger.debug(
-            f"Writing {tasks} tasks to {self.file}"
+        logger.info(
+            f"Writing {self.data['task_count']} tasks to {self.file}"
         )
         with open(self.file, "r+") as file:
             file.seek(0)
