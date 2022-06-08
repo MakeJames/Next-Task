@@ -1,8 +1,8 @@
 """Module containing the shared processing methods."""
 
-import datetime
 import json
 import sys
+from datetime import datetime
 
 from loguru import logger
 
@@ -31,22 +31,18 @@ class GetPriority:
 
     def __init__(self, task_data):
         """Instansiate the class."""
+        logger.info("calculating task list priority")
         self.data = task_data
         self.data["tasks"].sort(key=self.calculate)
 
     def calculate(self, item):
         """Compound function of the due date and created date."""
         # TODO: priority should be inherited from project
-        created = datetime.datetime.strptime(
-            item["created"],
-            "%Y-%m-%d %H:%M:%S"
-        ).timestamp()
-        due = datetime.datetime.strptime(
-            item["due"],
-            "%Y-%m-%d %H:%M:%S"
-        ).timestamp()
+        created = datetime.strptime(item["created"],
+                                    "%Y-%m-%d %H:%M:%S").timestamp()
+        due = datetime.strptime(item["due"],
+                                "%Y-%m-%d %H:%M:%S").timestamp()
         call = created * (due - created) * 0.6
-        # logger.debug(f"Priority: {call}")
         return call
 
 
@@ -56,29 +52,26 @@ class CheckTasks:
     def __init__(self, data):
         """Instansiate the class."""
         self.data = data
+        logger.debug("Checking formating of the task array")
 
         if type(self.data) is not dict:
-            logger.warning(
-                "Data is is not an dictionary, correcting data integrity error"
-            )
+            logger.warning("Data is is not an dictionary, "
+                           "correcting data integrity error")
             self.data = store.LoadTemplate().data
 
         if self.data == {}:
-            logger.warning(
-                "Data is empty, correcting data integrity error"
-            )
+            logger.warning("Data is empty, correcting "
+                           "data integrity error")
             self.data = store.LoadTemplate().data
 
         if "tasks" not in self.data:
-            logger.warning(
-                "Key missing from file, correcting data integrity error"
-            )
+            logger.warning("Key missing from file, "
+                           "correcting data integrity error")
             self.data = store.LoadTemplate().data
 
         if type(self.data["tasks"]) is not list:
-            logger.warning(
-                "Key missing from file, correcting data integrity error"
-            )
+            logger.warning("Key missing from file, "
+                           "correcting data integrity error")
             self.data = store.LoadTemplate().data
 
 
@@ -88,8 +81,11 @@ class CheckTaskCount:
     def __init__(self, data):
         """Instansiate the class."""
         self.data = data
+        logger.debug("checking task count field")
         if "task_count" not in self.data:
+            logger.warning("task_count not in data, calculating task count")
             self.data["task_count"] = FetchLastId(self.data).id
+            logger.debug(f"task_count {self.data['task_count']}")
 
 
 class CheckCompleted:
@@ -97,8 +93,10 @@ class CheckCompleted:
 
     def __init__(self, data):
         """Instansiate the class."""
+        logger.debug("Checking completed_tasks")
         self.data = data
         if "completed_tasks" not in self.data:
+            logger.info("Reformating tasks and extracting completed tasks")
             completed = []
             open_tasks = []
             for item in self.data["tasks"]:
@@ -119,5 +117,5 @@ class CheckFormatting:
         """Validate that .tasks.json file meets the expected format."""
         self.data = data
         self.data = CheckTasks(self.data).data
-        self.data = CheckTaskCount(self.data).data
         self.data = CheckCompleted(self.data).data
+        self.data = CheckTaskCount(self.data).data
