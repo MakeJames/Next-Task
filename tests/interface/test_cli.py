@@ -19,7 +19,7 @@ class TestCliMainMethod:
         with pytest.raises(SystemExit):
             cli.main(["--version"])
         captured = capsys.readouterr()
-        assert captured.out == f"Next: {__version__}"
+        assert captured.out == f"Next: {__version__}\n"
 
     def test_file_checker(self, capsys) -> None:
         """R-BICEP: Right."""

@@ -1,3 +1,3 @@
 """Instansiate the package."""
 
-__version__ = open("VERSION", "rt").read()
+__version__ = "0.3.3"
