@@ -16,17 +16,16 @@ class CreateTask:
         """Instansiate the Write task class."""
         self.summary = summary
         self.file_data = store.GetTasks().file_data
-        self.id = self.file_data["task_count"] + 1
-        self.file_data["task_count"] = self.id
         self.task_formatter()
         store.WriteTask(self.file_data)
-        print(
-            f"Created task {self.id}: {self.summary} " +
-            f"- Due: {self.due.strftime('%Y-%m-%d %H:%M:%S')}"
-        )
+        print(f"Created task {self.id}: {self.summary}\n"
+              f"Due: {self.due.strftime('%Y-%m-%d %H:%M:%S')}")
 
     def task_formatter(self):
         """Build task dictionary."""
+        self.id = self.file_data["task_count"] + 1
+        logger.info(f"formating task {self.id}")
+        self.file_data["task_count"] = self.id
         now = datetime.datetime.now()
         self.due = now + datetime.timedelta(days=7)
         task = {
@@ -36,10 +35,9 @@ class CreateTask:
             "due": self.due.strftime("%Y-%m-%d %H:%M:%S"),
             "status": "open"
         }
-        logger.debug(
-            f"Creating task {task['id']}: {task['summary']}" +
-            f" - {task['created']}"
-        )
+        logger.info(f"Creating task {task['id']}: "
+                    f"{task['summary']}"
+                    f" - {task['created']}")
         self.file_data["tasks"].append(task)
 
 
@@ -56,20 +54,18 @@ class GetNextTask:
         """Get the next task, handles the error of no tasks."""
         try:
             self.task = self.ordered_tasks["tasks"][0]
-            logger.debug(f"{self.task['id']}: {self.task['summary']}")
+            logger.info(f"next priority task is {self.task['id']}")
         except IndexError:
             logger.debug("list index 0 out of range")
-            print(
-                "Congratulations!\nThere are no tasks",
-                "on your to do list, take a break",
-                "and have a cup of tea."
-            )
+            print("Congratulations!\n"
+                  "\tThere are no tasks on your to do list\n"
+                  "\tTake a break and have a cup of tea.")
             sys.exit()
 
     def print_task(self):
         """Print the next task."""
-        print(f"{self.task['id']}: {self.task['summary']}")
-        print(f"due {self.task['due']}")
+        print(f"{self.task['id']}: {self.task['summary']}\n"
+              f"due {self.task['due']}")
 
 
 class SkipTask:
@@ -90,22 +86,22 @@ class SkipTask:
             "%Y-%m-%d %H:%M:%S"
         )
         self.new_date = self.date + datetime.timedelta(days=1)
+        logger.info(f"Updating due date from {self.task['due']}, "
+                    f"now due {self.new_date}")
         self.task["due"] = self.new_date.strftime("%Y-%m-%d %H:%M:%S")
 
     def update_file_data(self):
         """Find task and update due date."""
         tasks = self.all_tasks.file_data["tasks"]
-
+        logger.debug('updating file_data')
         for index in range(len(tasks)):
-
+            logger.debug(f"checking {tasks[index]['id']}")
             if tasks[index]["id"] == self.task["id"]:
                 self.update_due_date()
                 tasks[index] = self.task
-
-                print(
-                    f"updated {tasks[index]['id']}, ",
-                    f"now due: {tasks[index]['due']}"
-                )
+                print(f"updated {tasks[index]['id']}: "
+                      f"{tasks[index]['summary']}\n"
+                      f"now due: {tasks[index]['due']}")
                 break
 
 
@@ -118,9 +114,10 @@ class MarkAsClosed:
         self.task = self.get_tasks.task
         self.file_data = self.get_tasks.file_data
         self.file_data["tasks"].remove(self.task)
-        self.update()
-        self.file_data["completed_tasks"].append(self.task)
         logger.debug(f"removed {self.task['id']} from task data")
+        self.update()
+        logger.debug(f"adding {self.task['id']} to completed tasks")
+        self.file_data["completed_tasks"].append(self.task)
         store.WriteTask(self.file_data)
 
     def update(self):
@@ -128,8 +125,6 @@ class MarkAsClosed:
         self.task["status"] = "closed"
         now = datetime.datetime.now()
         self.task["completed"] = now.strftime("%Y-%m-%d %H:%M:%S")
-        logger.debug(f"Updating {self.task['id']}: {self.task['summary']}'")
-        print(
-                    f"updated {self.task['id']}, ",
-                    f"completed: {self.task['completed']}"
-                )
+        logger.info(f"Updating {self.task['id']}: {self.task['summary']}'")
+        print(f"updated {self.task['id']}, ",
+              f"completed: {self.task['completed']}")

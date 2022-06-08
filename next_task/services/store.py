@@ -53,6 +53,7 @@ class GetTasks:
     def __init__(self):
         """Instansiate the class."""
         with open(Check().file, "r") as file:
+            logger.info("fetching file data")
             self.file_data = json.load(file)
         self.file_data = models.CheckFormatting(self.file_data).data
 

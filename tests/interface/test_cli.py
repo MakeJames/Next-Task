@@ -105,8 +105,8 @@ class TestCliMainMethod:
         with pytest.raises(SystemExit):
             cli.main(["--skip"])
         captured = capsys.readouterr()
-        assert "updated 5102,  now due: 2022-06-13 09:00:28" \
-            in captured.out
+        assert "updated 5102" in captured.out\
+            and "now due: 2022-06-13 09:00:28" in captured.out
 
     def test_when_closed_task_is_closed(
         self,

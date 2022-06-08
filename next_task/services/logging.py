@@ -16,7 +16,7 @@ def logging():
         "ERROR"  # something is broken
     ]
     logger.remove()
-    logger.add(f"{Path.home()}/.local/next_task.log", level="DEBUG")
+    logger.add(f"{Path.home()}/.local/next_task.log", level="INFO")
     log_level = os.getenv("LOG_LEVEL")
     if not log_level:
         logger.add(sys.stdout, level="ERROR")
