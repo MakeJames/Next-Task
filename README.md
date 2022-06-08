@@ -1,6 +1,6 @@
 # Next-task
 
-A barebones task management solution
+A barebones task management solution. 
 
 ## About
 Tasks are stored in a json file stored in the users Home directory `.tasks.json`. This file is updated and managed by various functions within the package.
@@ -19,11 +19,12 @@ Next --version
 ```bash
 git clone git@gitlab.com:mcbean-workspace/next-task.git
 cd next
-git check out dev
 make dev
-export LOG_LEVEL=INFO # Optional: supports DEBUG, ERROR
+export LOG_LEVEL=INFO # Optional: supports DEBUG, WARNING
 poetry run Next --version
 ```
+
+
 
 ### Versioning
 
@@ -35,6 +36,7 @@ Version increments are definbed as Major.Minor.Patch
 
 Don't forget to update
 - pyproject.toml
+- next_tasks/\_\_init__.py
 - VERSION
 
 ### Lint and Test
@@ -47,25 +49,14 @@ make check # calls make lint; make test
 make coverage # returns the coverage report
 ```
 
-## Concept
+### Commit Messages
 
-```json
-{
-    "tasks": [
-        {
-            "id": 1,
-            "summary": "A short Description",
-            "created": "timestamp",
-            "due": "timestamp",
-            "status": "open/closed"
-        },
-        {
-            "id": 2,
-            "summary": "A short Description",
-            "created": "timestamp",
-            "due": "timestamp",
-            "status": "open/closed"
-        }
-    ]
-}
+Commit messages are prefixed with the following stubs
+```bash
+INIT # structural changes to pakage contents
+FUNC # functional changes
+DOCS # documentation
+TEST # commits adding tests to the repository
+LINT # corrections to formatting or spelling
+REFACTOR # Non functional changes to functions improving performance or readability
 ```
