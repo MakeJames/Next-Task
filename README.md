@@ -24,6 +24,7 @@ export LOG_LEVEL=INFO # Optional: supports DEBUG, WARNING
 poetry run Next --version
 ```
 
+New functionality should be made on a feature branch `feature/feature_name` and merged to `main` 
 
 
 ### Versioning
