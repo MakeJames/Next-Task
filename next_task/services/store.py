@@ -23,28 +23,21 @@ class LoadTemplate:
             sys.exit()
 
 
-class Check:
+class CheckTaskStore:
     """Confirm task file exits."""
 
     def __init__(self):
         """Instansiate the Check class."""
-        self.file = self._file_path_builder()
+        self.file = f"{str(Path.home())}/.tasks.json"
         self.exists()
-
-    def _file_path_builder(self):
-        home = str(Path.home())
-        return f"{home}/.tasks.json"
 
     def exists(self):
         """Check that the path exists."""
-        if not Path(self.file).exists():
-            logger.info(f"{self.file} does not exist, creating file")
-            with open(self.file, "a+") as file:
-                file.seek(0)
-                json.dump(LoadTemplate().data, file, indent=4)
-            print("created .tasks.json")
-        else:
-            logger.debug(f"Task file path exists: {self.file}")
+        if Path(self.file).exists():
+            return True
+        with open(self.file, "a+") as file:
+            file.seek(0)
+            json.dump(LoadTemplate().data, file, indent=4)
 
 
 class GetTasks:
@@ -52,8 +45,7 @@ class GetTasks:
 
     def __init__(self):
         """Instansiate the class."""
-        with open(Check().file, "r") as file:
-            logger.info("fetching file data")
+        with open(CheckTaskStore().file, "r") as file:
             self.file_data = json.load(file)
         self.file_data = models.CheckFormatting(self.file_data).data
 
@@ -63,7 +55,7 @@ class WriteTask:
 
     def __init__(self, data: dict):
         """Instansiate the Write Class."""
-        self.file = Check().file
+        self.file = CheckTaskStore().file
         self.data = models.CheckFormatting(data).data
         logger.info(
             f"Writing {self.data['task_count']} tasks to {self.file}"

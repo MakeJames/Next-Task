@@ -4,8 +4,9 @@ import pytest
 import json
 from loguru import logger
 from pytest_mock import mocker
-import datetime
+
 from time import time
+from pathlib import Path
 
 from next_task.services import store
 from next_task.services import models
@@ -66,10 +67,11 @@ class TestGetPriority:
     ) -> None:
         """R-BICEP: Right."""
         def mock_file_path():
-            return "tests/data_mocks/tasks_1.json"
+            return "tests/data_mocks/1"
+
         mocker.patch.object(
-            store.Check,
-            "_file_path_builder",
+            Path,
+            "home",
             return_value=mock_file_path()
         )
         test_call = store.GetTasks()
@@ -82,10 +84,11 @@ class TestGetPriority:
     ) -> None:
         """R-BICEP: Performance."""
         def mock_file_path():
-            return "tests/data_mocks/tasks_2.json"
+            return "tests/data_mocks/2"
+
         mocker.patch.object(
-            store.Check,
-            "_file_path_builder",
+            Path,
+            "home",
             return_value=mock_file_path()
         )
         test_call = store.GetTasks()
@@ -123,28 +126,28 @@ class TestCheckTasks:
 
     def test_when_data_is_present_then_data_is_not_overwritten(self) -> None:
         """R-BICEP: Right."""
-        with open("tests/data_mocks/tasks_1.json", "r") as file:
+        with open("tests/data_mocks/1/.tasks_1.json", "r") as file:
             file_data = json.load(file)
         assert len(models.CheckTasks(file_data).data["tasks"]) \
             == len(file_data["tasks"])
 
     def test_when_data_is_present_then_data_is_not_overwritten(self) -> None:
         """R-BICEP: Right."""
-        with open("tests/data_mocks/tasks_1.json", "r") as file:
+        with open("tests/data_mocks/1/.tasks.json", "r") as file:
             file_data = json.load(file)
         assert len(models.CheckTasks(file_data).data["tasks"]) \
             == len(file_data["tasks"])
 
     def test_when_tasks_are_empty_then_data_is_retained(self) -> None:
         """R-BICEP: Right."""
-        with open("tests/data_mocks/tasks_3.json", "r") as file:
+        with open("tests/data_mocks/3/.tasks.json", "r") as file:
             file_data = json.load(file)
         assert len(models.CheckTasks(file_data).data["completed_tasks"]) \
             == len(file_data["completed_tasks"])
 
     def test_when_checked_pre_0_3_0_files_are_compatable(self) -> None:
         """R-BICEP: Right."""
-        with open("tests/data_mocks/0-3-0-tasks.json", "r") as file:
+        with open("tests/data_mocks/0.3.0/.tasks.json", "r") as file:
             file_data = json.load(file)
         assert len(models.CheckTasks(file_data).data["tasks"]) \
             == len(file_data["tasks"])
@@ -155,7 +158,7 @@ class TestCheckTaskCount:
 
     def test_when_checked_pre_0_3_0_files_are_compatable(self) -> None:
         """R-BICEP: Right."""
-        with open("tests/data_mocks/0-3-0-tasks.json", "r") as file:
+        with open("tests/data_mocks/0.3.0/.tasks.json", "r") as file:
             file_data = json.load(file)
         assert models.CheckTaskCount(file_data).data["task_count"] == 5102
 
@@ -165,7 +168,7 @@ class TestCheckCompleted:
 
     def test_when_checked_pre_0_3_0_files_are_compatable(self) -> None:
         """R-BICEP: Right."""
-        with open("tests/data_mocks/0-3-0-tasks.json", "r") as file:
+        with open("tests/data_mocks/0.3.0/.tasks.json", "r") as file:
             file_data = json.load(file)
         test = models.CheckCompleted(file_data).data
         assert len(test["completed_tasks"]) == 2
@@ -176,7 +179,7 @@ class TestCheckCompleted:
 
     def test_when_checked_pre_0_3_0_files_are_compatable(self) -> None:
         """R-BICEP: Right."""
-        with open("tests/data_mocks/0-3-0-tasks.json", "r") as file:
+        with open("tests/data_mocks/0.3.0/.tasks.json", "r") as file:
             file_data = json.load(file)
         test = models.CheckFormatting(file_data).data
         assert len(test["completed_tasks"]) == 2
