@@ -14,13 +14,9 @@ class LoadTemplate:
 
     def __init__(self):
         """Instansiate the class."""
+        # TODO: Currently requires generation within the repository
         with open("next_task/services/template.json", "r") as file:
             self.data = json.load(file)
-        if self.data == {}:
-            logger.warning("Template file is empty\n"
-                           "\tPackage template file is located in"
-                           "next_task_services/")
-            sys.exit()
 
 
 class CheckTaskStore:
