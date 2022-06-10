@@ -59,8 +59,8 @@ class GetNextTask:
         except IndexError:
             logger.debug("list index 0 out of range")
             print("Congratulations!\n"
-                  "\tThere are no tasks on your to do list\n"
-                  "\tTake a break and have a cup of tea.")
+                  "There are no tasks on your to do list\n"
+                  "Take a break and have a cup of tea.")
             sys.exit()
 
     def print_task(self):
