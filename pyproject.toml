@@ -7,6 +7,8 @@ authors = ["J-McB <jmcbean3@gmail.com>"]
 license = "MIT"
 packages = [
     {include = "next_task"},
+    {include = "next_task/services/template.json"},
+    {include = "next_task/VERSION"},
 ]
 
 [tool.poetry.dependencies]

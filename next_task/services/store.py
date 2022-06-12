@@ -3,6 +3,7 @@
 import json
 import sys
 from pathlib import Path
+from os import path
 
 from loguru import logger
 
@@ -15,7 +16,8 @@ class LoadTemplate:
     def __init__(self):
         """Instansiate the class."""
         # TODO: Currently requires generation within the repository
-        with open("next_task/services/template.json", "r") as file:
+        with open(path.join(path.dirname(__file__), "template.json"),
+                  "r") as file:
             self.data = json.load(file)
 
 
