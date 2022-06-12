@@ -19,7 +19,7 @@ class TestCliMainMethod:
         with pytest.raises(SystemExit):
             cli.main(["--version"])
         captured = capsys.readouterr()
-        assert captured.out == f"Next: {__version__}\n"
+        assert captured.out == f"Next: {__version__}"
 
     def test_task_creation(self, capsys) -> None:
         """R-BICEP: Right."""

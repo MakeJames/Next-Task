@@ -12,6 +12,49 @@ from next_task.services import store
 from next_task.services import tasks
 
 
+class TestGetPriority:
+    """Test the methods of the priority calculation class."""
+
+    def test_when_called_higest_priority_task_is_returned(
+        self,
+        mocker
+    ) -> None:
+        """R-BICEP: Right."""
+        def mock_file_path():
+            return "tests/data_mocks/1"
+
+        mocker.patch.object(
+            Path,
+            "home",
+            return_value=mock_file_path()
+        )
+        test_call = store.GetTasks()
+        test = tasks.GetPriority(test_call.file_data)
+        assert test.data["tasks"][0]["id"] == 5102
+
+    def test_when_called_higest_priority_task_is_returned_performatvely(
+        self,
+        mocker
+    ) -> None:
+        """R-BICEP: Performance."""
+        def mock_file_path():
+            return "tests/data_mocks/2"
+
+        mocker.patch.object(
+            Path,
+            "home",
+            return_value=mock_file_path()
+        )
+        test_call = store.GetTasks()
+
+        start = time()
+        tasks.GetPriority(test_call.file_data)
+        end = time()
+        dif = end - start
+        logger.debug(dif)
+        assert dif <= 1
+
+
 class TestCreateTask:
     """Test the methods to creating a task."""
 
