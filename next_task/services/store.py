@@ -84,8 +84,9 @@ class CheckCompleted:
                 if item["status"] == "closed":
                     logger.debug(f"Removing task {item['id']} from tasks")
                     completed.append(item)
-                else:
-                    open_tasks.append(item)
+                    continue
+
+                open_tasks.append(item)
 
             self.data["tasks"] = open_tasks
             self.data["completed_tasks"] = completed
