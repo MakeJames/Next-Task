@@ -19,14 +19,6 @@ def main(argv=None):
         version=f"Next: {next_task.__version__}"
     )
     parser.add_argument(
-        "--check-file",
-        help="""
-            Validate that the task file exists, if not
-            creates an empty task file in the home directory.
-        """,
-        action="store_true"
-    )
-    parser.add_argument(
         "-a",
         "--add",
         help="""
@@ -62,9 +54,6 @@ def main(argv=None):
 
     args = parser.parse_args(argv)
 
-    if args.check_file:
-        store.Check()
-        sys.exit()
     if args.add:
         tasks.CreateTask(args.add)
         sys.exit()

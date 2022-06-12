@@ -2,6 +2,7 @@
 
 import pytest
 import json
+from pathlib import Path
 from loguru import logger
 from pytest_mock import mocker
 import datetime
@@ -11,6 +12,49 @@ from next_task.services import store
 from next_task.services import tasks
 
 
+class TestGetPriority:
+    """Test the methods of the priority calculation class."""
+
+    def test_when_called_higest_priority_task_is_returned(
+        self,
+        mocker
+    ) -> None:
+        """R-BICEP: Right."""
+        def mock_file_path():
+            return "tests/data_mocks/1"
+
+        mocker.patch.object(
+            Path,
+            "home",
+            return_value=mock_file_path()
+        )
+        test_call = store.GetTasks()
+        test = tasks.GetPriority(test_call.file_data)
+        assert test.data["tasks"][0]["id"] == 5102
+
+    def test_when_called_higest_priority_task_is_returned_performatvely(
+        self,
+        mocker
+    ) -> None:
+        """R-BICEP: Performance."""
+        def mock_file_path():
+            return "tests/data_mocks/2"
+
+        mocker.patch.object(
+            Path,
+            "home",
+            return_value=mock_file_path()
+        )
+        test_call = store.GetTasks()
+
+        start = time()
+        tasks.GetPriority(test_call.file_data)
+        end = time()
+        dif = end - start
+        logger.debug(dif)
+        assert dif <= 1
+
+
 class TestCreateTask:
     """Test the methods to creating a task."""
 
@@ -18,17 +62,18 @@ class TestCreateTask:
     def mock_tasks_file(self, mocker) -> None:
         """Return a file in the mock data file."""
         def mock_file_path():
-            return "tests/data_mocks/tasks_2.json"
+            return "tests/data_mocks/2"
+
         mocker.patch.object(
-            store.Check,
-            "_file_path_builder",
+            Path,
+            "home",
             return_value=mock_file_path()
         )
 
     def test_when_there_are_no_tasks_then_id_is_one(self):
         """R-BICEP: Right."""
         test_call = tasks.CreateTask("test_call")
-        with open(store.Check().file, "r") as file:
+        with open(store.CheckTaskStore().file, "r") as file:
             file_data = json.load(file)
             print(json.dumps(file_data, indent=4))
 
@@ -62,10 +107,11 @@ class TestGetNextTask:
     ) -> None:
         """R-BICEP: Right."""
         def mock_file_path():
-            return "tests/data_mocks/tasks_1.json"
+            return "tests/data_mocks/1"
+
         mocker.patch.object(
-            store.Check,
-            "_file_path_builder",
+            Path,
+            "home",
             return_value=mock_file_path()
         )
         tasks.GetNextTask().print_task()
@@ -95,13 +141,13 @@ class TestSkipTask:
     def mock_get_next_task(self, mocker):
         """Mock the catalogue check, file_path builder method."""
 
-        def mock_file():
-            return "tests/data_mocks/tasks_1.json"
+        def mock_file_path():
+            return "tests/data_mocks/1"
 
         mocker.patch.object(
-            store.Check,
-            "_file_path_builder",
-            return_value=mock_file()
+            Path,
+            "home",
+            return_value=mock_file_path()
         )
 
     def test_when_called_task_is_skipped(
@@ -134,13 +180,13 @@ class TestMarkAsClosedClass:
     def mock_get_next_task(self, mocker):
         """Mock the catalogue check, file_path builder method."""
 
-        def mock_file():
-            return "tests/data_mocks/tasks_1.json"
+        def mock_file_path():
+            return "tests/data_mocks/1"
 
         mocker.patch.object(
-            store.Check,
-            "_file_path_builder",
-            return_value=mock_file()
+            Path,
+            "home",
+            return_value=mock_file_path()
         )
 
     def test_when_called_task_is_closed(

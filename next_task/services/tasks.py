@@ -7,7 +7,31 @@ import sys
 
 from loguru import logger
 
-from next_task.services import models, store
+from next_task.services import store
+
+
+class GetPriority:
+    """Return the next priority task."""
+
+    def __init__(self, task_data):
+        """Instansiate the class."""
+        logger.info("calculating task list priority")
+        self.data = task_data
+        self.data["tasks"].sort(key=self.calculate)
+
+    def calculate(self, item):
+        """Compound function of the due date and created date."""
+        # TODO: priority should be inherited from project
+        created = datetime.datetime.strptime(
+            item["created"],
+            "%Y-%m-%d %H:%M:%S"
+        ).timestamp()
+        due = datetime.datetime.strptime(
+            item["due"],
+            "%Y-%m-%d %H:%M:%S"
+        ).timestamp()
+        call = created * (due - created) * 0.6
+        return call
 
 
 class CreateTask:
@@ -48,7 +72,7 @@ class GetNextTask:
     def __init__(self):
         """Instansiate the get task wrapper class."""
         self.file_data = store.GetTasks().file_data
-        self.ordered_tasks = models.GetPriority(self.file_data).data
+        self.ordered_tasks = GetPriority(self.file_data).data
         self.get_task()
 
     def get_task(self):
@@ -59,8 +83,8 @@ class GetNextTask:
         except IndexError:
             logger.debug("list index 0 out of range")
             print("Congratulations!\n"
-                  "\tThere are no tasks on your to do list\n"
-                  "\tTake a break and have a cup of tea.")
+                  "There are no tasks on your to do list\n"
+                  "Take a break and have a cup of tea.")
             sys.exit()
 
     def print_task(self):

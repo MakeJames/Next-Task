@@ -37,8 +37,7 @@ Version increments are definbed as Major.Minor.Patch
 
 Don't forget to update
 - pyproject.toml
-- next_tasks/\_\_init__.py
-- VERSION
+- next_tasks/VERSION
 
 ### Lint and Test
 

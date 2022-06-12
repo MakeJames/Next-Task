@@ -1,6 +1,6 @@
 SHELL=/bin/bash
 EXECUTE=poetry run
-VERSION=$$(cat VERSION)
+VERSION=$$(cat next_task/VERSION)
 
 # code
 PACKAGE=next_task

@@ -1,11 +1,11 @@
 """Test the methods of the cli module."""
 
+from pathlib import Path
 import pytest
 import json
 
 from pytest_mock import mocker
 
-from next_task.services import store
 from next_task.interface import cli
 from next_task.services import tasks
 from next_task import __version__
@@ -19,14 +19,7 @@ class TestCliMainMethod:
         with pytest.raises(SystemExit):
             cli.main(["--version"])
         captured = capsys.readouterr()
-        assert captured.out == f"Next: {__version__}\n"
-
-    def test_file_checker(self, capsys) -> None:
-        """R-BICEP: Right."""
-        with pytest.raises(SystemExit):
-            cli.main(["--check-file"])
-        captured = capsys.readouterr()
-        assert captured.out == "created .tasks.json\n"
+        assert captured.out == f"Next: {__version__}"
 
     def test_task_creation(self, capsys) -> None:
         """R-BICEP: Right."""
@@ -53,11 +46,11 @@ class TestCliMainMethod:
         """R-BICEP: Right."""
 
         def mock_file_path():
-            return "tests/data_mocks/tasks_1.json"
+            return "tests/data_mocks/1"
 
         mocker.patch.object(
-            store.Check,
-            "_file_path_builder",
+            Path,
+            "home",
             return_value=mock_file_path()
         )
 
@@ -75,13 +68,13 @@ class TestCliMainMethod:
     def mock_get_next_task(self, mocker):
         """Mock the catalogue check, file_path builder method."""
 
-        def mock_file():
-            return "tests/data_mocks/tasks_1.json"
+        def mock_file_path():
+            return "tests/data_mocks/1"
 
         mocker.patch.object(
-            store.Check,
-            "_file_path_builder",
-            return_value=mock_file()
+            Path,
+            "home",
+            return_value=mock_file_path()
         )
 
     def test_when_skipped_next_task_is_returned(
@@ -94,11 +87,11 @@ class TestCliMainMethod:
         """R-BICEP: Right."""
 
         def mock_file_path():
-            return "tests/data_mocks/tasks_1.json"
+            return "tests/data_mocks/1"
 
         mocker.patch.object(
-            store.Check,
-            "_file_path_builder",
+            Path,
+            "home",
             return_value=mock_file_path()
         )
 
