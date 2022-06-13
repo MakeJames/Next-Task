@@ -1,12 +1,13 @@
 """Module containing the methods relating to task creation."""
 
 import datetime
-import json
 import random
 import sys
 
+from rich.console import Console
 from loguru import logger
 
+from next_task.interface import console_output
 from next_task.services import store
 
 
@@ -43,27 +44,22 @@ class CreateTask:
         self.file_data = store.GetTasks().file_data
         self.task_formatter()
         store.WriteTask(self.file_data)
-        print(f"Created task {self.id}: {self.summary}\n"
-              f"Due: {self.due.strftime('%Y-%m-%d %H:%M:%S')}")
+        console_output.CreateTask(self.task).print()
 
     def task_formatter(self):
         """Build task dictionary."""
         self.id = self.file_data["task_count"] + 1
-        logger.info(f"formating task {self.id}")
         self.file_data["task_count"] = self.id
         now = datetime.datetime.now()
         self.due = now + datetime.timedelta(days=7)
-        task = {
+        self.task = {
             "id": self.id,
             "summary": self.summary,
             "created": now.strftime("%Y-%m-%d %H:%M:%S"),
             "due": self.due.strftime("%Y-%m-%d %H:%M:%S"),
             "status": "open"
         }
-        logger.info(f"Creating task {task['id']}: "
-                    f"{task['summary']}"
-                    f" - {task['created']}")
-        self.file_data["tasks"].append(task)
+        self.file_data["tasks"].append(self.task)
 
 
 class GetNextTask:
