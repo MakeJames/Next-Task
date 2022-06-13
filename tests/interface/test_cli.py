@@ -110,5 +110,5 @@ class TestCliMainMethod:
         with pytest.raises(SystemExit):
             cli.main(["--done"])
         captured = capsys.readouterr()
-        assert "updated 5102" \
+        assert "Updated 5102" \
             in captured.out

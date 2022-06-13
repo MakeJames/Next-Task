@@ -1,12 +1,12 @@
 """Module containing the methods relating to task creation."""
 
 import datetime
-import json
 import random
 import sys
 
 from loguru import logger
 
+from next_task.interface import console_output
 from next_task.services import store
 
 
@@ -43,27 +43,22 @@ class CreateTask:
         self.file_data = store.GetTasks().file_data
         self.task_formatter()
         store.WriteTask(self.file_data)
-        print(f"Created task {self.id}: {self.summary}\n"
-              f"Due: {self.due.strftime('%Y-%m-%d %H:%M:%S')}")
+        console_output.Format(self.task).create_task()
 
     def task_formatter(self):
         """Build task dictionary."""
         self.id = self.file_data["task_count"] + 1
-        logger.info(f"formating task {self.id}")
         self.file_data["task_count"] = self.id
         now = datetime.datetime.now()
         self.due = now + datetime.timedelta(days=7)
-        task = {
+        self.task = {
             "id": self.id,
             "summary": self.summary,
             "created": now.strftime("%Y-%m-%d %H:%M:%S"),
             "due": self.due.strftime("%Y-%m-%d %H:%M:%S"),
             "status": "open"
         }
-        logger.info(f"Creating task {task['id']}: "
-                    f"{task['summary']}"
-                    f" - {task['created']}")
-        self.file_data["tasks"].append(task)
+        self.file_data["tasks"].append(self.task)
 
 
 class GetNextTask:
@@ -79,18 +74,13 @@ class GetNextTask:
         """Get the next task, handles the error of no tasks."""
         try:
             self.task = self.ordered_tasks["tasks"][0]
-            logger.info(f"next priority task is {self.task['id']}")
         except IndexError:
-            logger.debug("list index 0 out of range")
-            print("Congratulations!\n"
-                  "There are no tasks on your to do list\n"
-                  "Take a break and have a cup of tea.")
+            console_output.Congratulations()
             sys.exit()
 
     def print_task(self):
         """Print the next task."""
-        print(f"{self.task['id']}: {self.task['summary']}\n"
-              f"due {self.task['due']}")
+        console_output.Format(self.task).next_task()
 
 
 class SkipTask:
@@ -101,6 +91,7 @@ class SkipTask:
         self.all_tasks = GetNextTask()
         self.task = self.all_tasks.task
         self.update_file_data()
+        console_output.Format(self.task).skip_task()
         store.WriteTask(self.all_tasks.file_data)
         GetNextTask().print_task()
 
@@ -126,9 +117,6 @@ class SkipTask:
             if tasks[index]["id"] == self.task["id"]:
                 self.update_due_date()
                 tasks[index] = self.task
-                print(f"updated {tasks[index]['id']}: "
-                      f"{tasks[index]['summary']}\n"
-                      f"now due: {tasks[index]['due']}")
                 break
 
 
@@ -152,6 +140,4 @@ class MarkAsClosed:
         self.task["status"] = "closed"
         now = datetime.datetime.now()
         self.task["completed"] = now.strftime("%Y-%m-%d %H:%M:%S")
-        logger.info(f"Updating {self.task['id']}: {self.task['summary']}'")
-        print(f"updated {self.task['id']}, ",
-              f"completed: {self.task['completed']}")
+        console_output.Format(self.task).mark_closed()
