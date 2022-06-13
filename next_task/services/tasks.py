@@ -95,6 +95,7 @@ class SkipTask:
         self.all_tasks = GetNextTask()
         self.task = self.all_tasks.task
         self.update_file_data()
+        console_output.SkipTask(self.task).print()
         store.WriteTask(self.all_tasks.file_data)
         GetNextTask().print_task()
 
@@ -120,9 +121,6 @@ class SkipTask:
             if tasks[index]["id"] == self.task["id"]:
                 self.update_due_date()
                 tasks[index] = self.task
-                print(f"updated {tasks[index]['id']}: "
-                      f"{tasks[index]['summary']}\n"
-                      f"now due: {tasks[index]['due']}")
                 break
 
 

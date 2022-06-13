@@ -57,3 +57,22 @@ class NextTask:
             f"[warning]Due:[/warning] [default]{self.due}[/default]",
             style="pass"
         )
+
+
+class SkipTask:
+    """Format console output when skiping the next task."""
+
+    def __init__(self, data):
+        """Instanisate the class."""
+        self.id = data["id"]
+        self.summary = data["summary"]
+        self.due = data["due"]
+
+    def print(self):
+        """Print to the console."""
+        console = Console(theme=Format().task)
+        console.print(
+            f"[warning]updated {self.id}:[/warning] {self.summary}\n"
+            f"[info]now due: {self.due}[/info]",
+            style="pass"
+        )
