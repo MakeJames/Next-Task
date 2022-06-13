@@ -141,6 +141,4 @@ class MarkAsClosed:
         self.task["status"] = "closed"
         now = datetime.datetime.now()
         self.task["completed"] = now.strftime("%Y-%m-%d %H:%M:%S")
-        logger.info(f"Updating {self.task['id']}: {self.task['summary']}'")
-        print(f"updated {self.task['id']}, ",
-              f"completed: {self.task['completed']}")
+        console_output.MarkClosed(self.task).print()

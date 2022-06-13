@@ -79,8 +79,28 @@ class SkipTask:
         )
 
 
+class MarkClosed:
+    """Format console output for closing a task."""
+
+    def __init__(self, data):
+        """Instanisate the class."""
+        self.data = data
+        self.id = data["id"]
+        self.summary = data["summary"]
+        self.due = data["due"]
+
+    def print(self):
+        """Print to the console."""
+        console = Console(theme=Format().task)
+        console.print(
+            f"[b]Updated {self.id},[/b] "
+            f"Completed: [default]{self.data['completed']}[/default]",
+            style="green"
+        )
+
+
 class Congratulations:
-    """Format console output for returning the next task."""
+    """Format console output when there are no more tasks to do."""
 
     def __init__(self):
         """Instanisate the class."""
