@@ -15,7 +15,8 @@ class Format:
             "warning": "#C92727",
             "highlight": "#ADD9F4",
             "number": "#ADD9F4",
-            "pass": "#4A70C2"
+            "pass": "#4A70C2",
+            "green": "#09814A"
 
         }, inherit=False)
 
@@ -75,4 +76,18 @@ class SkipTask:
             f"[warning]updated {self.id}:[/warning] {self.summary}\n"
             f"[info]now due: {self.due}[/info]",
             style="pass"
+        )
+
+
+class Congratulations:
+    """Format console output for returning the next task."""
+
+    def __init__(self):
+        """Instanisate the class."""
+        console = Console(theme=Format().task)
+        console.print(
+            "[b]Congratulations![/b]\n"
+            "There are no tasks on your to do list\n"
+            "Take a break and have a cup of tea.",
+            style="green"
         )

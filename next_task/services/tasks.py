@@ -76,10 +76,7 @@ class GetNextTask:
         try:
             self.task = self.ordered_tasks["tasks"][0]
         except IndexError:
-            logger.debug("list index 0 out of range")
-            print("Congratulations!\n"
-                  "There are no tasks on your to do list\n"
-                  "Take a break and have a cup of tea.")
+            console_output.Congratulations()
             sys.exit()
 
     def print_task(self):
