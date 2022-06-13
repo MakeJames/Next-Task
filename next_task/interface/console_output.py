@@ -1,15 +1,13 @@
 """Format the console output."""
 
-from rich.theme import Theme
 from rich.console import Console
+from rich.theme import Theme
 
 
 class Format:
     """Pre-formatted rich styled output."""
 
-    def __init__(self):
-        """Instansiate the class."""
-        self.task = Theme({
+    task_theme = Theme({
             "default": "default",
             "info": "#C69400",
             "warning": "#C92727",
@@ -19,80 +17,43 @@ class Format:
             "green": "#09814A"
 
         }, inherit=False)
-
-
-class CreateTask:
-    """Format text output for task output."""
+    console = Console(theme=task_theme)
 
     def __init__(self, data):
-        """Instanisate the class."""
+        """Instansiate the class."""
+        self.data = data
         self.id = data["id"]
         self.summary = data["summary"]
         self.due = data["due"]
 
-    def print(self):
-        """Print to the console."""
-        console = Console(theme=Format().task)
-        console.print(
+    def create_task(self):
+        """Format text output for create task output."""
+        Format.console.print(
             f"[b]Created task {self.id}: [/b]"
             f"[highlight]{self.summary}[/highlight]\n"
             f"Due: {self.due}",
             style="info"
         )
 
-
-class NextTask:
-    """Format console output for returning the next task."""
-
-    def __init__(self, data):
-        """Instanisate the class."""
-        self.id = data["id"]
-        self.summary = data["summary"]
-        self.due = data["due"]
-
-    def print(self):
-        """Print to the console."""
-        console = Console(theme=Format().task)
-        console.print(
+    def next_task(self):
+        """Format console output for returning the next task."""
+        Format.console.print(
             f"[b][#5CE521]{self.id}:[/#5CE521] {self.summary}[/b]\n"
             f"[warning]Due:[/warning] [default]{self.due}[/default]",
             style="pass"
         )
 
-
-class SkipTask:
-    """Format console output when skiping the next task."""
-
-    def __init__(self, data):
-        """Instanisate the class."""
-        self.id = data["id"]
-        self.summary = data["summary"]
-        self.due = data["due"]
-
-    def print(self):
-        """Print to the console."""
-        console = Console(theme=Format().task)
-        console.print(
+    def skip_task(self):
+        """Format console output when skiping the next task."""
+        Format.console.print(
             f"[warning]updated {self.id}:[/warning] {self.summary}\n"
             f"[info]now due: {self.due}[/info]",
             style="pass"
         )
 
-
-class MarkClosed:
-    """Format console output for closing a task."""
-
-    def __init__(self, data):
-        """Instanisate the class."""
-        self.data = data
-        self.id = data["id"]
-        self.summary = data["summary"]
-        self.due = data["due"]
-
-    def print(self):
-        """Print to the console."""
-        console = Console(theme=Format().task)
-        console.print(
+    def mark_closed(self):
+        """Format console output for closing a task."""
+        Format.console.print(
             f"[b]Updated {self.id},[/b] "
             f"Completed: [default]{self.data['completed']}[/default]",
             style="green"
@@ -103,9 +64,8 @@ class Congratulations:
     """Format console output when there are no more tasks to do."""
 
     def __init__(self):
-        """Instanisate the class."""
-        console = Console(theme=Format().task)
-        console.print(
+        """Instansiate the class."""
+        Format.console.print(
             "[b]Congratulations![/b]\n"
             "There are no tasks on your to do list\n"
             "Take a break and have a cup of tea.",

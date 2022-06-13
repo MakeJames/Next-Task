@@ -4,7 +4,6 @@ import datetime
 import random
 import sys
 
-from rich.console import Console
 from loguru import logger
 
 from next_task.interface import console_output
@@ -44,7 +43,7 @@ class CreateTask:
         self.file_data = store.GetTasks().file_data
         self.task_formatter()
         store.WriteTask(self.file_data)
-        console_output.CreateTask(self.task).print()
+        console_output.Format(self.task).create_task()
 
     def task_formatter(self):
         """Build task dictionary."""
@@ -81,7 +80,7 @@ class GetNextTask:
 
     def print_task(self):
         """Print the next task."""
-        console_output.NextTask(self.task).print()
+        console_output.Format(self.task).next_task()
 
 
 class SkipTask:
@@ -92,7 +91,7 @@ class SkipTask:
         self.all_tasks = GetNextTask()
         self.task = self.all_tasks.task
         self.update_file_data()
-        console_output.SkipTask(self.task).print()
+        console_output.Format(self.task).skip_task()
         store.WriteTask(self.all_tasks.file_data)
         GetNextTask().print_task()
 
@@ -141,4 +140,4 @@ class MarkAsClosed:
         self.task["status"] = "closed"
         now = datetime.datetime.now()
         self.task["completed"] = now.strftime("%Y-%m-%d %H:%M:%S")
-        console_output.MarkClosed(self.task).print()
+        console_output.Format(self.task).mark_closed()

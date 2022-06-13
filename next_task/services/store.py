@@ -2,8 +2,8 @@
 
 import json
 import sys
-from pathlib import Path
 from os import path
+from pathlib import Path
 
 from loguru import logger
 
