@@ -12,10 +12,11 @@ class Format:
         self.task = Theme({
             "default": "default",
             "info": "#C69400",
-            "warning": "#BA2D0B",
+            "warning": "#C92727",
             "highlight": "#ADD9F4",
             "number": "#ADD9F4",
-            "pass": "#09814A"
+            "pass": "#4A70C2"
+
         }, inherit=False)
 
 
@@ -36,4 +37,23 @@ class CreateTask:
             f"[highlight]{self.summary}[/highlight]\n"
             f"Due: {self.due}",
             style="info"
+        )
+
+
+class NextTask:
+    """Format console output for returning the next task."""
+
+    def __init__(self, data):
+        """Instanisate the class."""
+        self.id = data["id"]
+        self.summary = data["summary"]
+        self.due = data["due"]
+
+    def print(self):
+        """Print to the console."""
+        console = Console(theme=Format().task)
+        console.print(
+            f"[b][#5CE521]{self.id}:[/#5CE521] {self.summary}[/b]\n"
+            f"[warning]Due:[/warning] [default]{self.due}[/default]",
+            style="pass"
         )

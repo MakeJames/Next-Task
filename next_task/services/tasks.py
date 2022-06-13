@@ -75,7 +75,6 @@ class GetNextTask:
         """Get the next task, handles the error of no tasks."""
         try:
             self.task = self.ordered_tasks["tasks"][0]
-            logger.info(f"next priority task is {self.task['id']}")
         except IndexError:
             logger.debug("list index 0 out of range")
             print("Congratulations!\n"
@@ -85,8 +84,7 @@ class GetNextTask:
 
     def print_task(self):
         """Print the next task."""
-        print(f"{self.task['id']}: {self.task['summary']}\n"
-              f"due {self.task['due']}")
+        console_output.NextTask(self.task).print()
 
 
 class SkipTask:
