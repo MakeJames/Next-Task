@@ -2,7 +2,7 @@
 
 import datetime
 import random
-import sys
+from sys import exit
 
 from loguru import logger
 
@@ -66,21 +66,19 @@ class GetNextTask:
 
     def __init__(self):
         """Instansiate the get task wrapper class."""
-        self.file_data = store.GetTasks().file_data
-        self.ordered_tasks = GetPriority(self.file_data).data
+        self.file = GetPriority(store.GetTasks().file_data)
         self.get_task()
 
     def get_task(self):
         """Get the next task, handles the error of no tasks."""
-        try:
-            self.task = self.ordered_tasks["tasks"][0]
-        except IndexError:
+        if self.file.data["tasks"] == []:
             console_output.Congratulations()
-            sys.exit()
+            exit([0])
+        self.next_task = self.file.data["tasks"][0]
 
-    def print_task(self):
+    def print(self):
         """Print the next task."""
-        console_output.Format(self.task).next_task()
+        console_output.Format(self.next_task).next_task()
 
 
 class SkipTask:
@@ -88,35 +86,29 @@ class SkipTask:
 
     def __init__(self):
         """Instansiate the class."""
-        self.all_tasks = GetNextTask()
-        self.task = self.all_tasks.task
+        self.tasks = GetNextTask()
         self.update_file_data()
-        console_output.Format(self.task).skip_task()
-        store.WriteTask(self.all_tasks.file_data)
-        GetNextTask().print_task()
+        console_output.Format(self.tasks.next_task).skip_task()
+        store.WriteTask(self.tasks.file.data)
+        GetNextTask().print()
 
     def update_due_date(self):
         """Update Task due date."""
-        self.date = datetime.datetime.strptime(
-            self.task["due"],
+        date = datetime.datetime.strptime(
+            self.tasks.next_task["due"],
             "%Y-%m-%d %H:%M:%S"
         )
         add_days = random.uniform(0.5, 8)
-        logger.info(f"Increase by {add_days}")
-        self.new_date = self.date + datetime.timedelta(days=add_days)
-        logger.info(f"Updating due date from {self.task['due']}, "
-                    f"now due {self.new_date}")
-        self.task["due"] = self.new_date.strftime("%Y-%m-%d %H:%M:%S")
+        new_date = date + datetime.timedelta(days=add_days)
+        self.tasks.next_task["due"] = new_date.strftime("%Y-%m-%d %H:%M:%S")
 
     def update_file_data(self):
         """Find task and update due date."""
-        tasks = self.all_tasks.file_data["tasks"]
-        logger.debug('updating file_data')
+        tasks = self.tasks.file.data["tasks"]
         for index in range(len(tasks)):
-            logger.debug(f"checking {tasks[index]['id']}")
-            if tasks[index]["id"] == self.task["id"]:
+            if tasks[index]["id"] == self.tasks.next_task["id"]:
                 self.update_due_date()
-                tasks[index] = self.task
+                tasks[index] = self.tasks.next_task
                 break
 
 
@@ -125,19 +117,15 @@ class MarkAsClosed:
 
     def __init__(self):
         """Instansiate the class."""
-        self.get_tasks = GetNextTask()
-        self.task = self.get_tasks.task
-        self.file_data = self.get_tasks.file_data
-        self.file_data["tasks"].remove(self.task)
-        logger.debug(f"removed {self.task['id']} from task data")
+        self.tasks = GetNextTask()
         self.update()
-        logger.debug(f"adding {self.task['id']} to completed tasks")
-        self.file_data["completed_tasks"].append(self.task)
-        store.WriteTask(self.file_data)
+        console_output.Format(self.tasks.next_task).mark_closed()
+        store.WriteTask(self.tasks.file.data)
 
     def update(self):
         """Update the task."""
-        self.task["status"] = "closed"
-        now = datetime.datetime.now()
-        self.task["completed"] = now.strftime("%Y-%m-%d %H:%M:%S")
-        console_output.Format(self.task).mark_closed()
+        self.tasks.file.data["tasks"].remove(self.tasks.next_task)
+        self.tasks.next_task["status"] = "closed"
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.tasks.next_task["completed"] = now
+        self.tasks.file.data["completed_tasks"].append(self.tasks.next_task)

@@ -114,7 +114,7 @@ class TestGetNextTask:
             "home",
             return_value=mock_file_path()
         )
-        tasks.GetNextTask().print_task()
+        tasks.GetNextTask().print()
         captured = capsys.readouterr()
         assert "5102" in captured.out
 
@@ -162,7 +162,7 @@ class TestSkipTask:
             "%Y-%m-%d %H:%M:%S"
         )
         due_2 = datetime.datetime.strptime(
-            test_call.task["due"],
+            test_call.tasks.next_task["due"],
             "%Y-%m-%d %H:%M:%S"
         )
         assert due_1 < due_2
@@ -196,6 +196,6 @@ class TestMarkAsClosedClass:
     ) -> None:
         """R-BICEP: Right."""
         test_call = tasks.MarkAsClosed()
-        assert test_call.task["status"] == "closed" \
-            and test_call.file_data["completed_tasks"][-1]["id"] == \
-            test_call.task["id"]
+        assert test_call.tasks.next_task["status"] == "closed" \
+            and test_call.tasks.file.data["completed_tasks"][-1]["id"] == \
+            test_call.tasks.next_task["id"]
