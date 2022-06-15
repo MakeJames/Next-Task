@@ -14,7 +14,6 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.9"
 loguru = "^0.5.3"
-argparse = "^1.4.0"
 rich = "^12.4.4"
 
 [tool.poetry.dev-dependencies]
