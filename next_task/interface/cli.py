@@ -5,6 +5,7 @@ import os
 import sys
 
 import next_task
+from next_task.interface import console_output
 from next_task.services import store, tasks
 
 
@@ -51,6 +52,14 @@ def main(argv=None):
         """,
         action="store_true"
     )
+    parser.add_argument(
+        "-l",
+        "--list",
+        help="""
+            Lists open tasks
+        """,
+        action="store_true"
+    )
 
     args = parser.parse_args(argv)
 
@@ -66,6 +75,8 @@ def main(argv=None):
     if args.done:
         tasks.MarkAsClosed()
         sys.exit()
+    if args.list:
+        console_output.ListTasks(tasks.GetNextTask().file.data)
 
 
 if __name__ == "__main__":

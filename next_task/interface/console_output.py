@@ -1,6 +1,8 @@
 """Format the console output."""
 
+from rich import box
 from rich.console import Console
+from rich.table import Table
 from rich.theme import Theme
 
 
@@ -19,6 +21,29 @@ class Style:
                 "green": "#09814A"
             }, inherit=False)
         self.console = Console(theme=task_theme)
+
+
+class ListTasks:
+    """Returns a formatted table of tasks to the command line."""
+
+    def __init__(self, data):
+        """Insttansiate the class."""
+        table = Table(title="Open Tasks")
+
+        table.box = box.SIMPLE_HEAD
+
+        table.add_column("id", style="#09814A", no_wrap=True)
+        table.add_column("summary", style="#4A70C2", no_wrap=True)
+        table.add_column("created", justify="right", style="#4A70C2")
+
+        for row in data["tasks"]:
+            table.add_row(
+                f"{row['id']}",
+                f"{row['summary']}",
+                f"{row['created']}"
+            )
+
+        Console().print(table, justify="left")
 
 
 class Format:
