@@ -118,14 +118,14 @@ class MarkAsClosed:
     def __init__(self):
         """Instansiate the class."""
         self.tasks = GetNextTask()
-        self.tasks.file.data["tasks"].remove(self.tasks.next_task)
         self.update()
-        self.tasks.file.data["completed_tasks"].append(self.tasks.next_task)
+        console_output.Format(self.tasks.next_task).mark_closed()
         store.WriteTask(self.tasks.file.data)
 
     def update(self):
         """Update the task."""
+        self.tasks.file.data["tasks"].remove(self.tasks.next_task)
         self.tasks.next_task["status"] = "closed"
-        now = datetime.datetime.now()
-        self.tasks.next_task["completed"] = now.strftime("%Y-%m-%d %H:%M:%S")
-        console_output.Format(self.tasks.next_task).mark_closed()
+        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.tasks.next_task["completed"] = now
+        self.tasks.file.data["completed_tasks"].append(self.tasks.next_task)
