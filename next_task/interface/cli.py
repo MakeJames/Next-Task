@@ -58,7 +58,7 @@ def main(argv=None):
         tasks.CreateTask(args.add)
         sys.exit()
     if args.task:
-        tasks.GetNextTask().print_task()
+        tasks.GetNextTask().print()
         sys.exit()
     if args.skip:
         tasks.SkipTask()
