@@ -23,8 +23,7 @@ class TestCliMainMethod:
 
     def test_task_creation(self, capsys) -> None:
         """R-BICEP: Right."""
-        with pytest.raises(SystemExit):
-            cli.main(["--add", "This is a task"])
+        cli.main(["--add", "This is a task"])
         captured = capsys.readouterr()
         assert "Created task 1: This is a task" in captured.out
 
@@ -54,8 +53,7 @@ class TestCliMainMethod:
             return_value=mock_file_path()
         )
 
-        with pytest.raises(SystemExit):
-            cli.main(["--task"])
+        cli.main(["--task"])
         captured = capsys.readouterr()
         assert "5102" in captured.out
 
@@ -95,8 +93,7 @@ class TestCliMainMethod:
             return_value=mock_file_path()
         )
 
-        with pytest.raises(SystemExit):
-            cli.main(["--skip"])
+        cli.main(["--skip"])
         captured = capsys.readouterr()
         assert "updated 5102" in captured.out
 
@@ -107,8 +104,7 @@ class TestCliMainMethod:
         capsys
     ) -> None:
         """R-BICEP: Right."""
-        with pytest.raises(SystemExit):
-            cli.main(["--done"])
+        cli.main(["--done"])
         captured = capsys.readouterr()
         assert "Updated 5102" \
             in captured.out

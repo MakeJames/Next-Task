@@ -1,12 +1,11 @@
 """Command line script."""
 
 import argparse
-import os
 import sys
 
 import next_task
 from next_task.interface import console_output
-from next_task.services import store, tasks
+from next_task.services import tasks
 
 
 def main(argv=None):
@@ -65,16 +64,12 @@ def main(argv=None):
 
     if args.add:
         tasks.CreateTask(args.add)
-        sys.exit()
     if args.task:
         tasks.GetNextTask().print()
-        sys.exit()
     if args.skip:
         tasks.SkipTask()
-        sys.exit()
     if args.done:
         tasks.MarkAsClosed()
-        sys.exit()
     if args.list:
         console_output.ListTasks(tasks.GetNextTask().file.data)
 
