@@ -15,7 +15,6 @@ class GetPriority:
 
     def __init__(self, task_data):
         """Instansiate the class."""
-        logger.info("calculating task list priority")
         self.data = task_data
         self.data["tasks"].sort(key=self.calculate)
 
