@@ -103,15 +103,16 @@ class CheckTaskStore:
     def __init__(self):
         """Instansiate the Check class."""
         self.file = f"{str(Path.home())}/.tasks.json"
-        self.exists()
+        if self.exists() is False:
+            with open(self.file, "a+") as file:
+                file.seek(0)
+                json.dump("{}", file, indent=4)
 
     def exists(self):
         """Check that the path exists."""
         if Path(self.file).exists():
             return True
-        with open(self.file, "a+") as file:
-            file.seek(0)
-            json.dump(LoadTemplate().data, file, indent=4)
+        return False
 
 
 class GetTasks:

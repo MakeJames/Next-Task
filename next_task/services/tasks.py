@@ -7,7 +7,7 @@ from sys import exit
 from loguru import logger
 
 from next_task.interface import console_output
-from next_task.services import store
+from next_task.services.store import GetTasks, WriteTask
 
 
 class GetPriority:
@@ -39,9 +39,9 @@ class CreateTask:
     def __init__(self, summary: str):
         """Instansiate the Write task class."""
         self.summary = summary
-        self.file_data = store.GetTasks().file_data
+        self.file_data = GetTasks().file_data
         self.task_formatter()
-        store.WriteTask(self.file_data)
+        WriteTask(self.file_data)
         console_output.Format(self.task).create_task()
 
     def task_formatter(self):
@@ -65,7 +65,7 @@ class GetNextTask:
 
     def __init__(self):
         """Instansiate the get task wrapper class."""
-        self.file = GetPriority(store.GetTasks().file_data)
+        self.file = GetPriority(GetTasks().file_data)
         self.get_task()
 
     def get_task(self):
@@ -75,7 +75,7 @@ class GetNextTask:
             exit([0])
         self.next_task = self.file.data["tasks"][0]
 
-    def print(self):
+    def print_task(self):
         """Print the next task."""
         console_output.Format(self.next_task).next_task()
 
@@ -88,8 +88,7 @@ class SkipTask:
         self.tasks = GetNextTask()
         self.update_file_data()
         console_output.Format(self.tasks.next_task).skip_task()
-        store.WriteTask(self.tasks.file.data)
-        GetNextTask().print()
+        WriteTask(self.tasks.file.data)
 
     def update_due_date(self):
         """Update Task due date."""
@@ -119,7 +118,7 @@ class MarkAsClosed:
         self.tasks = GetNextTask()
         self.update()
         console_output.Format(self.tasks.next_task).mark_closed()
-        store.WriteTask(self.tasks.file.data)
+        WriteTask(self.tasks.file.data)
 
     def update(self):
         """Update the task."""

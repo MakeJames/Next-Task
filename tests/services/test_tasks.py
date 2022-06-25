@@ -75,7 +75,6 @@ class TestCreateTask:
         test_call = tasks.CreateTask("test_call")
         with open(store.CheckTaskStore().file, "r") as file:
             file_data = json.load(file)
-            print(json.dumps(file_data, indent=4))
 
         assert test_call.id == 1 \
             and file_data["tasks"][0]["id"] == 1
@@ -114,7 +113,7 @@ class TestGetNextTask:
             "home",
             return_value=mock_file_path()
         )
-        tasks.GetNextTask().print()
+        tasks.GetNextTask().print_task()
         captured = capsys.readouterr()
         assert "5102" in captured.out
 

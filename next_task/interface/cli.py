@@ -4,8 +4,9 @@ import argparse
 import sys
 
 import next_task
-from next_task.interface import console_output
-from next_task.services import tasks
+from next_task.interface.console_output import ListTasks
+from next_task.services.tasks import (CreateTask, GetNextTask, MarkAsClosed,
+                                      SkipTask)
 
 
 def main(argv=None):
@@ -63,15 +64,16 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     if args.add:
-        tasks.CreateTask(args.add)
+        CreateTask(args.add)
     if args.task:
-        tasks.GetNextTask().print()
+        GetNextTask().print_task()
     if args.skip:
-        tasks.SkipTask()
+        SkipTask()
+        GetNextTask().print_task()
     if args.done:
-        tasks.MarkAsClosed()
+        MarkAsClosed()
     if args.list:
-        console_output.ListTasks(tasks.GetNextTask().file.data)
+        ListTasks(GetNextTask().file.data)
 
 
 if __name__ == "__main__":
