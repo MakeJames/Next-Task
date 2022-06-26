@@ -37,6 +37,7 @@ pre-commit: lint
 
 format:
 	$(EXECUTE) isort $(LINT_GROUP)
+	code2flow -o docs/class_diagram.png -q $(PACKAGE)
 
 lint:
 	$(EXECUTE) pycodestyle $(LINT_GROUP) $(TEST_GROUP)

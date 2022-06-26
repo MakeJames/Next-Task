@@ -26,6 +26,7 @@ mypy = "^0.931"
 toml = "^0.10.2"
 loguru-mypy = "^0.0.4"
 isort = "^5.10.1"
+code2flow = "^2.5.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
