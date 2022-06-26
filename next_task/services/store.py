@@ -86,10 +86,24 @@ class CheckCompleted:
             self.data["completed"] = {}
             self.data["completed"]["tasks"] = completed
 
+        # Legacy compatability, ensures pre-0.3.8 task files are formatted
         if "completed_tasks" in self.data:
             self.data["completed"] = {}
             self.data["completed"]["tasks"] = self.data["completed_tasks"]
             self.data.pop("completed_tasks")
+
+
+class CheckCurrent:
+    """Ensure that there is a current key in the file."""
+
+    def __init__(self, data):
+        """Instansiate the class."""
+        self.data = data
+        if "current" not in self.data:
+            self.data["current"] = {}
+
+        if "task" not in self.data:
+            self.data["current"]["task"] = {}
 
 
 class CheckFormatting:
@@ -101,6 +115,7 @@ class CheckFormatting:
         self.data = CheckTasks(self.data).data
         self.data = CheckCompleted(self.data).data
         self.data = CheckTaskCount(self.data).data
+        self.data = CheckCurrent(self.data).data
 
 
 class CheckTaskStore:

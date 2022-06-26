@@ -131,3 +131,14 @@ class TestCheckCompleted:
             file_data = json.load(file)
         test = store.CheckCompleted(file_data).data
         assert len(test["completed"]["tasks"]) == 2
+
+
+class TestCheckCurrent:
+    """Test the check current key in source data."""
+
+    def test_when_checked_pre_0_3_0_files_are_compatable(self) -> None:
+        """R-BICEP: Right."""
+        with open("tests/data_mocks/pre_0.3.0/.tasks.json", "r") as file:
+            file_data = json.load(file)
+        test = store.CheckCurrent(file_data).data
+        assert test["current"] == {"task": {}}
