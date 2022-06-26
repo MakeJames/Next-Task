@@ -4,8 +4,6 @@ import datetime
 import random
 from sys import exit
 
-from loguru import logger
-
 from next_task.interface import console_output
 from next_task.services.store import GetTasks, WriteTask
 
