@@ -45,7 +45,7 @@ class TestCliMainMethod:
         """R-BICEP: Right."""
 
         def mock_file_path():
-            return "tests/data_mocks/1"
+            return "tests/data_mocks/task_file"
 
         mocker.patch.object(
             Path,
@@ -67,7 +67,7 @@ class TestCliMainMethod:
         """Mock the catalogue check, file_path builder method."""
 
         def mock_file_path():
-            return "tests/data_mocks/1"
+            return "tests/data_mocks/task_file"
 
         mocker.patch.object(
             Path,
@@ -85,7 +85,7 @@ class TestCliMainMethod:
         """R-BICEP: Right."""
 
         def mock_file_path():
-            return "tests/data_mocks/1"
+            return "tests/data_mocks/task_file"
 
         mocker.patch.object(
             Path,

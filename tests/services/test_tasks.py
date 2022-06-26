@@ -21,7 +21,7 @@ class TestGetPriority:
     ) -> None:
         """R-BICEP: Right."""
         def mock_file_path():
-            return "tests/data_mocks/1"
+            return "tests/data_mocks/task_file"
 
         mocker.patch.object(
             Path,
@@ -38,7 +38,7 @@ class TestGetPriority:
     ) -> None:
         """R-BICEP: Performance."""
         def mock_file_path():
-            return "tests/data_mocks/2"
+            return "tests/data_mocks/large_file"
 
         mocker.patch.object(
             Path,
@@ -62,7 +62,7 @@ class TestCreateTask:
     def mock_tasks_file(self, mocker) -> None:
         """Return a file in the mock data file."""
         def mock_file_path():
-            return "tests/data_mocks/2"
+            return "tests/data_mocks/large_file"
 
         mocker.patch.object(
             Path,
@@ -106,7 +106,7 @@ class TestGetNextTask:
     ) -> None:
         """R-BICEP: Right."""
         def mock_file_path():
-            return "tests/data_mocks/1"
+            return "tests/data_mocks/task_file"
 
         mocker.patch.object(
             Path,
@@ -141,7 +141,7 @@ class TestSkipTask:
         """Mock the catalogue check, file_path builder method."""
 
         def mock_file_path():
-            return "tests/data_mocks/1"
+            return "tests/data_mocks/task_file"
 
         mocker.patch.object(
             Path,
@@ -180,7 +180,7 @@ class TestMarkAsClosedClass:
         """Mock the catalogue check, file_path builder method."""
 
         def mock_file_path():
-            return "tests/data_mocks/1"
+            return "tests/data_mocks/task_file"
 
         mocker.patch.object(
             Path,

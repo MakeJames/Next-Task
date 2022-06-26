@@ -105,7 +105,6 @@ class CheckTaskStore:
         self.file = f"{str(Path.home())}/.tasks.json"
         if self.exists() is False:
             with open(self.file, "a+") as file:
-                file.seek(0)
                 json.dump("{}", file, indent=4)
 
     def exists(self):
