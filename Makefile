@@ -41,7 +41,7 @@ format:
 lint:
 	$(EXECUTE) pycodestyle $(LINT_GROUP) $(TEST_GROUP)
 	$(EXECUTE) pydocstyle $(LINT_GROUP) $(TEST_GROUP)
-	$(EXECUTE) mypy --ignore-missing-imports $(LINT_GROUP)
+	$(EXECUTE) mypy $(LINT_GROUP)
 
 test:
 	$(EXECUTE) pytest $(TEST_GROUP) -v --durations=0
