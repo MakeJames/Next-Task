@@ -20,7 +20,6 @@ Next --version
 git clone git@gitlab.com:mcbean-workspace/next-task.git
 cd next
 make dev
-export LOG_LEVEL=INFO # Optional: supports DEBUG, WARNING
 poetry run Next --version
 ```
 

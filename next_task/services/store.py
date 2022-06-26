@@ -1,11 +1,10 @@
 """Service module containing methods relating to the task file."""
 
 import json
-import sys
 from os import path
 from pathlib import Path
 
-from loguru import logger
+from rich import print
 
 
 class LoadTemplate:
@@ -13,7 +12,6 @@ class LoadTemplate:
 
     def __init__(self):
         """Instansiate the class."""
-        # TODO: Currently requires generation within the repository
         with open(path.join(path.dirname(__file__), "template.json"),
                   "r") as file:
             self.data = json.load(file)
@@ -25,26 +23,25 @@ class CheckTasks:
     def __init__(self, data):
         """Instansiate the class."""
         self.data = data
-        logger.debug("Checking formating of the task array")
 
         if type(self.data) is not dict:
-            logger.warning("Data is is not an dictionary, "
-                           "correcting data integrity error")
+            print("[red]Data is is not an dictionary, "
+                  "correcting data integrity error[/red]")
             self.data = LoadTemplate().data
 
         if self.data == {}:
-            logger.warning("Data is empty, correcting "
-                           "data integrity error")
+            print("[red]Data is empty, correcting "
+                  "data integrity error[/red]")
             self.data = LoadTemplate().data
 
         if "tasks" not in self.data:
-            logger.warning("Key missing from file, "
-                           "correcting data integrity error")
+            print("[red]Key missing from file, "
+                  "correcting data integrity error[/red]")
             self.data = LoadTemplate().data
 
         if type(self.data["tasks"]) is not list:
-            logger.warning("Key missing from file, "
-                           "correcting data integrity error")
+            print("[red]Key missing from file, "
+                  "correcting data integrity error[/red]")
             self.data = LoadTemplate().data
 
 
@@ -74,15 +71,12 @@ class CheckCompleted:
 
     def __init__(self, data):
         """Instansiate the class."""
-        logger.debug("Checking completed_tasks")
         self.data = data
         if "completed_tasks" not in self.data:
-            logger.info("Reformating tasks and extracting completed tasks")
             completed = []
             open_tasks = []
             for item in self.data["tasks"]:
                 if item["status"] == "closed":
-                    logger.debug(f"Removing task {item['id']} from tasks")
                     completed.append(item)
                     continue
 
@@ -93,7 +87,7 @@ class CheckCompleted:
 
 
 class CheckFormatting:
-    """Read the current data model."""
+    """Ensure File data model conforms."""
 
     def __init__(self, data):
         """Validate that .tasks.json file meets the expected format."""
@@ -109,15 +103,15 @@ class CheckTaskStore:
     def __init__(self):
         """Instansiate the Check class."""
         self.file = f"{str(Path.home())}/.tasks.json"
-        self.exists()
+        if self.exists() is False:
+            with open(self.file, "a+") as file:
+                json.dump("{}", file, indent=4)
 
     def exists(self):
         """Check that the path exists."""
         if Path(self.file).exists():
             return True
-        with open(self.file, "a+") as file:
-            file.seek(0)
-            json.dump(LoadTemplate().data, file, indent=4)
+        return False
 
 
 class GetTasks:
@@ -137,9 +131,6 @@ class WriteTask:
         """Instansiate the Write Class."""
         self.file = CheckTaskStore().file
         self.data = CheckFormatting(data).data
-        logger.info(
-            f"Writing {self.data['task_count']} tasks to {self.file}"
-        )
         with open(self.file, "r+") as file:
             file.seek(0)
             json.dump(self.data, file, indent=4)

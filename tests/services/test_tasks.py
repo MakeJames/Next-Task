@@ -21,7 +21,7 @@ class TestGetPriority:
     ) -> None:
         """R-BICEP: Right."""
         def mock_file_path():
-            return "tests/data_mocks/1"
+            return "tests/data_mocks/task_file"
 
         mocker.patch.object(
             Path,
@@ -38,7 +38,7 @@ class TestGetPriority:
     ) -> None:
         """R-BICEP: Performance."""
         def mock_file_path():
-            return "tests/data_mocks/2"
+            return "tests/data_mocks/large_file"
 
         mocker.patch.object(
             Path,
@@ -51,7 +51,7 @@ class TestGetPriority:
         tasks.GetPriority(test_call.file_data)
         end = time()
         dif = end - start
-        logger.debug(dif)
+        print(f"dif greater than 1 second: {dif}")
         assert dif <= 1
 
 
@@ -62,7 +62,7 @@ class TestCreateTask:
     def mock_tasks_file(self, mocker) -> None:
         """Return a file in the mock data file."""
         def mock_file_path():
-            return "tests/data_mocks/2"
+            return "tests/data_mocks/large_file"
 
         mocker.patch.object(
             Path,
@@ -75,10 +75,27 @@ class TestCreateTask:
         test_call = tasks.CreateTask("test_call")
         with open(store.CheckTaskStore().file, "r") as file:
             file_data = json.load(file)
-            print(json.dumps(file_data, indent=4))
 
         assert test_call.id == 1 \
             and file_data["tasks"][0]["id"] == 1
+
+    def test_when_summary_is_passed_as_int_then_stored_as_str(self):
+        """R-BICEP: Right."""
+        test_call = tasks.CreateTask(4)
+        with open(store.CheckTaskStore().file, "r") as file:
+            file_data = json.load(file)
+
+        assert test_call.id == 1 \
+            and file_data["tasks"][0]["summary"] == "4"
+
+    def test_when_summary_is_passed_as_bool_then_stored_as_str(self):
+        """R-BICEP: Right."""
+        test_call = tasks.CreateTask(False)
+        with open(store.CheckTaskStore().file, "r") as file:
+            file_data = json.load(file)
+
+        assert test_call.id == 1 \
+            and file_data["tasks"][0]["summary"] == "False"
 
     def test_when_there_are_a_thousand_tasks_then_creation_is_performative(
         self,
@@ -107,14 +124,14 @@ class TestGetNextTask:
     ) -> None:
         """R-BICEP: Right."""
         def mock_file_path():
-            return "tests/data_mocks/1"
+            return "tests/data_mocks/task_file"
 
         mocker.patch.object(
             Path,
             "home",
             return_value=mock_file_path()
         )
-        tasks.GetNextTask().print()
+        tasks.GetNextTask().print_task()
         captured = capsys.readouterr()
         assert "5102" in captured.out
 
@@ -142,7 +159,7 @@ class TestSkipTask:
         """Mock the catalogue check, file_path builder method."""
 
         def mock_file_path():
-            return "tests/data_mocks/1"
+            return "tests/data_mocks/task_file"
 
         mocker.patch.object(
             Path,
@@ -181,7 +198,7 @@ class TestMarkAsClosedClass:
         """Mock the catalogue check, file_path builder method."""
 
         def mock_file_path():
-            return "tests/data_mocks/1"
+            return "tests/data_mocks/task_file"
 
         mocker.patch.object(
             Path,

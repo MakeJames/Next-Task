@@ -4,10 +4,8 @@ import datetime
 import random
 from sys import exit
 
-from loguru import logger
-
 from next_task.interface import console_output
-from next_task.services import store
+from next_task.services.store import GetTasks, WriteTask
 
 
 class GetPriority:
@@ -15,13 +13,11 @@ class GetPriority:
 
     def __init__(self, task_data):
         """Instansiate the class."""
-        logger.info("calculating task list priority")
         self.data = task_data
         self.data["tasks"].sort(key=self.calculate)
 
     def calculate(self, item):
         """Compound function of the due date and created date."""
-        # TODO: priority should be inherited from project
         created = datetime.datetime.strptime(
             item["created"],
             "%Y-%m-%d %H:%M:%S"
@@ -35,14 +31,14 @@ class GetPriority:
 
 
 class CreateTask:
-    """Setup class to create the structure of the json file."""
+    """Creates a task entry."""
 
-    def __init__(self, summary: str):
-        """Instansiate the Write task class."""
+    def __init__(self, summary):
+        """Instansiate the Create task class."""
         self.summary = summary
-        self.file_data = store.GetTasks().file_data
+        self.file_data = GetTasks().file_data
         self.task_formatter()
-        store.WriteTask(self.file_data)
+        WriteTask(self.file_data)
         console_output.Format(self.task).create_task()
 
     def task_formatter(self):
@@ -53,7 +49,7 @@ class CreateTask:
         self.due = now + datetime.timedelta(days=7)
         self.task = {
             "id": self.id,
-            "summary": self.summary,
+            "summary": f"{self.summary}",
             "created": now.strftime("%Y-%m-%d %H:%M:%S"),
             "due": self.due.strftime("%Y-%m-%d %H:%M:%S"),
             "status": "open"
@@ -62,11 +58,11 @@ class CreateTask:
 
 
 class GetNextTask:
-    """Print the next task to the command line."""
+    """Return the Next highest priority Task."""
 
     def __init__(self):
         """Instansiate the get task wrapper class."""
-        self.file = GetPriority(store.GetTasks().file_data)
+        self.file = GetPriority(GetTasks().file_data)
         self.get_task()
 
     def get_task(self):
@@ -76,21 +72,20 @@ class GetNextTask:
             exit([0])
         self.next_task = self.file.data["tasks"][0]
 
-    def print(self):
+    def print_task(self):
         """Print the next task."""
         console_output.Format(self.next_task).next_task()
 
 
 class SkipTask:
-    """Skip the next task."""
+    """Skip the next highest priority task."""
 
     def __init__(self):
         """Instansiate the class."""
         self.tasks = GetNextTask()
         self.update_file_data()
         console_output.Format(self.tasks.next_task).skip_task()
-        store.WriteTask(self.tasks.file.data)
-        GetNextTask().print()
+        WriteTask(self.tasks.file.data)
 
     def update_due_date(self):
         """Update Task due date."""
@@ -120,7 +115,7 @@ class MarkAsClosed:
         self.tasks = GetNextTask()
         self.update()
         console_output.Format(self.tasks.next_task).mark_closed()
-        store.WriteTask(self.tasks.file.data)
+        WriteTask(self.tasks.file.data)
 
     def update(self):
         """Update the task."""
