@@ -33,7 +33,7 @@ class GetPriority:
 class CreateTask:
     """Creates a task entry."""
 
-    def __init__(self, summary: str):
+    def __init__(self, summary):
         """Instansiate the Create task class."""
         self.summary = summary
         self.file_data = GetTasks().file_data
@@ -49,7 +49,7 @@ class CreateTask:
         self.due = now + datetime.timedelta(days=7)
         self.task = {
             "id": self.id,
-            "summary": self.summary,
+            "summary": f"{self.summary}",
             "created": now.strftime("%Y-%m-%d %H:%M:%S"),
             "due": self.due.strftime("%Y-%m-%d %H:%M:%S"),
             "status": "open"

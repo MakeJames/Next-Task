@@ -9,13 +9,14 @@ from pytest_mock import mocker
 from next_task.services import store
 
 
-class TestCheckClass:
+class TestCheckTaskStoreClass:
     """Test the methods of the Check class."""
 
     def test_when_task_file_does_not_exit_then_file_is_created(self) -> None:
         """R-BICEP: Right."""
-        file = store.CheckTaskStore()
-        assert file.exists() is True
+        assert Path(f"{str(Path.home())}/.tasks.json").exists() is False
+        assert store.CheckTaskStore()
+        assert Path(f"{str(Path.home())}/.tasks.json").exists() is True
 
     def test_when_file_exists_then_existing_data_is_not_overwritten(
         self,
@@ -53,7 +54,7 @@ class TestWriteTask:
         """R-BICEP: Error."""
         assert "completed_tasks" in store.WriteTask(data={"tasks": []}).data
 
-    def test_when_wrong_type_is_supplied_then_error(self) -> None:
+    def test_when_wrong_type_is_supplied_then_format_corrected(self) -> None:
         """R-BICEP: Error."""
         assert "tasks" in store.WriteTask(True).data
 
@@ -129,15 +130,4 @@ class TestCheckCompleted:
         with open("tests/data_mocks/pre_0.3.0/.tasks.json", "r") as file:
             file_data = json.load(file)
         test = store.CheckCompleted(file_data).data
-        assert len(test["completed_tasks"]) == 2
-
-
-class TestCheckCompleted:
-    """Test the check migration of completed issues to a completed list."""
-
-    def test_when_checked_pre_0_3_0_files_are_compatable(self) -> None:
-        """R-BICEP: Right."""
-        with open("tests/data_mocks/pre_0.3.0/.tasks.json", "r") as file:
-            file_data = json.load(file)
-        test = store.CheckFormatting(file_data).data
         assert len(test["completed_tasks"]) == 2
