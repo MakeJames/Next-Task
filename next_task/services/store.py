@@ -58,12 +58,12 @@ class CheckTaskCount:
     def fetch_id(self):
         """Return the id of the last task."""
         if self.data["tasks"] == [] \
-           and self.data["completed_tasks"] == []:
+           and self.data["completed"]["tasks"] == []:
             self.id = 0
             return
 
         self.id = len(self.data["tasks"]) \
-            + len(self.data["completed_tasks"])
+            + len(self.data["completed"]["tasks"])
 
 
 class CheckCompleted:
@@ -72,7 +72,7 @@ class CheckCompleted:
     def __init__(self, data):
         """Instansiate the class."""
         self.data = data
-        if "completed_tasks" not in self.data:
+        if "completed" not in self.data:
             completed = []
             open_tasks = []
             for item in self.data["tasks"]:
@@ -83,7 +83,13 @@ class CheckCompleted:
                 open_tasks.append(item)
 
             self.data["tasks"] = open_tasks
-            self.data["completed_tasks"] = completed
+            self.data["completed"] = {}
+            self.data["completed"]["tasks"] = completed
+
+        if "completed_tasks" in self.data:
+            self.data["completed"] = {}
+            self.data["completed"]["tasks"] = self.data["completed_tasks"]
+            self.data.pop("completed_tasks")
 
 
 class CheckFormatting:

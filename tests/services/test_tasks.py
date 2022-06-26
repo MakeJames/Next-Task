@@ -214,5 +214,5 @@ class TestMarkAsClosedClass:
         """R-BICEP: Right."""
         test_call = tasks.MarkAsClosed()
         assert test_call.tasks.next_task["status"] == "closed" \
-            and test_call.tasks.file.data["completed_tasks"][-1]["id"] == \
+            and test_call.tasks.file.data["completed"]["tasks"][-1]["id"] == \
             test_call.tasks.next_task["id"]

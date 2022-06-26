@@ -123,4 +123,4 @@ class MarkAsClosed:
         self.tasks.next_task["status"] = "closed"
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.tasks.next_task["completed"] = now
-        self.tasks.file.data["completed_tasks"].append(self.tasks.next_task)
+        self.tasks.file.data["completed"]["tasks"].append(self.tasks.next_task)
