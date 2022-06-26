@@ -13,10 +13,10 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.9"
-loguru = "^0.5.3"
 rich = "^12.4.4"
 
 [tool.poetry.dev-dependencies]
+loguru = "^0.5.3"
 pycodestyle = "^2.8.0"
 pydocstyle = "^6.1.1"
 pytest = "^6.2.5"
