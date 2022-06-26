@@ -18,7 +18,6 @@ class GetPriority:
 
     def calculate(self, item):
         """Compound function of the due date and created date."""
-        # TODO: priority should be inherited from project
         created = datetime.datetime.strptime(
             item["created"],
             "%Y-%m-%d %H:%M:%S"
@@ -32,10 +31,10 @@ class GetPriority:
 
 
 class CreateTask:
-    """Setup class to create the structure of the json file."""
+    """Creates a task entry."""
 
     def __init__(self, summary: str):
-        """Instansiate the Write task class."""
+        """Instansiate the Create task class."""
         self.summary = summary
         self.file_data = GetTasks().file_data
         self.task_formatter()
@@ -59,7 +58,7 @@ class CreateTask:
 
 
 class GetNextTask:
-    """Print the next task to the command line."""
+    """Return the Next highest priority Task."""
 
     def __init__(self):
         """Instansiate the get task wrapper class."""
@@ -79,7 +78,7 @@ class GetNextTask:
 
 
 class SkipTask:
-    """Skip the next task."""
+    """Skip the next highest priority task."""
 
     def __init__(self):
         """Instansiate the class."""

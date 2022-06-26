@@ -87,7 +87,7 @@ class CheckCompleted:
 
 
 class CheckFormatting:
-    """Read the current data model."""
+    """Ensure File data model conforms."""
 
     def __init__(self, data):
         """Validate that .tasks.json file meets the expected format."""
