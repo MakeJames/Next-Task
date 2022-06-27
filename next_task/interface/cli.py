@@ -69,7 +69,6 @@ def main(argv=None):
         GetNextTask().print_task()
     if args.skip:
         SkipTask()
-        GetNextTask().print_task()
     if args.done:
         MarkAsClosed()
     if args.list:

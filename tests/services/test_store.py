@@ -52,7 +52,7 @@ class TestWriteTask:
 
     def test_when_task_list_is_empty_then_file_format_corrected(self) -> None:
         """R-BICEP: Error."""
-        assert "completed_tasks" in store.WriteTask(data={"tasks": []}).data
+        assert "completed" in store.WriteTask(data={"tasks": []}).data
 
     def test_when_wrong_type_is_supplied_then_format_corrected(self) -> None:
         """R-BICEP: Error."""
@@ -100,8 +100,8 @@ class TestCheckTasks:
         """R-BICEP: Right."""
         with open("tests/data_mocks/task_file/.tasks.json", "r") as file:
             file_data = json.load(file)
-        assert len(store.CheckTasks(file_data).data["completed_tasks"]) \
-            == len(file_data["completed_tasks"])
+        assert len(store.CheckTasks(file_data).data["completed"]["tasks"]) \
+            == len(file_data["completed"]["tasks"])
 
     def test_when_checked_pre_0_3_0_files_are_compatable(self) -> None:
         """R-BICEP: Right."""
@@ -130,4 +130,15 @@ class TestCheckCompleted:
         with open("tests/data_mocks/pre_0.3.0/.tasks.json", "r") as file:
             file_data = json.load(file)
         test = store.CheckCompleted(file_data).data
-        assert len(test["completed_tasks"]) == 2
+        assert len(test["completed"]["tasks"]) == 2
+
+
+class TestCheckCurrent:
+    """Test the check current key in source data."""
+
+    def test_when_checked_pre_0_3_0_files_are_compatable(self) -> None:
+        """R-BICEP: Right."""
+        with open("tests/data_mocks/pre_0.3.0/.tasks.json", "r") as file:
+            file_data = json.load(file)
+        test = store.CheckCurrent(file_data).data
+        assert test["current"] == {"task": {}}

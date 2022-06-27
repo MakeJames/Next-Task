@@ -8,11 +8,34 @@ from pytest_mock import mocker
 
 from next_task.interface import cli
 from next_task.services import tasks
+from next_task.services import store
 from next_task import __version__
 
 
 class TestCliMainMethod:
     """Test the main method of the cli module."""
+
+    @pytest.fixture(autouse=True)
+    def mock_write(self, mocker):
+        """Mock the write aspect of the writer function."""
+        def mock_function():
+            return None
+        mocker.patch.object(
+            store.WriteTask,
+            "__init__",
+            return_value=mock_function()
+        )
+
+    @pytest.fixture
+    def mock_get_next_task(self, mocker):
+        """Mock the catalogue check, file_path builder method."""
+        def mock_file_path():
+            return "tests/data_mocks/task_file"
+        mocker.patch.object(
+            Path,
+            "home",
+            return_value=mock_file_path()
+        )
 
     def test_main_version(self, capsys) -> None:
         """R-BICEP: Right."""
@@ -40,67 +63,27 @@ class TestCliMainMethod:
     def test_that_next_task_is_returned(
         self,
         capsys,
-        mocker
+        mock_get_next_task,
     ) -> None:
         """R-BICEP: Right."""
-
-        def mock_file_path():
-            return "tests/data_mocks/task_file"
-
-        mocker.patch.object(
-            Path,
-            "home",
-            return_value=mock_file_path()
-        )
-
         cli.main(["--task"])
         captured = capsys.readouterr()
         assert "5102" in captured.out
 
-    @pytest.fixture
-    def mock_json_dump(self, mocker):
-        """Mock the write aspect of the writer function."""
-        mocker.patch("json.dump")
-
-    @pytest.fixture
-    def mock_get_next_task(self, mocker):
-        """Mock the catalogue check, file_path builder method."""
-
-        def mock_file_path():
-            return "tests/data_mocks/task_file"
-
-        mocker.patch.object(
-            Path,
-            "home",
-            return_value=mock_file_path()
-        )
-
     def test_when_skipped_next_task_is_returned(
         self,
-        mocker,
         mock_get_next_task,
-        mock_json_dump,
         capsys
     ) -> None:
         """R-BICEP: Right."""
-
-        def mock_file_path():
-            return "tests/data_mocks/task_file"
-
-        mocker.patch.object(
-            Path,
-            "home",
-            return_value=mock_file_path()
-        )
-
         cli.main(["--skip"])
         captured = capsys.readouterr()
+        print(captured.out)
         assert "updated 5102" in captured.out
 
     def test_when_closed_task_is_closed(
         self,
         mock_get_next_task,
-        mock_json_dump,
         capsys
     ) -> None:
         """R-BICEP: Right."""
