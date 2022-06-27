@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "next_task"
-version = "0.3.8"
+version = "0.3.9"
 description = "A barebones task management solution"
 readme = "README.md"
 authors = ["J-McB <jmcbean3@gmail.com>"]
