@@ -102,7 +102,7 @@ class CheckCurrent:
         if "current" not in self.data:
             self.data["current"] = {}
 
-        if "task" not in self.data:
+        if "task" not in self.data["current"]:
             self.data["current"]["task"] = {}
 
 
@@ -140,7 +140,7 @@ class GetTasks:
 
     def __init__(self):
         """Instansiate the class."""
-        with open(CheckTaskStore().file, "r") as file:
+        with open(CheckTaskStore().file, "r+") as file:
             self.file_data = json.load(file)
         self.file_data = CheckFormatting(self.file_data).data
 
@@ -152,6 +152,7 @@ class WriteTask:
         """Instansiate the Write Class."""
         self.file = CheckTaskStore().file
         self.data = CheckFormatting(data).data
-        with open(self.file, "r+") as file:
+        # print(self.data)
+        with open(self.file, "w+") as file:
             file.seek(0)
             json.dump(self.data, file, indent=4)

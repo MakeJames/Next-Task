@@ -59,6 +59,17 @@ class TestCreateTask:
     """Test the methods to creating a task."""
 
     @pytest.fixture
+    def mock_write(self, mocker):
+        """Mock the write aspect of the writer function."""
+        def mock_function():
+            return None
+        mocker.patch.object(
+            store.WriteTask,
+            "__init__",
+            return_value=mock_function()
+        )
+
+    @pytest.fixture
     def mock_tasks_file(self, mocker) -> None:
         """Return a file in the mock data file."""
         def mock_file_path():
@@ -100,10 +111,10 @@ class TestCreateTask:
     def test_when_there_are_a_thousand_tasks_then_creation_is_performative(
         self,
         mock_tasks_file,
+        mock_write,
         mocker
     ) -> None:
         """R-BICEP: Performance."""
-        mocker.patch("json.dump")
         start = time()
         tasks.CreateTask(
             "test_when_there_are_a_thousand_tasks " +
@@ -116,6 +127,17 @@ class TestCreateTask:
 
 class TestGetNextTask:
     """Test the get Next Task class."""
+
+    @pytest.fixture(autouse=True)
+    def mock_write(self, mocker):
+        """Mock the write aspect of the writer function."""
+        def mock_function():
+            return None
+        mocker.patch.object(
+            store.WriteTask,
+            "__init__",
+            return_value=mock_function()
+        )
 
     def test_when_next_task_is_identified_then_print_task(
         self,
@@ -149,10 +171,16 @@ class TestGetNextTask:
 class TestSkipTask:
     """Test the methods of the Skip task class."""
 
-    @pytest.fixture
-    def mock_json_dump(self, mocker):
+    @pytest.fixture(autouse=True)
+    def mock_write(self, mocker):
         """Mock the write aspect of the writer function."""
-        mocker.patch("json.dump")
+        def mock_function():
+            return None
+        mocker.patch.object(
+            store.WriteTask,
+            "__init__",
+            return_value=mock_function()
+        )
 
     @pytest.fixture
     def mock_get_next_task(self, mocker):
@@ -169,8 +197,7 @@ class TestSkipTask:
 
     def test_when_called_task_is_skipped(
         self,
-        mock_get_next_task,
-        mock_json_dump
+        mock_get_next_task
     ) -> None:
         """R-BICEP: Right."""
         test_call = tasks.SkipTask()
@@ -188,10 +215,16 @@ class TestSkipTask:
 class TestMarkAsClosedClass:
     """Test the methods of the Mark as closed class."""
 
-    @pytest.fixture
-    def mock_json_dump(self, mocker):
+    @pytest.fixture(autouse=True)
+    def mock_write(self, mocker):
         """Mock the write aspect of the writer function."""
-        mocker.patch("json.dump")
+        def mock_function():
+            return None
+        mocker.patch.object(
+            store.WriteTask,
+            "__init__",
+            return_value=mock_function()
+        )
 
     @pytest.fixture
     def mock_get_next_task(self, mocker):
@@ -208,8 +241,7 @@ class TestMarkAsClosedClass:
 
     def test_when_called_task_is_closed(
         self,
-        mock_get_next_task,
-        mock_json_dump
+        mock_get_next_task
     ) -> None:
         """R-BICEP: Right."""
         test_call = tasks.MarkAsClosed()

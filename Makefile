@@ -45,7 +45,7 @@ lint:
 	$(EXECUTE) mypy $(LINT_GROUP)
 
 test:
-	$(EXECUTE) pytest $(TEST_GROUP) -v --durations=0
+	$(EXECUTE) pytest $(TEST_GROUP) -v --durations=0 --sw
 
 coverage:
 	$(EXECUTE) pytest --cov=$(PACKAGE) $(TEST_GROUP) --cov-report term-missing

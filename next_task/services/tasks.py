@@ -60,21 +60,39 @@ class CreateTask:
 class GetNextTask:
     """Return the Next highest priority Task."""
 
-    def __init__(self):
+    def __init__(self, data=None):
         """Instansiate the get task wrapper class."""
-        self.file = GetPriority(GetTasks().file_data)
-        self.get_task()
+        self.data = self.get_tasks(data)
+        self.file = GetPriority(self.data)
+        self.get_current_task()
 
-    def get_task(self):
-        """Get the next task, handles the error of no tasks."""
+    def get_tasks(self, data):
+        """Check if data is supplied and if if not get task data."""
+        if data is None:
+            return GetTasks().file_data
+        return data
+
+    def check_tasks(self):
+        """Handle the error of no tasks."""
         if self.file.data["tasks"] == []:
             console_output.Congratulations()
+            WriteTask(self.file.data)
             exit([0])
-        self.next_task = self.file.data["tasks"][0]
+
+    def get_current_task(self):
+        """Return the current or next task."""
+        self.check_tasks()
+        if "id" not in self.file.data["current"]["task"]:
+            self.next_task = self.file.data["tasks"][0]
+            self.file.data["current"]["task"] = self.next_task
+            return
+
+        self.next_task = self.file.data["current"]["task"]
 
     def print_task(self):
         """Print the next task."""
         console_output.Format(self.next_task).next_task()
+        WriteTask(self.file.data)
 
 
 class SkipTask:
@@ -83,9 +101,10 @@ class SkipTask:
     def __init__(self):
         """Instansiate the class."""
         self.tasks = GetNextTask()
-        self.update_file_data()
+        print(self.tasks.file.data)
         console_output.Format(self.tasks.next_task).skip_task()
-        WriteTask(self.tasks.file.data)
+        self.update_file_data()
+        GetNextTask(self.tasks.file.data).print_task()
 
     def update_due_date(self):
         """Update Task due date."""
@@ -104,6 +123,7 @@ class SkipTask:
             if tasks[index]["id"] == self.tasks.next_task["id"]:
                 self.update_due_date()
                 tasks[index] = self.tasks.next_task
+                self.tasks.file.data["current"]["task"] = {}
                 break
 
 
@@ -124,3 +144,4 @@ class MarkAsClosed:
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.tasks.next_task["completed"] = now
         self.tasks.file.data["completed"]["tasks"].append(self.tasks.next_task)
+        self.tasks.file.data["current"].pop("task")
