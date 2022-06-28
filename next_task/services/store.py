@@ -152,7 +152,6 @@ class WriteTask:
         """Instansiate the Write Class."""
         self.file = CheckTaskStore().file
         self.data = CheckFormatting(data).data
-        # print(self.data)
         with open(self.file, "w+") as file:
             file.seek(0)
             json.dump(self.data, file, indent=4)

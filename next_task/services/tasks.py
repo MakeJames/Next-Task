@@ -101,7 +101,6 @@ class SkipTask:
     def __init__(self):
         """Instansiate the class."""
         self.tasks = GetNextTask()
-        print(self.tasks.file.data)
         console_output.Format(self.tasks.next_task).skip_task()
         self.update_file_data()
         GetNextTask(self.tasks.file.data).print_task()
