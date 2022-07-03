@@ -60,6 +60,17 @@ class TestCliMainMethod:
         captured = capsys.readouterr()
         assert "error: unrecognized arguments" in captured.err
 
+    def test_when_add_and_close_are_called_togehter_error_is_returned(
+        self,
+        capsys
+    ) -> None:
+        """R-BICEP: Right."""
+        with pytest.raises(SystemExit):
+            cli.main(["--add", "This is a task", "--done"])
+        captured = capsys.readouterr()
+        assert "You can't create and close a task at the same time.\n" \
+            == captured.out
+
     def test_that_next_task_is_returned(
         self,
         capsys,

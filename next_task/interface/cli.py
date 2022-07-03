@@ -63,6 +63,9 @@ def main(argv=None):
 
     args = parser.parse_args(argv)
 
+    if args.add and args.done:
+        print("You can't create and close a task at the same time.")
+        sys.exit(0)
     if args.add:
         CreateTask(args.add)
     if args.task:
