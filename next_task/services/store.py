@@ -92,6 +92,9 @@ class CheckCompleted:
             self.data["completed"]["tasks"] = self.data["completed_tasks"]
             self.data.pop("completed_tasks")
 
+        if "projects" not in self.data["completed"]:
+            self.data["completed"]["projects"] = []
+
 
 class CheckCurrent:
     """Ensure that there is a current key in the file."""
@@ -105,6 +108,19 @@ class CheckCurrent:
         if "task" not in self.data["current"]:
             self.data["current"]["task"] = {}
 
+        if "project" not in self.data["current"]:
+            self.data["current"]["project"] = {}
+
+
+class CheckProjects:
+    """Ensure that there is a project key in the file."""
+
+    def __init__(self, data):
+        """Instansiate the class."""
+        self.data = data
+        if "projects" not in self.data:
+            self.data["proejcts"] = []
+
 
 class CheckFormatting:
     """Ensure File data model conforms."""
@@ -116,6 +132,7 @@ class CheckFormatting:
         self.data = CheckCompleted(self.data).data
         self.data = CheckTaskCount(self.data).data
         self.data = CheckCurrent(self.data).data
+        self.data = CheckProjects(self.data).data
 
 
 class CheckTaskStore:
