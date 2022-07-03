@@ -52,7 +52,7 @@ class CreateTask:
             "summary": f"{self.summary}",
             "created": now.strftime("%Y-%m-%d %H:%M:%S"),
             "due": self.due.strftime("%Y-%m-%d %H:%M:%S"),
-            "status": "open"
+            "status": "open"  # TODO: remove redundant status
         }
         self.file_data["tasks"].append(self.task)
 
