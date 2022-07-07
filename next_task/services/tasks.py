@@ -2,9 +2,11 @@
 
 import datetime
 import random
+from datetime import datetime as dt
 from sys import exit
 
 from next_task.interface import console_output
+from next_task.services import models
 from next_task.services.store import GetTasks, WriteTask
 
 
@@ -18,11 +20,11 @@ class GetPriority:
 
     def calculate(self, item):
         """Compound function of the due date and created date."""
-        created = datetime.datetime.strptime(
+        created = dt.strptime(
             item["created"],
             "%Y-%m-%d %H:%M:%S"
         ).timestamp()
-        due = datetime.datetime.strptime(
+        due = dt.strptime(
             item["due"],
             "%Y-%m-%d %H:%M:%S"
         ).timestamp()
@@ -35,25 +37,16 @@ class CreateTask:
 
     def __init__(self, summary):
         """Instansiate the Create task class."""
-        self.summary = summary
         self.file_data = GetTasks().file_data
-        self.task_formatter()
+        self.task_formatter(summary)
         WriteTask(self.file_data)
         console_output.Format(self.task).create_task()
 
-    def task_formatter(self):
+    def task_formatter(self, summary):
         """Build task dictionary."""
-        self.id = self.file_data["task_count"] + 1
-        self.file_data["task_count"] = self.id
-        now = datetime.datetime.now()
-        self.due = now + datetime.timedelta(days=7)
-        self.task = {
-            "id": self.id,
-            "summary": f"{self.summary}",
-            "created": now.strftime("%Y-%m-%d %H:%M:%S"),
-            "due": self.due.strftime("%Y-%m-%d %H:%M:%S"),
-            "status": "open"  # TODO: remove redundant status
-        }
+        id = self.file_data["task_count"] + 1
+        self.file_data["task_count"] = id
+        self.task = models.Task(id, summary, dt.now()).__dict__
         self.file_data["tasks"].append(self.task)
 
 
@@ -107,7 +100,7 @@ class SkipTask:
 
     def update_due_date(self):
         """Update Task due date."""
-        date = datetime.datetime.strptime(
+        date = dt.strptime(
             self.tasks.next_task["due"],
             "%Y-%m-%d %H:%M:%S"
         )
@@ -140,7 +133,7 @@ class MarkAsClosed:
         """Update the task."""
         self.tasks.file.data["tasks"].remove(self.tasks.next_task)
         self.tasks.next_task["status"] = "closed"
-        now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        now = dt.now().strftime("%Y-%m-%d %H:%M:%S")
         self.tasks.next_task["completed"] = now
         self.tasks.file.data["completed"]["tasks"].append(self.tasks.next_task)
         self.tasks.file.data["current"].pop("task")

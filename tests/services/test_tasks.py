@@ -87,8 +87,7 @@ class TestCreateTask:
         with open(store.CheckTaskStore().file, "r") as file:
             file_data = json.load(file)
 
-        assert test_call.id == 1 \
-            and file_data["tasks"][0]["id"] == 1
+        assert file_data["tasks"][0]["id"] == 1
 
     def test_when_summary_is_passed_as_int_then_stored_as_str(self):
         """R-BICEP: Right."""
@@ -96,8 +95,7 @@ class TestCreateTask:
         with open(store.CheckTaskStore().file, "r") as file:
             file_data = json.load(file)
 
-        assert test_call.id == 1 \
-            and file_data["tasks"][0]["summary"] == "4"
+        assert file_data["tasks"][0]["summary"] == "4"
 
     def test_when_summary_is_passed_as_bool_then_stored_as_str(self):
         """R-BICEP: Right."""
@@ -105,8 +103,7 @@ class TestCreateTask:
         with open(store.CheckTaskStore().file, "r") as file:
             file_data = json.load(file)
 
-        assert test_call.id == 1 \
-            and file_data["tasks"][0]["summary"] == "False"
+        assert file_data["tasks"][0]["summary"] == "False"
 
     def test_when_there_are_a_thousand_tasks_then_creation_is_performative(
         self,

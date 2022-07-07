@@ -6,15 +6,7 @@ from pathlib import Path
 
 from rich import print
 
-
-class LoadTemplate:
-    """Load the template file."""
-
-    def __init__(self):
-        """Instansiate the class."""
-        with open(path.join(path.dirname(__file__), "template.json"),
-                  "r") as file:
-            self.data = json.load(file)
+from next_task.services import models
 
 
 class CheckTasks:
@@ -27,22 +19,22 @@ class CheckTasks:
         if type(self.data) is not dict:
             print("[red]Data is is not an dictionary, "
                   "correcting data integrity error[/red]")
-            self.data = LoadTemplate().data
+            self.data = models.TemplateTaskFile().__dict__
 
         if self.data == {}:
             print("[red]Data is empty, correcting "
                   "data integrity error[/red]")
-            self.data = LoadTemplate().data
+            self.data = models.TemplateTaskFile().__dict__
 
         if "tasks" not in self.data:
             print("[red]Key missing from file, "
                   "correcting data integrity error[/red]")
-            self.data = LoadTemplate().data
+            self.data = models.TemplateTaskFile().__dict__
 
         if type(self.data["tasks"]) is not list:
             print("[red]Key missing from file, "
                   "correcting data integrity error[/red]")
-            self.data = LoadTemplate().data
+            self.data = models.TemplateTaskFile().__dict__
 
 
 class CheckTaskCount:
