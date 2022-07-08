@@ -21,8 +21,8 @@ class Task:
         """Instansiate the Task model."""
         self.id = id
         self.summary = str(summary)
-        self.created = now.strftime("%Y-%m-%d")
-        self.due = (now + timedelta(days=7)).strftime("%Y-%m-%d")
+        self.created = now.strftime("%Y-%m-%d %H:%M:%S")
+        self.due = (now + timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
 
 
 class Project:
