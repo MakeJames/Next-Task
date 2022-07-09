@@ -111,7 +111,7 @@ class CheckProjects:
         """Instansiate the class."""
         self.data = data
         if "projects" not in self.data:
-            self.data["proejcts"] = []
+            self.data["projects"] = []
 
 
 class CheckFormatting:
