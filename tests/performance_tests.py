@@ -21,6 +21,19 @@ def mock_file_path(mocker):
     """Mock task file."""
 
     def mock_file_path():
+        return "tests/data_mocks/performance_small"
+
+    mocker.patch.object(
+        Path,
+        "home",
+        return_value=mock_file_path()
+    )
+
+@pytest.fixture
+def mock_large_file_path(mocker):
+    """Mock task file."""
+
+    def mock_file_path():
         return "tests/data_mocks/task_file"
 
     mocker.patch.object(
@@ -28,6 +41,7 @@ def mock_file_path(mocker):
         "home",
         return_value=mock_file_path()
     )
+
 
 def mimic_user():
     """A script to walk through several of the user functions."""
@@ -51,11 +65,9 @@ def test_skip_task(mock_write, mock_file_path, benchmark):
     """R-BICEP: Performance."""
     benchmark.pedantic(tasks.SkipTask, iterations=10, rounds=100)
 
-def test_complete_task(mock_write, mock_file_path, benchmark):
-    benchmark.pedantic(tasks.MarkAsClosed, iterations=10, rounds=100)
+def test_complete_task(mock_write, mock_large_file_path, benchmark):
+    benchmark.pedantic(tasks.MarkAsClosed, iterations=90, rounds=100)
 
 def test_user_behavior(benchmark):
     """R-BICEP: Performance."""
     benchmark.pedantic(mimic_user, iterations=10, rounds=20)
-    
-
