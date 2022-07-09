@@ -30,7 +30,7 @@ class Project:
 
     def __init__(self, id, summary, now):
         """Instansiate the Project model."""
-        self.id = id
+        self.id = str(id)
         self.summary = str(summary)
         self.created = now.strftime("%Y-%m-%d %H:%M:%S")
         self.task_count = 0
