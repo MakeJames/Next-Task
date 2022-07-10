@@ -4,10 +4,9 @@ import re
 import sys
 from datetime import datetime as dt
 
-from next_task.interface import console_output
 from next_task.services.models import Project, Task
 from next_task.services.store import GetTasks, WriteTask
-from next_task.services.tasks import GetNextTask, MarkAsClosed, SkipTask
+from next_task.services.tasks import GetNextTask
 
 
 class KeyGenerator:
@@ -108,3 +107,25 @@ class CreateTask:
         """Generate the task id."""
         self.data["task_count"] += 1
         self.task_id = f"{self.data['id']}-{self.data['task_count']}"
+
+
+class GetNextTaskFromProject:
+    """Return the next Task in a project."""
+
+    def __init__(self, project):
+        """Instansiate class."""
+        self.file_data = GetTasks().file_data
+        self.find_project(project)
+        GetNextTask(self.data).print_task()
+
+    def find_project(self, project):
+        """Wrap Find project classes."""
+        id = FindProjectId(project, self.file_data)
+        if id.found:
+            self.data = id.data
+            return
+
+        name = FindProjectName(project, self.file_data)
+        if name.found:
+            self.data = name.data
+            return

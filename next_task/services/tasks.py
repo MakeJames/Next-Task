@@ -1,7 +1,7 @@
 """Module containing the methods relating to task creation."""
 
 import datetime
-import random
+import secrets
 from datetime import datetime as dt
 from sys import exit
 
@@ -55,37 +55,44 @@ class GetNextTask:
 
     def __init__(self, data=None):
         """Instansiate the get task wrapper class."""
-        self.data = self.get_tasks(data)
+        self.get_tasks(data)
         self.file = GetPriority(self.data)
         self.get_current_task()
 
     def get_tasks(self, data):
         """Check if data is supplied and if if not get task data."""
+        self.file_data = GetTasks().file_data
         if data is None:
-            return GetTasks().file_data
-        return data
+            self.data = self.file_data
+            return
+        self.data = data
 
     def check_tasks(self):
         """Handle the error of no tasks."""
         if self.file.data["tasks"] == []:
             console_output.Congratulations()
-            WriteTask(self.file.data)
+            WriteTask(self.file_data)
             exit([0])
 
     def get_current_task(self):
         """Return the current or next task."""
         self.check_tasks()
-        if "id" not in self.file.data["current"]["task"]:
+        if "current" not in self.file.data:
             self.next_task = self.file.data["tasks"][0]
-            self.file.data["current"]["task"] = self.next_task
+            self.file_data["current"]["task"] = self.next_task
             return
 
-        self.next_task = self.file.data["current"]["task"]
+        if "id" not in self.file.data["current"]["task"]:
+            self.next_task = self.file.data["tasks"][0]
+            self.file_data["current"]["task"] = self.next_task
+            return
+
+        self.next_task = self.file_data["current"]["task"]
 
     def print_task(self):
         """Print the next task."""
         console_output.Format(self.next_task).next_task()
-        WriteTask(self.file.data)
+        WriteTask(self.file_data)
 
 
 class SkipTask:
@@ -104,7 +111,7 @@ class SkipTask:
             self.tasks.next_task["due"],
             "%Y-%m-%d %H:%M:%S"
         )
-        add_days = random.uniform(0.5, 8)
+        add_days = secrets.randbelow(8)
         new_date = date + datetime.timedelta(days=add_days)
         self.tasks.next_task["due"] = new_date.strftime("%Y-%m-%d %H:%M:%S")
 

@@ -165,9 +165,13 @@ class TestCreateTask:
     @pytest.fixture(autouse=True)
     def mock_write(self, mocker) -> None:
         """Mock the writer class."""
-        mocker.patch.object(store, "WriteTask",)
+        mocker.patch.object(store, "WriteTask")
 
-    def test_when_provided_project_doesnt_exist_then_sys_exit(self, capsys):
+    def test_when_provided_project_doesnt_exist_then_sys_exit(
+        self,
+        capsys,
+        mock_write
+    ):
         """R-BICEP: Right."""
         with pytest.raises(SystemExit):
             projects.CreateTask("Not a project", "A new task")
@@ -176,16 +180,57 @@ class TestCreateTask:
 
     def test_when_project_id_exists_then_data_contains_project_data(
         self,
-        capsys
+        capsys,
+        mock_write
     ):
         """R-BICEP: Right."""
         test_call = projects.CreateTask("ATP", "A new task")
         assert test_call.data["id"] == "ATP"
         assert test_call.file_data["projects"][1]["task_count"] == 3
 
-    def test_when_task_summary_is_int_then_task_is_created(self, capsys):
+    def test_when_task_summary_is_int_then_task_is_created(
+        self,
+        capsys,
+        mock_write
+    ):
         """R-BICEP: Right."""
         test_call = projects.CreateTask("a test project", 500)
         print(test_call.file_data["projects"][1])
         assert test_call.data["id"] == "ATP"
         assert test_call.file_data["projects"][1]["task_count"] == 3
+
+
+class TestGetNextTaskFromProject:
+    """Test the methods that return the next task to the console."""
+
+    @pytest.fixture(autouse=True)
+    def mock_task_file(self, mocker) -> None:
+        """Return a mock task file."""
+        def mock_file_path():
+            return "tests/data_mocks/task_file"
+        mocker.patch.object(
+            Path,
+            "home",
+            return_value=mock_file_path()
+        )
+
+    def test_when_valid_requirements_then_next_task_found(
+        self,
+        capsys,
+        mock_write
+    ):
+        """R-BICEP: Right."""
+        projects.GetNextTaskFromProject("ATP")
+        captured = capsys.readouterr()
+        assert "ATP-1: Test task" in captured.out
+
+    def test_when_no_tasks_in_project_then_congratulations(
+        self,
+        capsys,
+        mock_write
+    ):
+        """R-BICEP: Right."""
+        with pytest.raises(SystemExit):
+            projects.GetNextTaskFromProject("500")
+        captured = capsys.readouterr()
+        assert "Congratulations!" in captured.out
