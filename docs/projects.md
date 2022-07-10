@@ -35,7 +35,7 @@ graph LR
     3(["Next --project [project key] --add --task"]) --> D(Create a task in a specified project)
     4(["Next --project [project key] --task"]) --> E(Return the next task in a project)
     5(["Next --project [project key] --task --done"]) --> F(Close the next priority task in a project)
-    6(["Next --project [project key] --task --skip"]) --> G(Skip the next priority task in a project)
+    6(["Next --project [project key] --task --clear"]) --> G(Clear the current project)
     end
     subgraph other
     7(["Next --project --list"]) --> H(List the projects and their key)
