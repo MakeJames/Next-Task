@@ -6,6 +6,7 @@ from pytest_mock import mocker
 from pathlib import Path
 
 from next_task.services import projects
+from next_task.services import store
 
 
 class TestKeyGenerator:
@@ -145,3 +146,46 @@ class TestFindProjectName:
             data = json.load(file)
         test_name = "_a* Test ?project&^."
         assert projects.FindProjectName(test_name, data).found is True
+
+
+class TestCreateTask:
+    """Test the methods of the Create Task class."""
+
+    @pytest.fixture(autouse=True)
+    def mock_task_file(self, mocker) -> None:
+        """Return a mock task file."""
+        def mock_file_path():
+            return "tests/data_mocks/task_file"
+        mocker.patch.object(
+            Path,
+            "home",
+            return_value=mock_file_path()
+        )
+
+    @pytest.fixture(autouse=True)
+    def mock_write(self, mocker) -> None:
+        """Mock the writer class."""
+        mocker.patch.object(store, "WriteTask",)
+
+    def test_when_provided_project_doesnt_exist_then_sys_exit(self, capsys):
+        """R-BICEP: Right."""
+        with pytest.raises(SystemExit):
+            projects.CreateTask("Not a project", "A new task")
+        captured = capsys.readouterr()
+        assert "project Not a project not found in task file." in captured.out
+
+    def test_when_project_id_exists_then_data_contains_project_data(
+        self,
+        capsys
+    ):
+        """R-BICEP: Right."""
+        test_call = projects.CreateTask("ATP", "A new task")
+        assert test_call.data["id"] == "ATP"
+        assert test_call.file_data["projects"][1]["task_count"] == 3
+
+    def test_when_task_summary_is_int_then_task_is_created(self, capsys):
+        """R-BICEP: Right."""
+        test_call = projects.CreateTask("a test project", 500)
+        print(test_call.file_data["projects"][1])
+        assert test_call.data["id"] == "ATP"
+        assert test_call.file_data["projects"][1]["task_count"] == 3

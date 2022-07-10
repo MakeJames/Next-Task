@@ -49,18 +49,16 @@
             "task_count": 2,
             "tasks": [
                 {
-                    "id": 1,
+                    "id": "ATP-1",
                     "summary": "Test task",
                     "created": "2022-06-03 09:00:26",
-                    "due": "2022-06-10 09:00:26",
-                    "status": "closed"
+                    "due": "2022-06-10 09:00:26"
                 },
                 {
-                    "id": 2,
+                    "id": "ATP-2",
                     "summary": "Another Test task",
                     "created": "2022-06-03 09:00:26",
-                    "due": "2022-06-10 09:00:26",
-                    "status": "closed"
+                    "due": "2022-06-10 09:00:26"
                 }
             ],
             "closed": []

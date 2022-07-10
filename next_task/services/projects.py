@@ -1,15 +1,13 @@
 """Module containing methods and classes for parsing projects."""
 
-import sys
 import re
-
+import sys
 from datetime import datetime as dt
 
 from next_task.interface import console_output
-from next_task.services.models import Project
+from next_task.services.models import Project, Task
 from next_task.services.store import GetTasks, WriteTask
-from next_task.services.tasks import (GetNextTask, MarkAsClosed,
-                                      SkipTask)
+from next_task.services.tasks import GetNextTask, MarkAsClosed, SkipTask
 
 
 class KeyGenerator:
@@ -60,6 +58,7 @@ class FindProjectId:
                 self.found = True
                 return
         self.found = False
+        self.data = {}
 
 
 class FindProjectName:
@@ -75,3 +74,37 @@ class FindProjectName:
                 self.found = True
                 return
         self.found = False
+        self.data = {}
+
+
+class CreateTask:
+    """Create a task in a given project."""
+
+    def __init__(self, project, summary):
+        """Instansiate the class."""
+        self.file_data = GetTasks().file_data
+        self.data = self.find_project(project)
+        self.generate_id()
+        self.file_data["projects"].remove(self.data)
+        self.data["tasks"].append(
+            Task(self.task_id, str(summary), dt.now()).__dict__
+        )
+        self.file_data["projects"].append(self.data)
+
+    def find_project(self, project):
+        """Wrap Find project classes."""
+        id = FindProjectId(project, self.file_data)
+        if id.found:
+            return id.data
+
+        name = FindProjectName(project, self.file_data)
+        if name.found:
+            return name.data
+
+        print(f"project {project} not found in task file.")
+        sys.exit([0])
+
+    def generate_id(self):
+        """Generate the task id."""
+        self.data["task_count"] += 1
+        self.task_id = f"{self.data['id']}-{self.data['task_count']}"
