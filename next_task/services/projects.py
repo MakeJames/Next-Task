@@ -76,32 +76,38 @@ class FindProjectName:
         self.data = {}
 
 
+class FindProject:
+    """Wrap for the Find Project by name and id class."""
+
+    def __init__(self, summary, data):
+        """Instansiate the class."""
+        id = FindProjectId(summary, data)
+        if id.found:
+            self.data = id.data
+            return
+
+        name = FindProjectName(summary, data)
+        if name.found:
+            self.data = name.data
+            return
+
+        print(f"project {summary} not found in task file.")
+        sys.exit([0])
+
+
 class CreateTask:
     """Create a task in a given project."""
 
     def __init__(self, project, summary):
         """Instansiate the class."""
         self.file_data = GetTasks().file_data
-        self.data = self.find_project(project)
+        self.data = FindProject(project, self.file_data).data
         self.generate_id()
         self.file_data["projects"].remove(self.data)
         self.data["tasks"].append(
             Task(self.task_id, str(summary), dt.now()).__dict__
         )
         self.file_data["projects"].append(self.data)
-
-    def find_project(self, project):
-        """Wrap Find project classes."""
-        id = FindProjectId(project, self.file_data)
-        if id.found:
-            return id.data
-
-        name = FindProjectName(project, self.file_data)
-        if name.found:
-            return name.data
-
-        print(f"project {project} not found in task file.")
-        sys.exit([0])
 
     def generate_id(self):
         """Generate the task id."""
@@ -115,17 +121,5 @@ class GetNextTaskFromProject:
     def __init__(self, project):
         """Instansiate class."""
         self.file_data = GetTasks().file_data
-        self.find_project(project)
+        self.data = FindProject(project, self.file_data).data
         GetNextTask(self.data).print_task()
-
-    def find_project(self, project):
-        """Wrap Find project classes."""
-        id = FindProjectId(project, self.file_data)
-        if id.found:
-            self.data = id.data
-            return
-
-        name = FindProjectName(project, self.file_data)
-        if name.found:
-            self.data = name.data
-            return
