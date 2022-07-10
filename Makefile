@@ -44,6 +44,8 @@ format:
 lint:
 	$(EXECUTE) pycodestyle $(LINT_GROUP) $(TEST_GROUP)
 	$(EXECUTE) pydocstyle $(LINT_GROUP) $(TEST_GROUP)
+	$(EXECUTE) pyflakes $(LINT_GROUP)
+	$(EXECUTE) bandit -r $(LINT_GROUP) -q
 	$(EXECUTE) mypy $(LINT_GROUP)
 
 test:
