@@ -1,7 +1,6 @@
 """Model the various data structures of the project."""
 
 from datetime import timedelta
-from time import strftime
 
 
 class Constructor:

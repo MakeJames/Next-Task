@@ -1,7 +1,7 @@
 """Service module containing methods relating to the task file."""
 
 import json
-from os import path
+
 from pathlib import Path
 
 from rich import print
