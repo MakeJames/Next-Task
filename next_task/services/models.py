@@ -34,7 +34,7 @@ class Project:
         self.created = now.strftime("%Y-%m-%d %H:%M:%S")
         self.task_count = 0
         self.tasks = []
-        self.closed = []
+        self.completed = {"tasks": []}
 
 
 class TemplateTaskFile:

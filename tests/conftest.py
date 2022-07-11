@@ -25,3 +25,14 @@ def mock_write(mocker):
         "__init__",
         return_value=mock_function()
     )
+
+@pytest.fixture
+def mock_task_file(mocker) -> None:
+    """Return a mock task file."""
+    def mock_file_path():
+        return "tests/data_mocks/task_file"
+    mocker.patch.object(
+        Path,
+        "home",
+        return_value=mock_file_path()
+    )

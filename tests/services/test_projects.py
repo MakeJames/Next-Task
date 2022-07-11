@@ -203,21 +203,12 @@ class TestCreateTask:
 class TestGetNextTaskFromProject:
     """Test the methods that return the next task to the console."""
 
-    @pytest.fixture(autouse=True)
-    def mock_task_file(self, mocker) -> None:
-        """Return a mock task file."""
-        def mock_file_path():
-            return "tests/data_mocks/task_file"
-        mocker.patch.object(
-            Path,
-            "home",
-            return_value=mock_file_path()
-        )
 
     def test_when_valid_requirements_then_next_task_found(
         self,
         capsys,
-        mock_write
+        mock_write,
+        mock_task_file
     ):
         """R-BICEP: Right."""
         projects.GetNextTaskFromProject("ATP")
@@ -227,10 +218,41 @@ class TestGetNextTaskFromProject:
     def test_when_no_tasks_in_project_then_congratulations(
         self,
         capsys,
-        mock_write
+        mock_write,
+        mock_task_file
     ):
         """R-BICEP: Right."""
         with pytest.raises(SystemExit):
             projects.GetNextTaskFromProject("500")
         captured = capsys.readouterr()
         assert "Congratulations!" in captured.out
+
+
+class TestSkipNextTaskInProject:
+    """Test the method of the skip next task in project class."""
+
+    def test_when_called_next_task_is_skipped(
+        self,
+        capsys,
+        mock_write,
+        mock_task_file
+    ):
+        """R-BICEP: Right."""
+        projects.SkipNextTaskInProject("ATP")
+        captured = capsys.readouterr()
+        assert "ATP-2" in captured.out
+
+
+class TestSkipNextTaskInProject:
+    """Test the method of the skip next task in project class."""
+
+    def test_when_called_next_task_is_closed(
+        self,
+        capsys,
+        mock_write,
+        mock_task_file
+    ):
+        """R-BICEP: Right."""
+        projects.CloseNextTaskInProject("ATP")
+        captured = capsys.readouterr()
+        assert "ATP-2" in captured.out

@@ -6,7 +6,7 @@ from datetime import datetime as dt
 
 from next_task.services.models import Project, Task
 from next_task.services.store import GetTasks, WriteTask
-from next_task.services.tasks import GetNextTask
+from next_task.services.tasks import GetNextTask, MarkAsClosed, SkipTask
 
 
 class KeyGenerator:
@@ -123,3 +123,23 @@ class GetNextTaskFromProject:
         self.file_data = GetTasks().file_data
         self.data = FindProject(project, self.file_data).data
         GetNextTask(self.data).print_task()
+
+
+class SkipNextTaskInProject:
+    """Skip the next Task in a project."""
+
+    def __init__(self, project):
+        """Instansiate class."""
+        self.file_data = GetTasks().file_data
+        self.data = FindProject(project, self.file_data).data
+        SkipTask(self.data)
+
+
+class CloseNextTaskInProject:
+    """Skip the next Task in a project."""
+
+    def __init__(self, project):
+        """Instansiate class."""
+        self.file_data = GetTasks().file_data
+        self.data = FindProject(project, self.file_data).data
+        MarkAsClosed(self.data)
