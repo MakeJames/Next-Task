@@ -125,7 +125,6 @@ class TestCreateTask:
 class TestGetNextTask:
     """Test the get Next Task class."""
 
-
     def test_when_next_task_is_identified_then_print_task(
         self,
         capsys,

@@ -203,7 +203,6 @@ class TestCreateTask:
 class TestGetNextTaskFromProject:
     """Test the methods that return the next task to the console."""
 
-
     def test_when_valid_requirements_then_next_task_found(
         self,
         capsys,
