@@ -4,6 +4,7 @@ import re
 import sys
 from datetime import datetime as dt
 
+from next_task.interface.console_output import Format, FormatProject
 from next_task.services.models import Project, Task
 from next_task.services.store import GetTasks, WriteTask
 from next_task.services.tasks import GetNextTask, MarkAsClosed, SkipTask
@@ -37,7 +38,7 @@ class CreateProject:
             sys.exit([0])
         self.project_formatter(summary, self.file_data)
         WriteTask(self.file_data)
-        # console_output.Format(self.project).create_project()
+        FormatProject(self.project).create()
 
     def project_formatter(self, summary, file_data):
         """Build the project dictionary."""
@@ -95,7 +96,7 @@ class FindProject:
         sys.exit([0])
 
 
-class CreateTask:
+class CreateProjectTask:
     """Create a task in a given project."""
 
     def __init__(self, project, summary):
@@ -104,10 +105,11 @@ class CreateTask:
         self.data = FindProject(project, self.file_data).data
         self.generate_id()
         self.file_data["projects"].remove(self.data)
-        self.data["tasks"].append(
-            Task(self.task_id, str(summary), dt.now()).__dict__
-        )
+        self.task = Task(self.task_id, str(summary), dt.now()).__dict__
+        self.data["tasks"].append(self.task)
         self.file_data["projects"].append(self.data)
+        Format(self.task).create_task()
+        WriteTask(self.file_data)
 
     def generate_id(self):
         """Generate the task id."""

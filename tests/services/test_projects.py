@@ -162,11 +162,6 @@ class TestCreateTask:
             return_value=mock_file_path()
         )
 
-    @pytest.fixture(autouse=True)
-    def mock_write(self, mocker) -> None:
-        """Mock the writer class."""
-        mocker.patch.object(store, "WriteTask")
-
     def test_when_provided_project_doesnt_exist_then_sys_exit(
         self,
         capsys,
@@ -174,28 +169,26 @@ class TestCreateTask:
     ):
         """R-BICEP: Right."""
         with pytest.raises(SystemExit):
-            projects.CreateTask("Not a project", "A new task")
+            projects.CreateProjectTask("Not a project", "A new task")
         captured = capsys.readouterr()
         assert "project Not a project not found in task file." in captured.out
 
     def test_when_project_id_exists_then_data_contains_project_data(
         self,
-        capsys,
         mock_write
     ):
         """R-BICEP: Right."""
-        test_call = projects.CreateTask("ATP", "A new task")
+        test_call = projects.CreateProjectTask("ATP", "A new task")
         assert test_call.data["id"] == "ATP"
         assert test_call.file_data["projects"][1]["task_count"] == 3
 
     def test_when_task_summary_is_int_then_task_is_created(
         self,
-        capsys,
+        mocker,
         mock_write
     ):
         """R-BICEP: Right."""
-        test_call = projects.CreateTask("a test project", 500)
-        print(test_call.file_data["projects"][1])
+        test_call = projects.CreateProjectTask("a test project", 500)
         assert test_call.data["id"] == "ATP"
         assert test_call.file_data["projects"][1]["task_count"] == 3
 

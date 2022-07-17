@@ -26,9 +26,9 @@ class Style:
 class ListTasks:
     """Returns a formatted table of tasks to the command line."""
 
-    def __init__(self, data):
+    def __init__(self, data, title="Open Tasks"):
         """Insttansiate the class."""
-        table = Table(title="Open Tasks")
+        table = Table(title=title)
 
         table.box = box.SIMPLE_HEAD
 
@@ -36,7 +36,7 @@ class ListTasks:
         table.add_column("summary", style="#4A70C2", no_wrap=True)
         table.add_column("created", justify="right", style="#4A70C2")
 
-        for row in data["tasks"]:
+        for row in data:
             table.add_row(
                 f"{row['id']}",
                 f"{row['summary']}",
@@ -100,4 +100,22 @@ class Congratulations:
             "There are no tasks on your to do list\n"
             "Take a break and have a cup of tea.",
             style="green"
+        )
+
+
+class FormatProject:
+    """Format the output for projects."""
+
+    def __init__(self, data):
+        """Instansiate the class."""
+        self.data = data
+        self.id = data["id"]
+        self.summary = data["summary"]
+
+    def create(self):
+        """Format text output for create task output."""
+        Style().console.print(
+            f"[b]Created project {self.id}: [/b]"
+            f"[highlight]{self.summary}[/highlight]",
+            style="info"
         )
