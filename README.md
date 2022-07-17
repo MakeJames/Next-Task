@@ -26,7 +26,15 @@ The next task is stateful, so when you have an active task it will remain the ne
 until it is completed. This means that if new tasks are added whilst actioning a task, 
 the current task will remain the same until completed or skipped.
 
-Use `Next -l` to view a complete list of open tasks.
+Type `Next` to view a complete list of open tasks.
+
+### Projects
+
+Projects are less transiant than tasks and give the user the ability to create a subset of their task list that is grouped by theme or larger project. They can be long running or have defined scope and completed. Unlike tasks, 
+projects are not prioritised by due date, but are user selected. 
+
+Within each project there is a defined task list and when there is an active project, next tasks will be 
+returned from the project tasks.
 
 
 ## Development

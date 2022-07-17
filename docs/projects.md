@@ -14,11 +14,11 @@ If a current project is set, the need to provide a project key is redundant.
 
 ## TODO
 
-* [ ] list projects
+* [x] list projects
 * [ ] set project as current
-* [ ] create task in project
-* [ ] complete task in project
-* [ ] skip task in project
+* [x] create task in project
+* [x] complete task in project
+* [x] skip task in project
 * [ ] if in project then set project
 
 ## Options
