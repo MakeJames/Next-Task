@@ -4,9 +4,7 @@ import argparse
 import sys
 
 import next_task
-from next_task.interface.console_output import ListTasks
-from next_task.services.tasks import (CreateTask, GetNextTask, MarkAsClosed,
-                                      SkipTask)
+from next_task.interface import controller
 
 
 def main(argv=None):
@@ -53,29 +51,18 @@ def main(argv=None):
         action="store_true"
     )
     parser.add_argument(
-        "-l",
-        "--list",
+        "-p",
+        "--project",
         help="""
             Lists open tasks
         """,
-        action="store_true"
+        nargs="?",
+        const=True
     )
 
     args = parser.parse_args(argv)
-
-    if args.add and args.done:
-        print("You can't create and close a task at the same time.")
-        sys.exit(0)
-    if args.add:
-        CreateTask(args.add)
-    if args.task:
-        GetNextTask().print_task()
-    if args.skip:
-        SkipTask()
-    if args.done:
-        MarkAsClosed()
-    if args.list:
-        ListTasks(GetNextTask().file.data)
+    controller.Arguments(**(vars(args)))
+    sys.exit()
 
 
 if __name__ == "__main__":

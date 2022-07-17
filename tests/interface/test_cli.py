@@ -1,6 +1,7 @@
 """Test the methods of the cli module."""
 
 from pathlib import Path
+from random import SystemRandom
 import pytest
 import json
 
@@ -46,7 +47,8 @@ class TestCliMainMethod:
 
     def test_task_creation(self, capsys) -> None:
         """R-BICEP: Right."""
-        cli.main(["--add", "This is a task"])
+        with pytest.raises(SystemExit):
+            cli.main(["--add", "This is a task"])
         captured = capsys.readouterr()
         assert "Created task 1: This is a task" in captured.out
 
@@ -68,7 +70,7 @@ class TestCliMainMethod:
         with pytest.raises(SystemExit):
             cli.main(["--add", "This is a task", "--done"])
         captured = capsys.readouterr()
-        assert "You can't create and close a task at the same time.\n" \
+        assert "Invalid argument combination\n" \
             == captured.out
 
     def test_that_next_task_is_returned(
@@ -77,7 +79,8 @@ class TestCliMainMethod:
         mock_get_next_task,
     ) -> None:
         """R-BICEP: Right."""
-        cli.main(["--task"])
+        with pytest.raises(SystemExit):
+            cli.main(["--task"])
         captured = capsys.readouterr()
         assert "5102" in captured.out
 
@@ -87,7 +90,8 @@ class TestCliMainMethod:
         capsys
     ) -> None:
         """R-BICEP: Right."""
-        cli.main(["--skip"])
+        with pytest.raises(SystemExit):
+            cli.main(["--skip"])
         captured = capsys.readouterr()
         print(captured.out)
         assert "updated 5102" in captured.out
@@ -98,7 +102,8 @@ class TestCliMainMethod:
         capsys
     ) -> None:
         """R-BICEP: Right."""
-        cli.main(["--done"])
+        with pytest.raises(SystemExit):
+            cli.main(["--done"])
         captured = capsys.readouterr()
         assert "Updated 5102" \
             in captured.out
