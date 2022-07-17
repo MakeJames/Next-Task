@@ -87,8 +87,7 @@ class TestCreateTask:
         with open(store.CheckTaskStore().file, "r") as file:
             file_data = json.load(file)
 
-        assert test_call.id == 1 \
-            and file_data["tasks"][0]["id"] == 1
+        assert file_data["tasks"][0]["id"] == 1
 
     def test_when_summary_is_passed_as_int_then_stored_as_str(self):
         """R-BICEP: Right."""
@@ -96,8 +95,7 @@ class TestCreateTask:
         with open(store.CheckTaskStore().file, "r") as file:
             file_data = json.load(file)
 
-        assert test_call.id == 1 \
-            and file_data["tasks"][0]["summary"] == "4"
+        assert file_data["tasks"][0]["summary"] == "4"
 
     def test_when_summary_is_passed_as_bool_then_stored_as_str(self):
         """R-BICEP: Right."""
@@ -105,8 +103,7 @@ class TestCreateTask:
         with open(store.CheckTaskStore().file, "r") as file:
             file_data = json.load(file)
 
-        assert test_call.id == 1 \
-            and file_data["tasks"][0]["summary"] == "False"
+        assert file_data["tasks"][0]["summary"] == "False"
 
     def test_when_there_are_a_thousand_tasks_then_creation_is_performative(
         self,
@@ -128,38 +125,21 @@ class TestCreateTask:
 class TestGetNextTask:
     """Test the get Next Task class."""
 
-    @pytest.fixture(autouse=True)
-    def mock_write(self, mocker):
-        """Mock the write aspect of the writer function."""
-        def mock_function():
-            return None
-        mocker.patch.object(
-            store.WriteTask,
-            "__init__",
-            return_value=mock_function()
-        )
-
     def test_when_next_task_is_identified_then_print_task(
         self,
         capsys,
-        mocker
+        mock_write,
+        mock_task_file
     ) -> None:
         """R-BICEP: Right."""
-        def mock_file_path():
-            return "tests/data_mocks/task_file"
-
-        mocker.patch.object(
-            Path,
-            "home",
-            return_value=mock_file_path()
-        )
         tasks.GetNextTask().print_task()
         captured = capsys.readouterr()
         assert "5102" in captured.out
 
     def test_when_task_data_is_empty_then_error(
         self,
-        capsys
+        capsys,
+        mock_write
     ) -> None:
         """R-BICEP: Right."""
         with pytest.raises(SystemExit):
@@ -171,33 +151,10 @@ class TestGetNextTask:
 class TestSkipTask:
     """Test the methods of the Skip task class."""
 
-    @pytest.fixture(autouse=True)
-    def mock_write(self, mocker):
-        """Mock the write aspect of the writer function."""
-        def mock_function():
-            return None
-        mocker.patch.object(
-            store.WriteTask,
-            "__init__",
-            return_value=mock_function()
-        )
-
-    @pytest.fixture
-    def mock_get_next_task(self, mocker):
-        """Mock the catalogue check, file_path builder method."""
-
-        def mock_file_path():
-            return "tests/data_mocks/task_file"
-
-        mocker.patch.object(
-            Path,
-            "home",
-            return_value=mock_file_path()
-        )
-
     def test_when_called_task_is_skipped(
         self,
-        mock_get_next_task
+        mock_task_file,
+        mock_write
     ) -> None:
         """R-BICEP: Right."""
         test_call = tasks.SkipTask()

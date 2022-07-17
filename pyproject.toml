@@ -1,19 +1,19 @@
 [tool.poetry]
 name = "next_task"
-version = "0.3.10"
+version = "0.3.11"
 description = "A barebones task management solution"
 readme = "README.md"
 authors = ["J-McB <jmcbean3@gmail.com>"]
 license = "MIT"
 packages = [
     {include = "next_task"},
-    {include = "next_task/services/template.json"},
     {include = "next_task/VERSION"},
 ]
 
 [tool.poetry.dependencies]
 python = "^3.9"
 rich = "^12.4.4"
+pygaljs = "^1.0.2"
 
 [tool.poetry.dev-dependencies]
 loguru = "^0.5.3"
@@ -27,6 +27,10 @@ toml = "^0.10.2"
 loguru-mypy = "^0.0.4"
 isort = "^5.10.1"
 code2flow = "^2.5.0"
+pytest-benchmark = "^3.4.1"
+pygal = "^3.0.0"
+pyflakes = "^2.4.0"
+bandit = "^1.7.4"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

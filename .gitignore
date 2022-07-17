@@ -9,3 +9,5 @@ poetry.lock
 .config
 *.txt
 *.gv
+.performance_test/
+.benchmarks/

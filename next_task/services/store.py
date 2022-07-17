@@ -1,20 +1,11 @@
 """Service module containing methods relating to the task file."""
 
 import json
-from os import path
 from pathlib import Path
 
 from rich import print
 
-
-class LoadTemplate:
-    """Load the template file."""
-
-    def __init__(self):
-        """Instansiate the class."""
-        with open(path.join(path.dirname(__file__), "template.json"),
-                  "r") as file:
-            self.data = json.load(file)
+from next_task.services import models
 
 
 class CheckTasks:
@@ -27,22 +18,22 @@ class CheckTasks:
         if type(self.data) is not dict:
             print("[red]Data is is not an dictionary, "
                   "correcting data integrity error[/red]")
-            self.data = LoadTemplate().data
+            self.data = models.TemplateTaskFile().__dict__
 
         if self.data == {}:
             print("[red]Data is empty, correcting "
                   "data integrity error[/red]")
-            self.data = LoadTemplate().data
+            self.data = models.TemplateTaskFile().__dict__
 
         if "tasks" not in self.data:
             print("[red]Key missing from file, "
                   "correcting data integrity error[/red]")
-            self.data = LoadTemplate().data
+            self.data = models.TemplateTaskFile().__dict__
 
         if type(self.data["tasks"]) is not list:
             print("[red]Key missing from file, "
                   "correcting data integrity error[/red]")
-            self.data = LoadTemplate().data
+            self.data = models.TemplateTaskFile().__dict__
 
 
 class CheckTaskCount:
@@ -92,6 +83,9 @@ class CheckCompleted:
             self.data["completed"]["tasks"] = self.data["completed_tasks"]
             self.data.pop("completed_tasks")
 
+        if "projects" not in self.data["completed"]:
+            self.data["completed"]["projects"] = []
+
 
 class CheckCurrent:
     """Ensure that there is a current key in the file."""
@@ -105,6 +99,19 @@ class CheckCurrent:
         if "task" not in self.data["current"]:
             self.data["current"]["task"] = {}
 
+        if "project" not in self.data["current"]:
+            self.data["current"]["project"] = {}
+
+
+class CheckProjects:
+    """Ensure that there is a project key in the file."""
+
+    def __init__(self, data):
+        """Instansiate the class."""
+        self.data = data
+        if "projects" not in self.data:
+            self.data["projects"] = []
+
 
 class CheckFormatting:
     """Ensure File data model conforms."""
@@ -116,6 +123,7 @@ class CheckFormatting:
         self.data = CheckCompleted(self.data).data
         self.data = CheckTaskCount(self.data).data
         self.data = CheckCurrent(self.data).data
+        self.data = CheckProjects(self.data).data
 
 
 class CheckTaskStore:

@@ -1,6 +1,7 @@
 {
     "current": {
-        "task": {}
+        "task": {},
+        "project": {}
     },
     "task_count": 4,
     "tasks": [
@@ -35,6 +36,42 @@
                 "due": "2022-06-10 09:00:26",
                 "status": "closed"
             }
+        ],
+        "projects": [
+            {}
         ]
-    }
+    },
+    "projects": [
+        {
+            "id": "5",
+            "summary": "500",
+            "created": "2022-03-03 09:00:27",
+            "task_count": 0,
+            "tasks": [],
+            "closed": []
+        },
+        {
+            "id": "ATP",
+            "summary": "A Test Project.",
+            "created": "2022-03-03 09:00:27",
+            "task_count": 2,
+            "tasks": [
+                {
+                    "id": "ATP-1",
+                    "summary": "Test task",
+                    "created": "2022-06-03 09:00:26",
+                    "due": "2022-06-10 09:00:26"
+                },
+                {
+                    "id": "ATP-2",
+                    "summary": "Another Test task",
+                    "created": "2022-06-03 09:00:26",
+                    "due": "2022-06-10 09:00:26"
+                }
+            ],
+            "completed": {
+                "tasks": []
+            }
+        }
+    ]
 }

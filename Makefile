@@ -25,7 +25,7 @@ clean:
 
 info:
 
-check: format lint test
+check: format lint test performance
 
 ## less standard
 dev:
@@ -37,15 +37,19 @@ pre-commit: lint
 
 format:
 	$(EXECUTE) isort $(LINT_GROUP)
-	code2flow -o docs/class_diagram.png -q $(PACKAGE)
 
 lint:
 	$(EXECUTE) pycodestyle $(LINT_GROUP) $(TEST_GROUP)
 	$(EXECUTE) pydocstyle $(LINT_GROUP) $(TEST_GROUP)
+	$(EXECUTE) pyflakes $(LINT_GROUP)
+	$(EXECUTE) bandit -r $(LINT_GROUP) -q
 	$(EXECUTE) mypy $(LINT_GROUP)
 
 test:
-	$(EXECUTE) pytest $(TEST_GROUP) -v --durations=0 --sw
+	$(EXECUTE) pytest $(TEST_GROUP) -v --durations=0 --sw --benchmark-skip
+
+performance:
+	$(EXECUTE) pytest tests/performance_tests.py -v --durations=0 --sw --benchmark-name=normal --benchmark-compare --benchmark-autosave
 
 coverage:
 	$(EXECUTE) pytest --cov=$(PACKAGE) $(TEST_GROUP) --cov-report term-missing

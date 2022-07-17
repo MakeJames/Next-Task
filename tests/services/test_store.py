@@ -141,4 +141,4 @@ class TestCheckCurrent:
         with open("tests/data_mocks/pre_0.3.0/.tasks.json", "r") as file:
             file_data = json.load(file)
         test = store.CheckCurrent(file_data).data
-        assert test["current"] == {"task": {}}
+        assert test["current"] == {"task": {}, "project": {}}
