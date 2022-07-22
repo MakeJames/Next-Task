@@ -135,6 +135,7 @@ class MarkAsClosed:
         self.tasks = GetNextTask(data)
         self.update()
         console_output.Format(self.tasks.next_task).mark_closed()
+        WriteTask(self.tasks.file.data)
         GetNextTask(self.tasks.file.data).print_task()
 
     def update(self):
