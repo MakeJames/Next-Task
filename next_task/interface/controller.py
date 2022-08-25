@@ -1,13 +1,13 @@
 """Manage the methods of the cli arguments."""
 
-from next_task.interface.console_output import ListTasks
+from next_task.interface.console_output import Format, ListTasks
 from next_task.services.projects import (CloseNextTaskInProject, CreateProject,
                                          CreateProjectTask, FindProject,
                                          GetNextTaskFromProject,
                                          SkipNextTaskInProject)
-from next_task.services.store import GetTasks
+from next_task.services.store import GetTasks, WriteTask
 from next_task.services.tasks import (CreateTask, GetNextTask, MarkAsClosed,
-                                      SkipTask)
+                                      SkipTask, TaskData)
 
 
 class Arguments:
@@ -96,8 +96,12 @@ class Arguments:
             GetNextTask().print_task()
             self.action = "get task"
             return
-        if add is not None:
-            CreateTask(add)
+        if add is not None:  # TODO: Fix this
+            task_data = TaskData()
+            task = CreateTask(task_data.task_count, add)
+            task_data.tasks.append(task.__dict__)
+            WriteTask(task_data.__dict__)
+            Format(task.__dict__).create_task()
             self.action = "create task"
             return
         if done:

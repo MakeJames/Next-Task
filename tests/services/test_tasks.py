@@ -58,68 +58,22 @@ class TestGetPriority:
 class TestCreateTask:
     """Test the methods to creating a task."""
 
-    @pytest.fixture
-    def mock_write(self, mocker):
-        """Mock the write aspect of the writer function."""
-        def mock_function():
-            return None
-        mocker.patch.object(
-            store.WriteTask,
-            "__init__",
-            return_value=mock_function()
-        )
-
-    @pytest.fixture
-    def mock_tasks_file(self, mocker) -> None:
-        """Return a file in the mock data file."""
-        def mock_file_path():
-            return "tests/data_mocks/large_file"
-
-        mocker.patch.object(
-            Path,
-            "home",
-            return_value=mock_file_path()
-        )
-
     def test_when_there_are_no_tasks_then_id_is_one(self):
         """R-BICEP: Right."""
-        test_call = tasks.CreateTask("test_call")
-        with open(store.CheckTaskStore().file, "r") as file:
-            file_data = json.load(file)
-
-        assert file_data["tasks"][0]["id"] == 1
+        test_call = tasks.CreateTask(0, "test_call")
+        assert test_call.id == 1
 
     def test_when_summary_is_passed_as_int_then_stored_as_str(self):
         """R-BICEP: Right."""
-        test_call = tasks.CreateTask(4)
-        with open(store.CheckTaskStore().file, "r") as file:
-            file_data = json.load(file)
+        test_call = tasks.CreateTask(4, 4)
 
-        assert file_data["tasks"][0]["summary"] == "4"
+        assert test_call.summary == "4"
 
     def test_when_summary_is_passed_as_bool_then_stored_as_str(self):
         """R-BICEP: Right."""
-        test_call = tasks.CreateTask(False)
-        with open(store.CheckTaskStore().file, "r") as file:
-            file_data = json.load(file)
+        test_call = tasks.CreateTask(4, False)
 
-        assert file_data["tasks"][0]["summary"] == "False"
-
-    def test_when_there_are_a_thousand_tasks_then_creation_is_performative(
-        self,
-        mock_tasks_file,
-        mock_write,
-        mocker
-    ) -> None:
-        """R-BICEP: Performance."""
-        start = time()
-        tasks.CreateTask(
-            "test_when_there_are_a_thousand_tasks " +
-            f"{start}"
-        )
-        end = time()
-        dif = (end - start)
-        assert dif < 1
+        assert test_call.summary == "False"
 
 
 class TestGetNextTask:

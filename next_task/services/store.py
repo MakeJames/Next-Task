@@ -162,4 +162,4 @@ class WriteTask:
         self.data = CheckFormatting(data).data
         with open(self.file, "w+") as file:
             file.seek(0)
-            json.dump(self.data, file, indent=4)
+            json.dump(self.data, file, sort_keys=True, indent=4)

@@ -45,7 +45,7 @@ class TestCliMainMethod:
         captured = capsys.readouterr()
         assert captured.out == f"Next: {__version__}"
 
-    def test_task_creation(self, capsys) -> None:
+    def test_task_creation(self, capsys, mock_pathlib_home) -> None:
         """R-BICEP: Right."""
         with pytest.raises(SystemExit):
             cli.main(["--add", "This is a task"])

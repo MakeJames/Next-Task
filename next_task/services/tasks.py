@@ -3,11 +3,29 @@
 import datetime
 import secrets
 from datetime import datetime as dt
+from datetime import timedelta
 from sys import exit
 
 from next_task.interface import console_output
-from next_task.services import models
 from next_task.services.store import GetTasks, WriteTask
+
+
+class TaskData:
+    """Instansate the data in the Task file."""
+
+    def __init__(self):
+        """Map the task file to the class."""
+        data = GetTasks().file_data
+        for key in data:
+            setattr(self, key, data[key])
+
+
+class TimeStamp:
+    """Return the date as a standard format."""
+
+    date_format = "%Y-%m-%d %H:%M:%S"
+    now = dt.now().strftime(date_format)
+    due = (dt.now()+timedelta(days=7)).strftime(date_format)
 
 
 class GetPriority:
@@ -35,19 +53,13 @@ class GetPriority:
 class CreateTask:
     """Creates a task entry."""
 
-    def __init__(self, summary):
+    def __init__(self, task_count: int, summary):
         """Instansiate the Create task class."""
-        self.file_data = GetTasks().file_data
-        self.task_formatter(summary)
-        WriteTask(self.file_data)
-        console_output.Format(self.task).create_task()
-
-    def task_formatter(self, summary):
-        """Build task dictionary."""
-        id = self.file_data["task_count"] + 1
-        self.file_data["task_count"] = id
-        self.task = models.Task(id, summary, dt.now()).__dict__
-        self.file_data["tasks"].append(self.task)
+        time_stamp = TimeStamp()
+        self.id = task_count + 1
+        self.summary = str(summary)
+        self.created = time_stamp.now
+        self.due = time_stamp.due
 
 
 class GetNextTask:
@@ -135,7 +147,6 @@ class MarkAsClosed:
         self.tasks = GetNextTask(data)
         self.update()
         console_output.Format(self.tasks.next_task).mark_closed()
-        WriteTask(self.tasks.file.data)
         GetNextTask(self.tasks.file.data).print_task()
 
     def update(self):
