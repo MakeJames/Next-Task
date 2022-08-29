@@ -5,7 +5,7 @@ from next_task.services.projects import (CloseNextTaskInProject, CreateProject,
                                          CreateProjectTask, FindProject,
                                          GetNextTaskFromProject,
                                          SkipNextTaskInProject)
-from next_task.services.store import GetTasks, WriteTask
+from next_task.services.store import Tasks, WriteTask
 from next_task.services.tasks import (CreateTask, GetNextTask, MarkAsClosed,
                                       SkipTask, TaskData)
 
@@ -67,7 +67,7 @@ class Arguments:
             self.action = "create project"
             CreateProject(add)
             return
-        ListTasks(GetTasks().file_data["projects"], "Projects")
+        ListTasks(Tasks().file_data["projects"], "Projects")
         self.action = "list projects"
         return
 

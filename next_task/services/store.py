@@ -1,6 +1,8 @@
 """Service module containing methods relating to the task file."""
 
 import json
+from datetime import datetime as dt
+from datetime import timedelta
 from pathlib import Path
 
 from rich import print
@@ -143,23 +145,56 @@ class CheckTaskStore:
         return False
 
 
-class GetTasks:
+class Tasks:
     """Opens up the task file and returns the json as a python dictionary."""
+
+    _date_format = "%Y-%m-%d %H:%M:%S"
+    _now = dt.now()
+    now = _now.strftime(_date_format)
+    due = (_now+timedelta(days=7)).strftime(_date_format)
 
     def __init__(self):
         """Instansiate the class."""
         with open(CheckTaskStore().file, "r+") as file:
             self.file_data = json.load(file)
         self.file_data = CheckFormatting(self.file_data).data
+        self.current_task = self.file_data["current"]["task"]
+        self.current_project = self.file_data["current"]["project"]
+        self.tasks = self.file_data["tasks"]
+        self.projects = self.file_data["projects"]
+        self.task_count = self.file_data["task_count"]
+        self.completed_tasks = self.file_data["completed"]["tasks"]
+        self.completed_projects = self.file_data["completed"]["projects"]
 
 
 class WriteTask:
     """Write to .tasks.json."""
 
-    def __init__(self, data: dict):
+    def __init__(self, data):
         """Instansiate the Write Class."""
         self.file = CheckTaskStore().file
-        self.data = CheckFormatting(data).data
+        if isinstance(data, dict):
+            self.data = CheckFormatting(data).data
+        else:
+            self.data = self.format_task_file_data(data)
+
         with open(self.file, "w+") as file:
             file.seek(0)
-            json.dump(self.data, file, sort_keys=True, indent=4)
+            json.dump(self.data, file, indent=4)
+
+    def format_task_file_data(self, task_data):
+        """Map the Task data to a python dictionary."""
+        return {
+            "current": {
+                "task": task_data.current_task,
+                "project": task_data.current_project
+            },
+            "task_count": task_data.task_count,
+            "tasks": task_data.tasks,
+            "projects": task_data.projects,
+            "completed": {
+                "tasks": task_data.completed_tasks,
+                "projects": task_data.completed_projects
+            },
+            "last_updated": task_data.now
+        }

@@ -41,9 +41,43 @@ def mock_task_file(mocker) -> None:
 def test_data_mock():
     """A mock for the TaskData class."""
     class TestData:
-        tasks = []
-        current = {"task": {}, "project": {}}
-        completed = {"tasks": [], "projects": []}
+        tasks = [
+            {
+                "id": 5101,
+                "summary": "Test task 3100",
+                "created": "2022-03-03 09:00:27",
+                "due": "2022-06-10 09:00:27",
+                "status": "open",
+                "skip_count": 2
+            },
+            {
+                "id": 5102,
+                "summary": "Test task 3101",
+                "created": "2022-06-07 09:00:28",
+                "due": "2022-06-12 09:00:28",
+                "status": "open",
+                "skip_count": 0
+            }
+        ]
+        current_task = {}
+        current_project = {}
+        completed_tasks = [
+            {
+                "id": 5099,
+                "summary": "Test task 3098",
+                "created": "2022-06-03 09:00:26",
+                "due": "2022-06-10 09:00:26",
+                "status": "closed"
+            },
+            {
+                "id": 5100,
+                "summary": "Test task 3099",
+                "created": "2022-06-03 09:00:26",
+                "due": "2022-06-10 09:00:26",
+                "status": "closed"
+            }
+        ]
+        completed_projects = []
         task_count = 20
         projects = [
             {
@@ -72,4 +106,5 @@ def test_data_mock():
                 "tasks": []
             }        
         ]
+        now = "2022-08-30 10:34:12"
     return TestData()

@@ -5,7 +5,7 @@ from datetime import datetime as dt
 from datetime import timedelta
 
 from next_task.interface import console_output
-from next_task.services.store import GetTasks, WriteTask
+from next_task.services.store import Tasks, WriteTask
 
 
 class TaskData:
@@ -13,7 +13,7 @@ class TaskData:
 
     def __init__(self):
         """Map the task file to class variables."""
-        data = GetTasks().file_data
+        data = Tasks().file_data
         for key in data:
             setattr(self, key, data[key])
 

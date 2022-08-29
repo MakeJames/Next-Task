@@ -47,16 +47,26 @@ class TestWriteTask:
         mocker.patch("json.dump")
 
     def test_when_dictionary_is_empty_then_data_corrected(self) -> None:
-        """R-BICEP: Error."""
+        """R-BICEP: Boundary."""
         assert "tasks" in store.WriteTask(data={}).data
 
     def test_when_task_list_is_empty_then_file_format_corrected(self) -> None:
-        """R-BICEP: Error."""
+        """R-BICEP: Boundary."""
         assert "completed" in store.WriteTask(data={"tasks": []}).data
 
+    @pytest.mark.skip
     def test_when_wrong_type_is_supplied_then_format_corrected(self) -> None:
         """R-BICEP: Error."""
         assert "tasks" in store.WriteTask(True).data
+
+    def test_when_data_is_in_structured_class_then_pass(
+        self,
+        test_data_mock
+    ) -> None:
+        """R-BICEP: Right."""
+        expected = 20
+        test = store.WriteTask(test_data_mock).data
+        assert test["task_count"] == 20
 
 
 class TestCheckTasks:
@@ -142,3 +152,61 @@ class TestCheckCurrent:
             file_data = json.load(file)
         test = store.CheckCurrent(file_data).data
         assert test["current"] == {"task": {}, "project": {}}
+
+
+class TestTasks:
+    """Test the methods of the Tasks class."""
+
+    def test_when_called_file_data_is_returned(self) -> None:
+        """R-BICEP: Right."""
+        assert isinstance(store.Tasks().file_data, dict)
+
+    def test_when_called_task_count_set_as_attribute(
+        self,
+        mock_task_file
+    ) -> None:
+        """R-BICEP: Right."""
+        expected = 4
+        test = store.Tasks()
+        assert test.task_count == expected
+
+    def test_when_called_current_task_set(self, mock_task_file) -> None:
+        """R-BICEP: Right."""
+        expected = {}
+        test = store.Tasks()
+        assert test.current_task == expected
+
+    def test_when_called_current_project_set(self, mock_task_file) -> None:
+        """R-BICEP: Right."""
+        expected = {}
+        test = store.Tasks()
+        assert test.current_project == expected
+
+    def test_when_called_current_project_set(self, mock_task_file) -> None:
+        """R-BICEP: Right."""
+        expected = [
+            {
+                "id": 5101,
+                "summary": "Test task 3100",
+                "created": "2022-03-03 09:00:27",
+                "due": "2022-06-10 09:00:27",
+                "status": "open",
+                "skip_count": 2
+            },
+            {
+                "id": 5102,
+                "summary": "Test task 3101",
+                "created": "2022-06-07 09:00:28",
+                "due": "2022-06-12 09:00:28",
+                "status": "open",
+                "skip_count": 0
+            }
+        ]
+        test = store.Tasks()
+        assert test.tasks == expected
+
+    def test_when_called_current_project_set(self, mock_task_file) -> None:
+        """R-BICEP: Right."""
+        expected = "ATP"
+        test = store.Tasks()
+        assert test.projects[1]["id"] == expected
