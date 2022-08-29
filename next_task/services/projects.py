@@ -7,8 +7,8 @@ from datetime import datetime as dt
 from next_task.interface.console_output import Format, FormatProject
 from next_task.services.models import Project, Task
 from next_task.services.store import WriteTask
-from next_task.services.tasks import TaskData, GetNextTask, MarkAsClosed, \
-                                    SkipTask, TimeStamp
+from next_task.services.tasks import (GetNextTask, MarkAsClosed, SkipTask,
+                                      TaskData, TimeStamp)
 
 
 class KeyGenerator:
