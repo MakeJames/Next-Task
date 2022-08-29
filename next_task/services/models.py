@@ -31,7 +31,7 @@ class Project:
         """Instansiate the Project model."""
         self.id = str(id)
         self.summary = str(summary)
-        self.created = now.strftime("%Y-%m-%d %H:%M:%S")
+        self.created = now
         self.task_count = 0
         self.tasks = []
         self.completed = {"tasks": []}

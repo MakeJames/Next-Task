@@ -10,14 +10,16 @@
             "summary": "Test task 3100",
             "created": "2022-03-03 09:00:27",
             "due": "2022-06-10 09:00:27",
-            "status": "open"
+            "status": "open",
+            "skip_count": 2
         },
         {
             "id": 5102,
             "summary": "Test task 3101",
             "created": "2022-06-07 09:00:28",
             "due": "2022-06-12 09:00:28",
-            "status": "open"
+            "status": "open",
+            "skip_count": 0
         }
     ],
     "completed": {

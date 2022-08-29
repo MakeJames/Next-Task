@@ -129,8 +129,9 @@ class TestArguments:
             "list": False,
             "project": True
         }
+        action = "create project"
         test = controller.Arguments(**call)
-        assert test.action == "create project"
+        assert test.action == action
         call = {
             "add": None,
             "task": False,
@@ -139,8 +140,9 @@ class TestArguments:
             "list": False,
             "project": True
         }
+        action = "list projects"
         test = controller.Arguments(**call)
-        assert test.action == "list projects"
+        assert test.action == action
 
         call = {
             "add": "A task",
@@ -150,8 +152,9 @@ class TestArguments:
             "list": False,
             "project": "AP"
         }
+        action = "project add task"
         test = controller.Arguments(**call)
-        assert test.action == "project add task"
+        assert test.action == action
 
         call = {
             "add": "A 2nd task",
@@ -161,8 +164,9 @@ class TestArguments:
             "list": False,
             "project": "AP"
         }
+        action = "project add task"
         test = controller.Arguments(**call)
-        assert test.action == "project add task"
+        assert test.action == action
 
         call = {
             "add": None,
@@ -172,8 +176,9 @@ class TestArguments:
             "list": False,
             "project": "AP"
         }
+        action = "project get task"
         test = controller.Arguments(**call)
-        assert test.action == "project get task"
+        assert test.action == action
 
         call = {
             "add": None,
@@ -183,8 +188,9 @@ class TestArguments:
             "list": True,
             "project": "AP"
         }
+        action = "project list tasks"
         test = controller.Arguments(**call)
-        assert test.action == "project list tasks"
+        assert test.action == action
 
         call = {
             "add": None,
@@ -194,8 +200,9 @@ class TestArguments:
             "list": False,
             "project": "AP"
         }
+        action = "project skip task"
         test = controller.Arguments(**call)
-        assert test.action == "project skip task"
+        assert test.action == action
 
         call = {
             "add": None,
@@ -205,8 +212,9 @@ class TestArguments:
             "list": False,
             "project": "AP"
         }
+        action = "project close task"
         test = controller.Arguments(**call)
-        assert test.action == "project close task"
+        assert test.action == action
 
         call = {
             "add": "A task",
@@ -216,5 +224,6 @@ class TestArguments:
             "list": False,
             "project": True
         }
+        action = None
         test = controller.Arguments(**call)
-        assert test.action is None
+        assert test.action == action

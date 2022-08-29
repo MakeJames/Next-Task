@@ -45,21 +45,21 @@ def mock_large_file_path(mocker):
 
 def mimic_user():
     """A script to walk through several of the user functions."""
-    tasks.CreateTask("A task")
-    tasks.CreateTask("Another task")
+    tasks.CreateTask(0, "A task")
+    tasks.CreateTask(1, "Another task")
     tasks.GetNextTask().print_task()
     tasks.SkipTask()
     tasks.MarkAsClosed()
     tasks.GetNextTask().print_task()
     tasks.MarkAsClosed()
-    tasks.CreateTask("Yet more Further work")
+    tasks.CreateTask(2, "Yet more Further work")
     tasks.GetNextTask().print_task()
     tasks.MarkAsClosed()
 
 
 def test_create_task(benchmark):
     """R-BICEP: Performance."""
-    benchmark.pedantic(tasks.CreateTask, args=("this is a task",), iterations=10, rounds=100)
+    benchmark.pedantic(tasks.CreateTask, args=(0, "this is a task",), iterations=10, rounds=100)
 
 def test_skip_task(mock_write, mock_file_path, benchmark):
     """R-BICEP: Performance."""

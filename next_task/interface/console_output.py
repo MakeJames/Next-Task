@@ -77,7 +77,7 @@ class Format:
         """Format console output when skiping the next task."""
         Style().console.print(
             f"[warning]updated {self.id}:[/warning] {self.summary}\n"
-            f"[info]now due: {self.due}[/info]",
+            f"[info]now skiped: {self.data['skip_count']}[/info]",
             style="pass"
         )
 

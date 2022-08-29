@@ -36,3 +36,40 @@ def mock_task_file(mocker) -> None:
         "home",
         return_value=mock_file_path()
     )
+
+@pytest.fixture
+def test_data_mock():
+    """A mock for the TaskData class."""
+    class TestData:
+        tasks = []
+        current = {"task": {}, "project": {}}
+        completed = {"tasks": [], "projects": []}
+        task_count = 20
+        projects = [
+            {
+                "id": "ATP",
+                "summary": "A Test Project.",
+                "task_count": 2,
+                "tasks": [
+                    {
+                        'id': 'ATP-1',
+                        'summary': 'Test task',
+                        'created': '2022-06-03 09:00:26',
+                        'due': '2022-06-10 09:00:26'
+                    }, 
+                    {
+                        'id': 'ATP-2',
+                        'summary': 'Another Test task',
+                        'created': '2022-06-03 09:00:26',
+                        'due': '2022-06-10 09:00:26'
+                    }
+                ]
+            },
+            {
+                "id": "5",
+                "summary": "500",
+                "task_count": 0,
+                "tasks": []
+            }        
+        ]
+    return TestData()

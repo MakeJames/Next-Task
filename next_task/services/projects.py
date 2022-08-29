@@ -6,8 +6,9 @@ from datetime import datetime as dt
 
 from next_task.interface.console_output import Format, FormatProject
 from next_task.services.models import Project, Task
-from next_task.services.store import GetTasks, WriteTask
-from next_task.services.tasks import GetNextTask, MarkAsClosed, SkipTask
+from next_task.services.store import WriteTask
+from next_task.services.tasks import TaskData, GetNextTask, MarkAsClosed, \
+                                    SkipTask, TimeStamp
 
 
 class KeyGenerator:
@@ -32,19 +33,24 @@ class CreateProject:
 
     def __init__(self, summary):
         """Instanisate the Create project class."""
-        self.file_data = GetTasks().file_data
+        self.file_data = TaskData()
         if FindProjectName(summary, data=self.file_data).found:
             print("Project by that name exists.")
             sys.exit([0])
-        self.project_formatter(summary, self.file_data)
-        WriteTask(self.file_data)
-        FormatProject(self.project).create()
+        self.project = Project(
+                KeyGenerator(summary, self.file_data).id,
+                summary,
+                TimeStamp().now
+            )
+        self.file_data.projects.append(self.project.__dict__)
+        WriteTask(self.file_data.__dict__)
+        FormatProject(self.project.__dict__).create()
 
     def project_formatter(self, summary, file_data):
         """Build the project dictionary."""
         self.project = Project(KeyGenerator(summary, file_data).id,
                                summary, dt.now()).__dict__
-        self.file_data["projects"].append(self.project)
+        self.file_data.projects.append(self.project)
 
 
 class FindProjectId:
@@ -52,7 +58,7 @@ class FindProjectId:
 
     def __init__(self, id, data):
         """Instansiate the class."""
-        for item in data["projects"]:
+        for item in data.projects:
             if item["id"] == str(id).upper():
                 self.data = item
                 self.found = True
@@ -67,7 +73,8 @@ class FindProjectName:
     def __init__(self, summary, data):
         """Instansiate the class."""
         summary = re.sub(r'[^a-zA-Z0-9]', '', str(summary))
-        for item in data["projects"]:
+        print(data.projects)
+        for item in data.projects:
             item_summary = re.sub(r'[^a-zA-Z0-9]', '', item["summary"])
             if item_summary.lower() == str(summary).lower():
                 self.data = item
@@ -99,22 +106,24 @@ class FindProject:
 class CreateProjectTask:
     """Create a task in a given project."""
 
-    def __init__(self, project, summary):
+    def __init__(self, project, summary, task_data):
         """Instansiate the class."""
-        self.file_data = GetTasks().file_data
-        self.data = FindProject(project, self.file_data).data
+        # TODO: this is uncessiarily complicated - FIX
+        self.file_data = task_data
+        self.project_data = FindProject(project, task_data).data
         self.generate_id()
-        self.file_data["projects"].remove(self.data)
+        self.file_data.projects.remove(self.project_data)
         self.task = Task(self.task_id, str(summary), dt.now()).__dict__
-        self.data["tasks"].append(self.task)
-        self.file_data["projects"].append(self.data)
+        self.project_data["tasks"].append(self.task)
+        self.file_data.projects.append(self.project_data)
         Format(self.task).create_task()
-        WriteTask(self.file_data)
+        WriteTask(self.file_data.__dict__)
 
     def generate_id(self):
         """Generate the task id."""
-        self.data["task_count"] += 1
-        self.task_id = f"{self.data['id']}-{self.data['task_count']}"
+        self.project_data["task_count"] += 1
+        self.task_id = f"{self.project_data['id']}" \
+                       f"-{self.project_data['task_count']}"
 
 
 class GetNextTaskFromProject:
@@ -122,9 +131,20 @@ class GetNextTaskFromProject:
 
     def __init__(self, project):
         """Instansiate class."""
-        self.file_data = GetTasks().file_data
-        self.data = FindProject(project, self.file_data).data
-        GetNextTask(self.data).print_task()
+        # TODO: this is uncessiarily complicated - FIX
+        # FIX: Method does not access Project tasks
+        self.file_data = TaskData()
+        task_data = self.file_data.tasks
+        self.project_data = FindProject(project, self.file_data).data
+        self.file_data.tasks = self.project_data["tasks"]
+        self.file_data.projects.remove(self.project_data)
+        self.file_data = GetNextTask(self.file_data).task_data
+        self.project_data["tasks"] = self.file_data.tasks
+        self.file_data.projects.append(self.project_data)
+        self.file_data.tasks = task_data
+        if self.file_data.current["task"]:
+            Format(self.file_data.current["task"]).next_task()
+        WriteTask(self.file_data.__dict__)
 
 
 class SkipNextTaskInProject:
@@ -132,9 +152,20 @@ class SkipNextTaskInProject:
 
     def __init__(self, project):
         """Instansiate class."""
-        self.file_data = GetTasks().file_data
-        self.data = FindProject(project, self.file_data).data
-        SkipTask(self.data)
+        # TODO: this is uncessiarily complicated - FIX
+        # FIX: Method does not access Project tasks
+        self.file_data = TaskData()
+        task_data = self.file_data.tasks
+        self.project_data = FindProject(project, self.file_data).data
+        self.file_data.tasks = self.project_data["tasks"]
+        self.file_data.projects.remove(self.project_data)
+        skip = SkipTask(self.file_data)
+        self.file_data = GetNextTask(skip.task_data).task_data
+        self.project_data["tasks"] = self.file_data.tasks
+        self.file_data.projects.append(self.project_data)
+        self.file_data.tasks = task_data
+        Format(skip.skip_task).skip_task()
+        WriteTask(self.file_data.__dict__)
 
 
 class CloseNextTaskInProject:
@@ -142,6 +173,19 @@ class CloseNextTaskInProject:
 
     def __init__(self, project):
         """Instansiate class."""
-        self.file_data = GetTasks().file_data
-        self.data = FindProject(project, self.file_data).data
-        MarkAsClosed(self.data)
+        # TODO: this is uncessiarily complicated - FIX
+        # FIX: Method does not access Project tasks
+        self.file_data = TaskData()
+        task_data = self.file_data.tasks
+        self.project_data = FindProject(project, self.file_data).data
+        self.file_data.tasks = self.project_data["tasks"]
+        self.file_data.projects.remove(self.project_data)
+        self.file_data = GetNextTask(self.file_data).task_data
+        close = MarkAsClosed(self.file_data)
+        self.file_data = GetNextTask(close.task_data).task_data
+        self.project_data["tasks"] = self.file_data.tasks
+        self.file_data.projects.append(self.project_data)
+        self.file_data.tasks = task_data
+        Format(close.closed_task).mark_closed()
+        Format(self.file_data.current["task"]).next_task()
+        WriteTask(self.file_data.__dict__)

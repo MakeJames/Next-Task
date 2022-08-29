@@ -16,7 +16,7 @@ class CheckTasks:
         self.data = data
 
         if type(self.data) is not dict:
-            print("[red]Data is is not an dictionary, "
+            print("[red]Data is is not a dictionary, "
                   "correcting data integrity error[/red]")
             self.data = models.TemplateTaskFile().__dict__
 

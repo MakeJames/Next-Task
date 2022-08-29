@@ -1,7 +1,6 @@
 """Test the methods of the tasks module."""
 
 import pytest
-import json
 from pathlib import Path
 from loguru import logger
 from pytest_mock import mocker
@@ -10,49 +9,6 @@ from time import time
 
 from next_task.services import store
 from next_task.services import tasks
-
-
-class TestGetPriority:
-    """Test the methods of the priority calculation class."""
-
-    def test_when_called_higest_priority_task_is_returned(
-        self,
-        mocker
-    ) -> None:
-        """R-BICEP: Right."""
-        def mock_file_path():
-            return "tests/data_mocks/task_file"
-
-        mocker.patch.object(
-            Path,
-            "home",
-            return_value=mock_file_path()
-        )
-        test_call = store.GetTasks()
-        test = tasks.GetPriority(test_call.file_data)
-        assert test.data["tasks"][0]["id"] == 5102
-
-    def test_when_called_higest_priority_task_is_returned_performatvely(
-        self,
-        mocker
-    ) -> None:
-        """R-BICEP: Performance."""
-        def mock_file_path():
-            return "tests/data_mocks/large_file"
-
-        mocker.patch.object(
-            Path,
-            "home",
-            return_value=mock_file_path()
-        )
-        test_call = store.GetTasks()
-
-        start = time()
-        tasks.GetPriority(test_call.file_data)
-        end = time()
-        dif = end - start
-        print(f"dif greater than 1 second: {dif}")
-        assert dif <= 1
 
 
 class TestCreateTask:
@@ -96,8 +52,11 @@ class TestGetNextTask:
         mock_write
     ) -> None:
         """R-BICEP: Right."""
-        with pytest.raises(SystemExit):
-            tasks.GetNextTask()
+        class test:
+            pass
+        test.current = {"task": {}, "project": {}}
+        test.tasks = []
+        tasks.GetNextTask(test)
         captured = capsys.readouterr()
         assert "Congratulations!" in captured.out
 
@@ -105,57 +64,79 @@ class TestGetNextTask:
 class TestSkipTask:
     """Test the methods of the Skip task class."""
 
-    def test_when_called_task_is_skipped(
+    def test_when_called_due_date_of_task_is_increased(
         self,
         mock_task_file,
         mock_write
     ) -> None:
         """R-BICEP: Right."""
-        test_call = tasks.SkipTask()
-        due_1 = datetime.datetime.strptime(
-            "2022-06-12 09:00:28",
-            "%Y-%m-%d %H:%M:%S"
-        )
-        due_2 = datetime.datetime.strptime(
-            test_call.tasks.next_task["due"],
-            "%Y-%m-%d %H:%M:%S"
-        )
-        assert due_1 < due_2
+        class task_data:
+            pass
+        task_data.current = {"task": {"id": 1, "status": "open"}}
+        task_data.tasks = [{"id": 1, "status": "open", "skip_count": 0}]
+        test_call = tasks.SkipTask(task_data)
+        test_call.skip_task["skip_count"] == 1
 
 
 class TestMarkAsClosedClass:
     """Test the methods of the Mark as closed class."""
 
-    @pytest.fixture(autouse=True)
-    def mock_write(self, mocker):
-        """Mock the write aspect of the writer function."""
-        def mock_function():
-            return None
-        mocker.patch.object(
-            store.WriteTask,
-            "__init__",
-            return_value=mock_function()
-        )
-
-    @pytest.fixture
-    def mock_get_next_task(self, mocker):
-        """Mock the catalogue check, file_path builder method."""
-
-        def mock_file_path():
-            return "tests/data_mocks/task_file"
-
-        mocker.patch.object(
-            Path,
-            "home",
-            return_value=mock_file_path()
-        )
-
     def test_when_called_task_is_closed(
         self,
-        mock_get_next_task
+        mock_task_file,
+        mock_write,
     ) -> None:
         """R-BICEP: Right."""
-        test_call = tasks.MarkAsClosed()
-        assert test_call.tasks.next_task["status"] == "closed" \
-            and test_call.tasks.file.data["completed"]["tasks"][-1]["id"] == \
-            test_call.tasks.next_task["id"]
+        class task_data:
+            pass
+        task_data.current = {"task": {"id": 1, "status": "open"}}
+        task_data.tasks = [{"id": 1, "status": "open"}]
+        task_data.completed = {"tasks": []}
+        test_call = tasks.MarkAsClosed(task_data)
+        closed_task = test_call.closed_task
+        completed_tasks = test_call.task_data.completed["tasks"]
+        assert closed_task["status"] == "closed" \
+            and completed_tasks[-1]["id"] == closed_task["id"]
+
+
+class TestTimeStamp:
+    """Test the methods of the TimeStampClass."""
+
+    def test_TimeStamp_now_is_correctly_formatted(self):
+        """R-BICEP: Right."""
+        t = tasks.TimeStamp().now
+        assert datetime.datetime.strptime(t, "%Y-%m-%d %H:%M:%S")
+
+    def test_TimeStamp_convert_from_string_returns_datetime_object(self):
+        """R-BICEP: Right."""
+        t = datetime.datetime.now()
+        t_string = t.strftime("%Y-%m-%d %H:%M:%S")
+        t_date_time = datetime.datetime.strptime(t_string, "%Y-%m-%d %H:%M:%S")
+        test = tasks.TimeStamp().convert_from_string(t_string)
+        assert test == t_date_time \
+            and isinstance(test, datetime.datetime)
+
+    def test_convert_from_string_returns_datetime_when_passed_datetime(self):
+        """R-BICEP: Boundary."""
+        t = datetime.datetime.now()
+        test = tasks.TimeStamp().convert_from_string(t)
+        assert t == test
+
+    def test_TimeStamp_convert_to_string_returns_string(self):
+        """R-BICEP: Right."""
+        t = datetime.datetime.now()
+        test = tasks.TimeStamp().convert_to_string(t)
+        assert t.strftime("%Y-%m-%d %H:%M:%S") == test \
+            and isinstance(test, str)
+
+    def test_convert_to_string_returns_string_when_passed_string(self):
+        """R-BICEP: Boundary."""
+        t = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        test = tasks.TimeStamp().convert_to_string(t)
+        assert t == test
+
+    def test_TimeStamp_short_returns_short_date_(self):
+        """R-BICEP: Right."""
+        t = tasks.TimeStamp().now
+        t_short = tasks.TimeStamp().short(t)
+        assert datetime.datetime.strptime(t_short, "%Y-%m-%d")
