@@ -5,17 +5,7 @@ from datetime import datetime as dt
 from datetime import timedelta
 
 from next_task.interface import console_output
-from next_task.services.store import Tasks, WriteTask
-
-
-class TaskData:
-    """Instansate the data in the Task file."""
-
-    def __init__(self):
-        """Map the task file to class variables."""
-        data = Tasks().file_data
-        for key in data:
-            setattr(self, key, data[key])
+from next_task.services.store import WriteTask
 
 
 class TimeStamp:
@@ -65,28 +55,20 @@ class GetNextTask:
     # ???: -- this function should simply set next task, not
     # ???: -- wrap the TaskData class.
 
-    def __init__(self, data=None):
+    def __init__(self, data):
         """Instansiate the get next task class."""
-        self._check_data(data)
-        if self.task_data.current["project"]:
-            # TODO: if project data then...
-            # Check current task in project
-            # if True, return current task
-            # if False get current project task
-            pass
-        if self.task_data.current["task"]:
+        self.task_data = data
+        if self.task_data.current_project:
+            self.task_data.current_project["tasks"].sort(key=self.get_priority)
+            self.task_data.current_task = self.task_data.tasks[0]
+            return
+        if self.task_data.current_task:
             return
         if self.task_data.tasks:
             self.task_data.tasks.sort(key=self.get_priority)
-            self.task_data.current["task"] = self.task_data.tasks[0]
+            self.task_data.current_task = self.task_data.tasks[0]
             return
         console_output.Congratulations()
-
-    def _check_data(self, data):
-        if data:
-            self.task_data = data
-            return
-        self.task_data = TaskData()
 
     def get_priority(self, item):
         """Return the next priority task."""
@@ -101,9 +83,9 @@ class GetNextTask:
     # TODO: Method outside of scope for class - move
     def print_task(self):
         """Print the next task."""
-        if self.task_data.current["task"]:
-            console_output.Format(self.task_data.current["task"]).next_task()
-        WriteTask(self.task_data.__dict__)
+        if self.task_data.current_task:
+            console_output.Format(self.task_data.current_task).next_task()
+        WriteTask(self.task_data)
 
 
 class SkipTask:
@@ -113,8 +95,8 @@ class SkipTask:
         """Instansiate the class."""
         # TODO: should accept data input rather than call Next Task
         self.task_data = data
-        task = self.task_data.current["task"]
-        self.task_data.current["task"] = {}
+        task = self.task_data.current_task
+        self.task_data.current_task = {}
         for index in range(len(self.task_data.tasks)):
             if self.task_data.tasks[index]["id"] == task["id"]:
                 self.task_data.tasks[index]["skip_count"] += 1
@@ -129,11 +111,11 @@ class MarkAsClosed:
         """Instansiate the class."""
         # TODO: should accept data input rather than call Next Task
         self.task_data = data
-        self.task_data.tasks.remove(self.task_data.current["task"])
-        self.task_data.current["task"]["status"] = "closed"
-        self.task_data.current["task"]["completed"] = TimeStamp().now
-        self.task_data.completed["tasks"].append(
-            self.task_data.current["task"]
+        self.task_data.tasks.remove(self.task_data.current_task)
+        self.task_data.current_task["status"] = "closed"
+        self.task_data.current_task["completed"] = TimeStamp().now
+        self.task_data.completed_tasks.append(
+            self.task_data.current_task
         )
-        self.closed_task = self.task_data.current["task"]
-        self.task_data.current["task"] = {}
+        self.closed_task = self.task_data.current_task
+        self.task_data.current_task = {}

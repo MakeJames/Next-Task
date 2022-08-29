@@ -7,7 +7,7 @@ from next_task.services.projects import (CloseNextTaskInProject, CreateProject,
                                          SkipNextTaskInProject)
 from next_task.services.store import Tasks, WriteTask
 from next_task.services.tasks import (CreateTask, GetNextTask, MarkAsClosed,
-                                      SkipTask, TaskData)
+                                      SkipTask)
 
 
 # TODO: Implement the following folow
@@ -74,7 +74,7 @@ class Arguments:
     def project(self, project, task, done, skip, add, **kwargs):
         """Perform actions within a targeted project."""
         if add is not None:
-            CreateProjectTask(project, add, TaskData())
+            CreateProjectTask(project, add, Tasks())
             self.action = "project add task"
             return
         if task:
@@ -89,7 +89,7 @@ class Arguments:
             CloseNextTaskInProject(project)
             self.action = "project close task"
             return
-        data = FindProject(project, TaskData()).data
+        data = FindProject(project, Tasks()).data
         print("\n")
         ListTasks(data["tasks"], f"Project: {data['summary']}")
         print("\n")
@@ -100,15 +100,15 @@ class Arguments:
         """Perfrom actions against the main task list."""
         # TODO: Get TaskData here
         if add is not None:  # TODO: Fix this
-            task_data = TaskData()
+            task_data = Tasks()
             task = CreateTask(task_data.task_count, add)
             task_data.tasks.append(task.__dict__)
             task_data.task_count = task.id
-            WriteTask(task_data.__dict__)
+            WriteTask(task_data)
             Format(task.__dict__).create_task()
             self.action = "create task"
             return
-        tasks = GetNextTask()
+        tasks = GetNextTask(Tasks())
         if task:
             tasks.print_task()
             self.action = "get task"
@@ -117,7 +117,6 @@ class Arguments:
             close = MarkAsClosed(tasks.task_data)
             self.action = "close task"
             Format(close.closed_task).mark_closed()
-            GetNextTask()
             GetNextTask(close.task_data).print_task()
             return
         if skip:

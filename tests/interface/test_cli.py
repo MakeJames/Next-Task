@@ -1,14 +1,11 @@
 """Test the methods of the cli module."""
 
 from pathlib import Path
-from random import SystemRandom
 import pytest
-import json
 
 from pytest_mock import mocker
 
 from next_task.interface import cli
-from next_task.services import tasks
 from next_task.services import store
 from next_task import __version__
 

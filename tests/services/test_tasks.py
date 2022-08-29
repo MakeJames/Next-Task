@@ -39,10 +39,10 @@ class TestGetNextTask:
         self,
         capsys,
         mock_write,
-        mock_task_file
+        test_data_mock
     ) -> None:
         """R-BICEP: Right."""
-        tasks.GetNextTask().print_task()
+        tasks.GetNextTask(test_data_mock).print_task()
         captured = capsys.readouterr()
         assert "5102" in captured.out
 
@@ -53,10 +53,10 @@ class TestGetNextTask:
     ) -> None:
         """R-BICEP: Right."""
         class test:
-            pass
-        test.current = {"task": {}, "project": {}}
-        test.tasks = []
-        tasks.GetNextTask(test)
+            current_task = {}
+            current_project = {}
+            tasks = []
+        tasks.GetNextTask(test())
         captured = capsys.readouterr()
         assert "Congratulations!" in captured.out
 
@@ -71,10 +71,11 @@ class TestSkipTask:
     ) -> None:
         """R-BICEP: Right."""
         class task_data:
-            pass
-        task_data.current = {"task": {"id": 1, "status": "open"}}
-        task_data.tasks = [{"id": 1, "status": "open", "skip_count": 0}]
-        test_call = tasks.SkipTask(task_data)
+            current_task = {"id": 1, "status": "open"}
+            current_project = {}
+            tasks = [{"id": 1, "status": "open", "skip_count": 0}]
+
+        test_call = tasks.SkipTask(task_data())
         test_call.skip_task["skip_count"] == 1
 
 
@@ -88,13 +89,14 @@ class TestMarkAsClosedClass:
     ) -> None:
         """R-BICEP: Right."""
         class task_data:
+            current_task = {"id": 1, "status": "open"}
+            current_project = {}
+            tasks = [{"id": 1, "status": "open"}]
+            completed_tasks = []
             pass
-        task_data.current = {"task": {"id": 1, "status": "open"}}
-        task_data.tasks = [{"id": 1, "status": "open"}]
-        task_data.completed = {"tasks": []}
-        test_call = tasks.MarkAsClosed(task_data)
+        test_call = tasks.MarkAsClosed(task_data())
         closed_task = test_call.closed_task
-        completed_tasks = test_call.task_data.completed["tasks"]
+        completed_tasks = test_call.task_data.completed_tasks
         assert closed_task["status"] == "closed" \
             and completed_tasks[-1]["id"] == closed_task["id"]
 

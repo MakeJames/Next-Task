@@ -6,9 +6,9 @@ from datetime import datetime as dt
 
 from next_task.interface.console_output import Format, FormatProject
 from next_task.services.models import Project, Task
-from next_task.services.store import WriteTask
+from next_task.services.store import Tasks, WriteTask
 from next_task.services.tasks import (GetNextTask, MarkAsClosed, SkipTask,
-                                      TaskData, TimeStamp)
+                                      TimeStamp)
 
 
 class KeyGenerator:
@@ -33,7 +33,7 @@ class CreateProject:
 
     def __init__(self, summary):
         """Instanisate the Create project class."""
-        self.file_data = TaskData()
+        self.file_data = Tasks()
         if FindProjectName(summary, data=self.file_data).found:
             print("Project by that name exists.")
             sys.exit([0])
@@ -43,7 +43,7 @@ class CreateProject:
                 TimeStamp().now
             )
         self.file_data.projects.append(self.project.__dict__)
-        WriteTask(self.file_data.__dict__)
+        WriteTask(self.file_data)
         FormatProject(self.project.__dict__).create()
 
     def project_formatter(self, summary, file_data):
@@ -117,7 +117,7 @@ class CreateProjectTask:
         self.project_data["tasks"].append(self.task)
         self.file_data.projects.append(self.project_data)
         Format(self.task).create_task()
-        WriteTask(self.file_data.__dict__)
+        WriteTask(self.file_data)
 
     def generate_id(self):
         """Generate the task id."""
@@ -133,7 +133,7 @@ class GetNextTaskFromProject:
         """Instansiate class."""
         # TODO: this is uncessiarily complicated - FIX
         # FIX: Method does not access Project tasks
-        self.file_data = TaskData()
+        self.file_data = Tasks()
         task_data = self.file_data.tasks
         self.project_data = FindProject(project, self.file_data).data
         self.file_data.tasks = self.project_data["tasks"]
@@ -142,8 +142,8 @@ class GetNextTaskFromProject:
         self.project_data["tasks"] = self.file_data.tasks
         self.file_data.projects.append(self.project_data)
         self.file_data.tasks = task_data
-        if self.file_data.current["task"]:
-            Format(self.file_data.current["task"]).next_task()
+        if self.file_data.current_task:
+            Format(self.file_data.current_task).next_task()
         WriteTask(self.file_data.__dict__)
 
 
@@ -154,18 +154,19 @@ class SkipNextTaskInProject:
         """Instansiate class."""
         # TODO: this is uncessiarily complicated - FIX
         # FIX: Method does not access Project tasks
-        self.file_data = TaskData()
+        self.file_data = Tasks()
         task_data = self.file_data.tasks
         self.project_data = FindProject(project, self.file_data).data
         self.file_data.tasks = self.project_data["tasks"]
         self.file_data.projects.remove(self.project_data)
+        self.file_data = GetNextTask(self.file_data).task_data
         skip = SkipTask(self.file_data)
         self.file_data = GetNextTask(skip.task_data).task_data
         self.project_data["tasks"] = self.file_data.tasks
         self.file_data.projects.append(self.project_data)
         self.file_data.tasks = task_data
         Format(skip.skip_task).skip_task()
-        WriteTask(self.file_data.__dict__)
+        WriteTask(self.file_data)
 
 
 class CloseNextTaskInProject:
@@ -175,7 +176,7 @@ class CloseNextTaskInProject:
         """Instansiate class."""
         # TODO: this is uncessiarily complicated - FIX
         # FIX: Method does not access Project tasks
-        self.file_data = TaskData()
+        self.file_data = Tasks()
         task_data = self.file_data.tasks
         self.project_data = FindProject(project, self.file_data).data
         self.file_data.tasks = self.project_data["tasks"]
@@ -187,5 +188,5 @@ class CloseNextTaskInProject:
         self.file_data.projects.append(self.project_data)
         self.file_data.tasks = task_data
         Format(close.closed_task).mark_closed()
-        Format(self.file_data.current["task"]).next_task()
+        Format(self.file_data.current_task).next_task()
         WriteTask(self.file_data.__dict__)

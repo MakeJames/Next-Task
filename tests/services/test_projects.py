@@ -6,9 +6,6 @@ from pytest_mock import mocker
 from pathlib import Path
 
 from next_task.services import projects
-from next_task.services import store
-from next_task.services import tasks
-from next_task.services.tasks import TaskData
 
 
 class TestKeyGenerator:
@@ -183,7 +180,7 @@ class TestGetNextTaskFromProject:
         """R-BICEP: Right."""
         test = projects.GetNextTaskFromProject("ATP")
         captured = capsys.readouterr()
-        assert test.file_data.current["task"]["id"] == "ATP-1"
+        assert test.file_data.current_task["id"] == "ATP-1"
         assert "ATP-1: Test task" in captured.out
 
     def test_when_no_tasks_in_project_then_congratulations(
