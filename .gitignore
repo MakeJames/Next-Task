@@ -11,3 +11,4 @@ poetry.lock
 *.gv
 .performance_test/
 .benchmarks/
+.vscode/

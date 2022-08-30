@@ -5,6 +5,8 @@ from rich.console import Console
 from rich.table import Table
 from rich.theme import Theme
 
+from next_task.services.tasks import TimeStamp
+
 
 class Style:
     """Hold the Theme definitions for the package."""
@@ -34,14 +36,24 @@ class ListTasks:
 
         table.add_column("id", style="#09814A", no_wrap=True)
         table.add_column("summary", style="#4A70C2", no_wrap=True)
-        table.add_column("created", justify="right", style="#4A70C2")
-
-        for row in data:
-            table.add_row(
-                f"{row['id']}",
-                f"{row['summary']}",
-                f"{row['created']}"
-            )
+        if title == "Open Tasks":
+            table.add_column("due", justify="right", style="#4A70C2")
+            table.add_column("skip_count", justify="right", style="#4A70C2")
+            for row in data:
+                table.add_row(
+                    f"{row['id']}",
+                    f"{row['summary']}",
+                    f"{TimeStamp().short(row['due'])}",
+                    f"{row['skip_count']}",
+                )
+        else:
+            table.add_column("created", justify="right", style="#4A70C2")
+            for row in data:
+                table.add_row(
+                    f"{row['id']}",
+                    f"{row['summary']}",
+                    f"{TimeStamp().short(row['created'])}",
+                )
 
         Console().print(table, justify="left")
 
@@ -118,4 +130,14 @@ class FormatProject:
             f"[b]Created project {self.id}: [/b]"
             f"[highlight]{self.summary}[/highlight]",
             style="info"
+        )
+
+
+class RaiseError:
+    """Handle error scenarios."""
+
+    def input_error(self):
+        """Catching edge cases or undesired behaviour."""
+        Style().console.print(
+            "[warning]Invalid argument combination[/warning]"
         )
