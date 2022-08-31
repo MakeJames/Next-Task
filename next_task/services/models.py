@@ -24,19 +24,6 @@ class Task:
         self.due = (now + timedelta(days=7)).strftime("%Y-%m-%d %H:%M:%S")
 
 
-class Project:
-    """Data class for a project."""
-
-    def __init__(self, id, summary, now):
-        """Instansiate the Project model."""
-        self.id = str(id)
-        self.summary = str(summary)
-        self.created = now
-        self.task_count = 0
-        self.tasks = []
-        self.completed = {"tasks": []}
-
-
 class TemplateTaskFile:
     """Data class for the task file."""
 
