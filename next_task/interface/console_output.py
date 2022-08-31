@@ -133,11 +133,22 @@ class FormatProject:
         )
 
 
-class RaiseError:
+class RaiseErrorMessage:
     """Handle error scenarios."""
+
+    def __init__(self, free_text=None):
+        """Instansiate the class."""
+        Style().console.print(f"[warning]{free_text}[/warning]")
 
     def input_error(self):
         """Catching edge cases or undesired behaviour."""
         Style().console.print(
             "[warning]Invalid argument combination[/warning]"
+        )
+
+    def project_exists(self, project):
+        """Pre-formatted error messaging for existing project."""
+        Style().console.print(
+            f"[warning]A project with the name '{project['summary']}' already "
+            f"exists. Use project key: {project['id']}"
         )
