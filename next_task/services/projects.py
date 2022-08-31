@@ -1,106 +1,83 @@
 """Module containing methods and classes for parsing projects."""
 
 import re
-import sys
 from datetime import datetime as dt
 
-from next_task.interface.console_output import Format, FormatProject
-from next_task.services.models import Project, Task
+from next_task.interface.console_output import Format
+from next_task.services.models import Task
 from next_task.services.store import Tasks, WriteTask
-from next_task.services.tasks import (GetNextTask, MarkAsClosed, SkipTask,
-                                      TimeStamp)
+from next_task.services.tasks import GetNextTask, MarkAsClosed, SkipTask
+
+
+class CreateProject:
+    """Model for a project."""
+
+    def __init__(self, task_data):
+        """Instansiate the Project model."""
+        if None in [task_data.add, task_data.now]:
+            raise ValueError
+        self.id = KeyGenerator(task_data.add).id
+        self.summary = str(task_data.add)
+        self.created = task_data.now
+        self.task_count = 0
+        self.tasks = []
+        self.completed = {"tasks": []}
 
 
 class KeyGenerator:
-    """Generate a project stub."""
+    """Generate a project key."""
 
-    def __init__(self, summary, file_data):
+    def __init__(self, summary):
         """Instansiate the Key Generator Class."""
-        self.generate_key(summary)
-        if FindProjectId(id=self.id, data=file_data).found:
-            print(f"{self.id}: in project list.")
-
-    def generate_key(self, string):
-        """Generate the project key."""
-        words = str(string).split()[:3]
+        words = str(summary).split()[:3]
+        if words == []:
+            raise SyntaxError("Input cannot be empty on key generation")
         self.id = ""
         for word in words:
             self.id += word[0].upper()
 
 
-class CreateProject:
-    """Create a new Project."""
-
-    def __init__(self, summary):
-        """Instanisate the Create project class."""
-        self.file_data = Tasks()
-        if FindProjectName(summary, data=self.file_data).found:
-            print("Project by that name exists.")
-            sys.exit([0])
-        self.project = Project(
-                KeyGenerator(summary, self.file_data).id,
-                summary,
-                TimeStamp().now
-            )
-        self.file_data.projects.append(self.project.__dict__)
-        WriteTask(self.file_data)
-        FormatProject(self.project.__dict__).create()
-
-    def project_formatter(self, summary, file_data):
-        """Build the project dictionary."""
-        self.project = Project(KeyGenerator(summary, file_data).id,
-                               summary, dt.now()).__dict__
-        self.file_data.projects.append(self.project)
-
-
 class FindProjectId:
     """Search for a project by id in a given list of projects."""
 
-    def __init__(self, id, data):
+    def __init__(self, id, list_of_projects):
         """Instansiate the class."""
-        for item in data.projects:
-            if item["id"] == str(id).upper():
-                self.data = item
+        for project in list_of_projects:
+            if project["id"] == str(id).upper():
+                self.data = project
                 self.found = True
                 return
         self.found = False
-        self.data = {}
 
 
 class FindProjectName:
     """Search for a project by summary in a given list of projects."""
 
-    def __init__(self, summary, data):
+    def __init__(self, summary, list_of_projects):
         """Instansiate the class."""
         summary = re.sub(r'[^a-zA-Z0-9]', '', str(summary))
-        print(data.projects)
-        for item in data.projects:
-            item_summary = re.sub(r'[^a-zA-Z0-9]', '', item["summary"])
+        for project in list_of_projects:
+            item_summary = re.sub(r'[^a-zA-Z0-9]', '', project["summary"])
             if item_summary.lower() == str(summary).lower():
-                self.data = item
+                self.data = project
+                print(self.data['summary'])
                 self.found = True
                 return
         self.found = False
-        self.data = {}
 
 
-class FindProject:
+class FindProject(FindProjectId, FindProjectName):
     """Wrap for the Find Project by name and id class."""
 
-    def __init__(self, summary, data):
+    def __init__(self, lookup_value, list_of_projects):
         """Instansiate the class."""
-        id = FindProjectId(summary, data)
-        if id.found:
-            self.data = id.data
+        FindProjectId.__init__(self, lookup_value, list_of_projects)
+        if self.found:
             return
-
-        name = FindProjectName(summary, data)
-        if name.found:
-            self.data = name.data
+        FindProjectName.__init__(self, lookup_value, list_of_projects)
+        if self.found:
             return
-
-        print(f"project {summary} not found in task file.")
-        sys.exit([0])
+        self.data = None
 
 
 class CreateProjectTask:

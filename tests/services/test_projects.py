@@ -1,5 +1,6 @@
 """Test the methods of the Projects module."""
 
+from multiprocessing.sharedctypes import Value
 import pytest
 import json
 from pytest_mock import mocker
@@ -11,82 +12,125 @@ from next_task.services import projects
 class TestKeyGenerator:
     """Test the method of the Key Generation class."""
 
-    def test_when_provided_a_string_a_key_is_returned(self, capsys):
+    def test_when_provided_a_string_a_key_is_returned(self) -> None:
         """R-BICEP: Right."""
-        class test_data:
-            pass
-        test_data.projects = []
-        assert projects.KeyGenerator("A Test Key", test_data).id == "ATK" \
-            and capsys.readouterr().out == ""
+        assert projects.KeyGenerator("A Test Key").id == "ATK"
 
-    def test_when_provided_an_integer_a_key_is_returned(self, capsys):
+    def test_when_provided_an_integer_a_key_is_returned(self) -> None:
         """R-BICEP: Boundary."""
-        class test_data:
-            pass
-        test_data.projects = []
-        assert projects.KeyGenerator(500, test_data).id == "5" \
-            and capsys.readouterr().out == ""
+        assert projects.KeyGenerator(500).id == "5"
 
-    def test_when_provided_project_key_exists_then_print_error(self, capsys):
+    def test_when_provided_project_key_exists_then_print_error(self) -> None:
         """R-BICEP: Right."""
-        class test_data:
-            pass
-        test_data.projects = [{"id": "ATK"}]
-        assert projects.KeyGenerator("A Test Key", test_data).id == "ATK" \
-            and capsys.readouterr().out == "ATK: in project list.\n"
+        assert projects.KeyGenerator("A Test Key").id == "ATK"
+
+    def test_when_provided_empty_input_then_id_error(self) -> None:
+        """R-BICEP: Boundary."""
+        with pytest.raises(SyntaxError):
+            test = projects.KeyGenerator("")
 
 
 class TestCreateProject:
     """Test the method of the Project Creation class."""
 
-    def test_that_project_is_created(self):
+    def test_that_project_is_created(self) -> None:
         """R-BICEP: Right."""
-        test_call = projects.CreateProject("A Test Project")
-        assert test_call.file_data.projects[0]["id"] == "ATP"
+        class test_data:
+            add = "A Test Project"
+            projects = [{"id": "AP", "summary": "Another Project"}]
+            now = "2022-08-31 09:20:37"
 
-    def test_when_int_is_provided_as_project_summary_project_is_created(self):
-        """R-BICEP: Right."""
-        test_call = projects.CreateProject(500).file_data.projects[0]
-        assert test_call["id"] == "5"
-        assert test_call["summary"] == "500"
+        test_call = projects.CreateProject(test_data())
+        assert test_call.id == "ATP" and test_call.summary == "A Test Project"
 
-    def test_when_project_summary_exists_in_file_then_sys_exit(
-        self,
-        capsys,
-        mock_task_file
-    ):
+    def test_when_inputs_are_none_type_then_error(self) -> None:
+        """R-BICEP: Boundary."""
+        class test_data:
+            add = None
+            projects = None
+            now = None
+        with pytest.raises(ValueError):
+            projects.CreateProject(test_data())
+
+    def test_when_int_is_provided_project_is_created(self) -> None:
         """R-BICEP: Right."""
-        with pytest.raises(SystemExit):
-            projects.CreateProject("A Test Project")
-        captured = capsys.readouterr()
-        assert "Project by that name exists" in captured.out
+        class test_data:
+            add = 500
+            projects = [{"id": "AP", "summary": "Another Project"}]
+            now = "2022-08-31 09:20:37"
+
+        test_call = projects.CreateProject(test_data())
+        assert test_call.id == "5" and test_call.summary == "500"
+
+    def test_when_returned_class_dict_matches_expected_format(self) -> None:
+        """R-BICEP: Right."""
+        class test_data:
+            projects = []
+            add = "A Test Key"
+            now = "2022-08-31 09:20:37"
+        expected = {
+            "id": "ATK",
+            "summary": "A Test Key",
+            "created": "2022-08-31 09:20:37",
+            "task_count": 0,
+            "tasks": [],
+            "completed": {"tasks": []}
+        }
+        test_call = projects.CreateProject(test_data())
+        assert test_call.__dict__ == expected
 
 
 class TestFindProjectId:
     """Test the method of the Find Project class."""
 
-    def test_when_project_id_exists_then_found_is_true(self):
+    def test_when_project_exists_then_found_is_true(self) -> None:
         """R-BICEP: Right."""
-        class test_data:
-            projects = [{"id": "ATP"}]
-        assert projects.FindProjectId("ATP", test_data).found is True
+        project_list = [{"id": "ATP"}]
+        assert projects.FindProjectId("ATP", project_list).found is True
 
-    def test_when_project_id_case_is_wrong_then_found_is_true(
-        self,
-    ):
+    def test_when_project_exists_then_data_matches_input_project(self) -> None:
         """R-BICEP: Right."""
-        class test_data:
-            projects = [{"id": "ATP"}]
-        assert projects.FindProjectId("atp", test_data).found is True
+        project_list = [{"id": "ATP"}]
+        test = projects.FindProjectId("ATP", project_list)
+        assert test.data is project_list[0]
 
-    def test_when_provided_id_is_int_then_search_executes_and_found_is_false(
-        self,
-    ):
+    def test_when_id_case_is_wrong_then_found_is_true(self) -> None:
+        """R-BICEP: Right."""
+        project_list = [{"id": "ATP"}]
+        assert projects.FindProjectId("atp", project_list).found is True
+
+    def test_when_id_is_int_then_found_is_true(self) -> None:
         """R-BICEP: Boundary."""
-        class test_data:
-            pass
-        test_data.projects = [{"id": "5"}]
-        assert projects.FindProjectId(5, test_data).found is True
+        project_list = [{"id": "5"}]
+        assert projects.FindProjectId(5, project_list).found is True
+
+    def test_when_id_is_not_in_list_then_found_is_false(self) -> None:
+        """R-BICEP: Right."""
+        project_list = [{"id": "ATP"}]
+        test_id = "XYZ"
+        test_call = projects.FindProjectId(test_id, project_list)
+        assert test_call.found is False
+
+    def test_when_id_is_not_in_list_then_error(self) -> None:
+        """R-BICEP: Right."""
+        project_list = [{"id": "ATP"}]
+        test_id = "XYZ"
+        with pytest.raises(AttributeError):
+            projects.FindProjectId(test_id, project_list).data
+
+    def test_when_id_is_empty_then_found_is_false(self) -> None:
+        """R-BICEP: Right."""
+        project_list = [{"id": "ATP"}]
+        test_id = ""
+        test_call = projects.FindProjectId(test_id, project_list)
+        assert test_call.found is False
+
+    def test_when_id_is_None_type_then_found_is_false(self) -> None:
+        """R-BICEP: Boundary."""
+        project_list = [{"id": "ATP"}]
+        test_id = None
+        test_call = projects.FindProjectId(test_id, project_list)
+        assert test_call.found is False
 
 
 class TestFindProjectName:
@@ -94,38 +138,41 @@ class TestFindProjectName:
 
     def test_when_project_id_exists_then_found_is_true(self,):
         """R-BICEP: Right."""
-        class test_data:
-            projects = [{"summary": "A Test Project."}]
-        test_call = projects.FindProjectName("A Test Project.", test_data)
+        project_list = [{"summary": "A Test Project."}]
+        test_call = projects.FindProjectName("A Test Project.", project_list)
         assert test_call.found is True
 
     def test_when_project_id_case_is_wrong_then_found_is_true(
         self,
     ):
         """R-BICEP: Right."""
-        class test_data:
-            projects = [{"summary": "A Test Project."}]
-        test_call = projects.FindProjectName("a test project.", test_data)
+        project_list = [{"summary": "A Test Project."}]
+        test_call = projects.FindProjectName("a test project.", project_list)
         assert test_call.found is True
 
-    def test_when_provided_id_is_int_then_search_executes_and_found_is_false(
+    def test_when_summary_is_int_then_found_is_true(
         self,
     ):
         """R-BICEP: Boundary."""
-        class test_data:
-            projects = [{"summary": "500"}]
-        test_call = projects.FindProjectName(500, test_data)
+        project_list = [{"summary": "500"}]
+        test_call = projects.FindProjectName(500, project_list)
         assert test_call.found is True
 
     def test_when_additional_non_alphnum_characters_then_found_is_true(
         self,
     ):
         """R-BICEP: Boundary."""
-        class test_data:
-            projects = [{"summary": "A Test Project."}]
+        project_list = [{"summary": "A Test Project."}]
         test_name = "_a* Test ?project&^."
-        test_call = projects.FindProjectName(test_name, test_data)
+        test_call = projects.FindProjectName(test_name, project_list)
         assert test_call.found is True
+
+    def test_when_summary_is_not_in_list_then_found_is_false(self) -> None:
+        """R-BICEP: Right."""
+        project_list = [{"summary": "A Test Project."}]
+        test_name = "A different project"
+        test_call = projects.FindProjectName(test_name, project_list)
+        assert test_call.found is False
 
 
 class TestCreateTask:
