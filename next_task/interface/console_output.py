@@ -5,8 +5,6 @@ from rich.console import Console
 from rich.table import Table
 from rich.theme import Theme
 
-from next_task.services.tasks import TimeStamp
-
 
 class Style:
     """Hold the Theme definitions for the package."""
@@ -28,8 +26,11 @@ class Style:
 class ListTasks:
     """Returns a formatted table of tasks to the command line."""
 
-    def __init__(self, data, title="Open Tasks"):
+    def __init__(self, data: list, title="Open Tasks"):
         """Insttansiate the class."""
+        if data is []:
+            return
+
         table = Table(title=title)
 
         table.box = box.SIMPLE_HEAD
@@ -43,7 +44,7 @@ class ListTasks:
                 table.add_row(
                     f"{row['id']}",
                     f"{row['summary']}",
-                    f"{TimeStamp().short(row['due'])}",
+                    # f"{TimeStamp().short(row['due'])}",
                     f"{row['skip_count']}",
                 )
         else:
@@ -52,7 +53,7 @@ class ListTasks:
                 table.add_row(
                     f"{row['id']}",
                     f"{row['summary']}",
-                    f"{TimeStamp().short(row['created'])}",
+                    # f"{TimeStamp().short(row['created'])}",
                 )
 
         Console().print(table, justify="left")
@@ -138,7 +139,8 @@ class RaiseErrorMessage:
 
     def __init__(self, free_text=None):
         """Instansiate the class."""
-        Style().console.print(f"[warning]{free_text}[/warning]")
+        if free_text:
+            Style().console.print(f"[warning]{free_text}[/warning]")
 
     def input_error(self):
         """Catching edge cases or undesired behaviour."""
@@ -149,6 +151,6 @@ class RaiseErrorMessage:
     def project_exists(self, project):
         """Pre-formatted error messaging for existing project."""
         Style().console.print(
-            f"[warning]A project with the name '{project['summary']}' already "
-            f"exists. Use project key: {project['id']}"
+            f"[warning]A project '{project.summary}' already "
+            f"exists with project key: {project.id}"
         )

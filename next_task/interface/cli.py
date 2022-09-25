@@ -4,12 +4,12 @@ import argparse
 import sys
 
 import next_task
-from next_task.interface import controller
 
 
 def main(argv=None):
     """Provide options for the package."""
     parser = argparse.ArgumentParser()
+    group = parser.add_mutually_exclusive_group()
     parser.add_argument(
         "-v",
         "--version",
@@ -18,6 +18,15 @@ def main(argv=None):
         version=f"Next: {next_task.__version__}"
     )
     parser.add_argument(
+        "-p",
+        "--project",
+        help="""
+            Targest a given project
+        """,
+        nargs="?",
+        const=True
+    )
+    group.add_argument(
         "-a",
         "--add",
         help="""
@@ -26,7 +35,7 @@ def main(argv=None):
         """,
         type=str
     )
-    parser.add_argument(
+    group.add_argument(
         "-t",
         "--task",
         help="""
@@ -34,15 +43,7 @@ def main(argv=None):
         """,
         action="store_true"
     )
-    parser.add_argument(
-        "-s",
-        "--skip",
-        help="""
-            Skips the current top task.
-        """,
-        action="store_true"
-    )
-    parser.add_argument(
+    group.add_argument(
         "-d",
         "--done",
         help="""
@@ -50,20 +51,33 @@ def main(argv=None):
         """,
         action="store_true"
     )
-    parser.add_argument(
-        "-p",
-        "--project",
+    group.add_argument(
+        "-s",
+        "--skip",
         help="""
-            Lists open tasks
+            Skips the current top task.
         """,
-        nargs="?",
-        const=True
+        action="store_true"
+    )
+    group.add_argument(
+        "-c",
+        "--clear",
+        help="""
+            Clear the current project and return
+            to the normal task list
+        """,
+        action="store_true"
     )
 
     args = parser.parse_args(argv)
-    controller.Arguments(**(vars(args)))
+
+    # 1. set project / return current project
+    # one of:
+    # add -- just add task
+    # task
+    # done
+    # skip
+    # clear
+    print(vars(args))
+
     sys.exit()
-
-
-if __name__ == "__main__":
-    sys.exit(main())
