@@ -5,24 +5,27 @@ import os
 
 
 class Database:
-    """Establish database connection."""
+    """Database detail."""
 
     _version = 0.1
-    _setup_file = os.path.join(os.path.dirname(__file__), "setup.sql")
-    _folder = "/Notes/nextTask"
-    _database = f"{_folder}/task.db"
+    _folder = f"{os.path.expanduser('~')}/Notes/nextTask"
+    _file = f"{_folder}/task.db"
+
+
+class Setup(Database):
+    """Establish database connection."""
 
     def __init__(self):
         """Instansiate the class."""
-        home = os.path.expanduser('~')
-        self.database_path = f"{home}{self._database}"
-        os.makedirs(f"{home}{self._folder}", exist_ok=True)
-        self.conn = sqlite3.connect(self.database_path)
+        Database.__init__(self)
+        os.makedirs(self._folder, exist_ok=True)
+        self.conn = sqlite3.connect(self._file)
         self.curs = self.conn.cursor()
         self.confirm_database_schema_exists()
         if self.check_database_version_is_latest():
             return
         else:
+            # TODO: write update method
             print(
                 f"Database running on {self.database_version}.",
                 f"Current database version is {self._version}")
@@ -35,7 +38,8 @@ class Database:
             AND name='task_database_version';
         """)
         if self.curs.fetchone()[0] == 0:
-            with open(self._setup_file, "r") as file:
+            _setup_file = os.path.join(os.path.dirname(__file__), "setup.sql")
+            with open(_setup_file, "r") as file:
                 self.curs.executescript(file.read())
 
     def check_database_version_is_latest(self):

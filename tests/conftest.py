@@ -10,15 +10,20 @@ from next_task.database import store
 
 
 @pytest.fixture(autouse=True)
-def mock_home_directory_as_tmpdir(tmpdir, monkeypatch):
+def mock_home_directory_as_tmpdir(tmpdir, mocker):
     """Set Home directory as a temp directory."""
-    monkeypatch.setenv("HOME", str(tmpdir))
+    class mock_database:
+        def __init__(self):
+            self._version = 0.1
+            self._folder = f"{tmpdir}/Notes/nextTask"
+            self._file = f"{self._folder}/task.db"
+    mocker.patch.object(store, "Database", mock_database)
 
 @pytest.fixture
 def mock_sqlite(mocker):
     """Mock the Sqlite library to prevent database creation."""
     mocker.patch.object(sqlite3, "connect")
-    mocker.patch.object(store.Database, "check_database_version_is_latest",
+    mocker.patch.object(store.Setup, "check_database_version_is_latest",
                         return_value=True)
 
 @pytest.fixture
