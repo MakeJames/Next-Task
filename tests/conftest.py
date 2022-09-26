@@ -1,30 +1,25 @@
 """Instansiate project pytest fixtures."""
 
+import sqlite3
 import pytest
 import pytest_mock
 from pytest_mock import mocker
 
 from pathlib import Path
-from next_task.services import store
+from next_task.database import store
 
 
 @pytest.fixture(autouse=True)
-def mock_pathlib_home(tmpdir, mocker):
-    """Create a mocked temp directory."""
-    def home_directory():
-        return tmpdir
-    mocker.patch.object(Path, "home", return_value=home_directory())
+def mock_home_directory_as_tmpdir(tmpdir, monkeypatch):
+    """Set Home directory as a temp directory."""
+    monkeypatch.setenv("HOME", str(tmpdir))
 
 @pytest.fixture
-def mock_write(mocker):
-    """Mock the write aspect of the writer function."""
-    def mock_function():
-        return None
-    mocker.patch.object(
-        store.WriteTask,
-        "__init__",
-        return_value=mock_function()
-    )
+def mock_sqlite(mocker):
+    """Mock the Sqlite library to prevent database creation."""
+    mocker.patch.object(sqlite3, "connect")
+    mocker.patch.object(store.Database, "check_database_version_is_latest",
+                        return_value=True)
 
 @pytest.fixture
 def mock_task_file(mocker) -> None:
