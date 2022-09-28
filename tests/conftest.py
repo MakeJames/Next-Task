@@ -23,7 +23,7 @@ def mock_home_directory_as_tmpdir(tmpdir, mocker):
 def mock_sqlite(mocker):
     """Mock the Sqlite library to prevent database creation."""
     mocker.patch.object(sqlite3, "connect")
-    mocker.patch.object(store.Setup, "check_database_version_is_latest",
+    mocker.patch.object(store.Check, "database_version_is_latest",
                         return_value=True)
 
 @pytest.fixture

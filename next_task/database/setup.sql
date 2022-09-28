@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS task_database_version(
     version FLOAT
 );
 
-INSERT INTO task_database_version(version) VALUES (0.1);
+INSERT INTO task_database_version(version) VALUES (0.2);
 
 CREATE TABLE IF NOT EXISTS task_status(
     id INTEGER PRIMARY KEY,
@@ -17,7 +17,7 @@ INSERT INTO task_status VALUES
 
 CREATE TABLE IF NOT EXISTS project(
     id INTEGER PRIMARY KEY,
-    summary VARCHAR(120) NOT NULL UNIQUE,
+    summary VARCHAR(60) NOT NULL UNIQUE,
     description TEXT,
     status_id TINYINT NOT NULL DEFAULT 1,
     due DATE NOT NULL DEFAULT (DATE(current_timestamp, '56 days')),

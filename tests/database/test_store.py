@@ -21,4 +21,8 @@ class TestSetupClass:
     def test_database_version_attribute_is_same_as_setup_file(self) -> None:
         """R-BICEP: Right."""
         database = store.Setup()
-        assert database._version == database.database_version
+        database.curs.execute("""
+            SELECT version FROM task_database_version
+        """)
+        db_version = database.curs.fetchone()[0]
+        assert database._version == db_version
