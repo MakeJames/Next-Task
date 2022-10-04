@@ -8,17 +8,18 @@ Moving the task storage into a database simplies much of the implementation and 
 - previously created tasks will be lost
 
 ### Major changes:
+- Task store managed in a sqlite database stored in the `$HOME/Notes/`
 - Seamless setup of a task database and required tables on startup
 
 ### Minor changes:
-- task addition, fetching, skipping and closing are mutually exclusive activities and are now handled natively in argparse.
-- Whilst entire logic model has been written functionality should be much the same
+- Task addition, fetching, skipping and closing are mutually exclusive activities
 
 ### TODO:
 
 ### Store Functions
-- [ ] Establish if file exists if not create and setup schema
-- [ ] Establish if the database is on the latest version - if not update
+- [x] Establish if file exists if not create and setup schema
+- [x] Establish if the database is on the latest version - if not update
+- [ ] Retain task data on update
 
 #### Main Functions
 - [ ] Task addition

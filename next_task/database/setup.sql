@@ -1,51 +1,122 @@
-CREATE TABLE IF NOT EXISTS task_database_version(
-    version FLOAT
-);
+-- Setup script for Next Task database
 
-INSERT INTO task_database_version(version) VALUES (0.2);
+CREATE TABLE task_database_version(db_version REAL);
 
-CREATE TABLE IF NOT EXISTS task_status(
+INSERT INTO task_database_version(db_version) VALUES (0.4);
+
+-- Create Task Tables
+CREATE TABLE task (
     id INTEGER PRIMARY KEY,
-    name VARCHAR(20)
-);
+    summary TEXT NOT NULL,
+    t_priority TINYINT DEFAULT 6
+    );
 
-INSERT INTO task_status VALUES 
-    (1, 'open'),
-    (2, 'active'),
-    (3, 'closed')
-; 
-
-CREATE TABLE IF NOT EXISTS project(
-    id INTEGER PRIMARY KEY,
-    summary VARCHAR(60) NOT NULL UNIQUE,
-    description TEXT,
-    status_id TINYINT NOT NULL DEFAULT 1,
-    due DATE NOT NULL DEFAULT (DATE(current_timestamp, '56 days')),
-    FOREIGN KEY(status_id) REFERENCES task_status(id)
-);
-
-INSERT INTO project(summary, status_id, due) VALUES ('', 2, DATE(current_timestamp, '1000 years'));
-
-CREATE TABLE IF NOT EXISTS task(
-    id INTEGER PRIMARY KEY,
-    summary VARCHAR(120),
-    description TEXT,
-    status_id TINYINT NOT NULL DEFAULT 1,
-    due DATETIME NOT NULL DEFAULT (DATETIME(current_timestamp, '14 days')),
-    skip_count INTEGER DEFAULT 0,
-    project_id INTEGER DEFAULT 1,
-    FOREIGN KEY(project_id) REFERENCES project(id)
-    FOREIGN KEY(status_id) REFERENCES task_status(id)
-);
-
-CREATE TABLE IF NOT EXISTS completed_task(
-    task_id INTEGER UNIQUE,
-    completed_date DATETIME DEFAULT (DATETIME(current_timestamp)) NOT NULL,
+CREATE TABLE task_status (
+    task_id NOT NULL,
+    t_status TEXT DEFAULT 'open',
+    updated DATETIME NOT NULL DEFAULT (DATETIME(current_timestamp)),
+    PRIMARY KEY (task_id, updated),
     FOREIGN KEY (task_id) REFERENCES task(id)
-);
+    );
 
-CREATE TABLE IF NOT EXISTS completed_project(
-    project_id INTEGER UNIQUE,
-    completed_date DATETIME DEFAULT (DATETIME(current_timestamp)),
+CREATE TABLE task_skips (
+    task_id NOT NULL,
+    skipped DATETIME NOT NULL DEFAULT (DATETIME(current_timestamp)),
+    PRIMARY KEY (task_id, skipped)
+    );
+
+-- project tables
+CREATE TABLE project (
+    id INTEGER PRIMARY KEY,
+    summary TEXT NOT NULL
+    );
+
+CREATE TABLE project_status(
+    project_id INT NOT NULL,
+    p_status TEXT DEFAULT 'open',
+    updated DATETIME NOT NULL DEFAULT (DATE(current_timestamp)),
+    PRIMARY KEY (project_id, updated),
     FOREIGN KEY (project_id) REFERENCES project(id)
-);
+    );
+
+CREATE TABLE project_tasks(
+    project_id INT,
+    task_id INT,
+    PRIMARY KEY (project_id, task_id),
+    FOREIGN KEY (project_id) REFERENCES project(id),
+    FOREIGN KEY (task_id) REFERENCES task(id)
+    );
+
+-- Create Triggers
+-- Inserts task into status table
+CREATE TRIGGER _create_task
+AFTER INSERT ON
+    task
+BEGIN
+    INSERT INTO
+        task_status(task_id)
+    VALUES
+        (NEW.id)
+    ;
+END;
+
+-- Inserts project into status table
+CREATE TRIGGER _create_project
+AFTER INSERT ON
+    project
+BEGIN
+    INSERT INTO
+        project_status(project_id)
+    VALUES (
+        NEW.id
+    );
+END;
+
+-- Link active project with new task
+CREATE TRIGGER _associate_project_task
+AFTER INSERT ON
+    task
+BEGIN
+	INSERT INTO
+        project_tasks(project_id, task_id)
+    VALUES (
+        (
+            SELECT
+                project_id
+            FROM
+                project_status
+        	WHERE
+                p_status = 'active'
+            ORDER BY
+                updated DESC
+            LIMIT 1
+        ),
+        NEW.id
+    );
+END;
+
+-- Ensure that there is only one active project
+CREATE TRIGGER _resolve_concurrent_projects
+BEFORE INSERT ON
+    project_status
+WHEN
+    (
+    	SELECT COUNT(project_id)
+		FROM project_status
+		WHERE p_status = 'active'
+		ORDER BY updated DESC
+    ) IS 1
+    AND NEW.p_status = 'active'
+BEGIN
+    INSERT INTO
+        project_status(project_id)
+    SELECT
+        project_id
+    FROM (
+        SELECT ps2.project_id
+		FROM project_status AS ps2
+		WHERE ps2.p_status = 'active'
+		ORDER BY ps2.updated DESC
+		LIMIT 1
+    );
+END;

@@ -9,22 +9,49 @@ from pathlib import Path
 from next_task.database import store
 
 
-@pytest.fixture(autouse=True)
-def mock_home_directory_as_tmpdir(tmpdir, mocker):
+@pytest.fixture(autouse=True, scope="function")
+def empty_db(mocker):
     """Set Home directory as a temp directory."""
-    class mock_database:
+    class MockDatabase:
         def __init__(self):
-            self._version = 0.1
-            self._folder = f"{tmpdir}/Notes/nextTask"
-            self._file = f"{self._folder}/task.db"
-    mocker.patch.object(store, "Database", mock_database)
+            self._file = ":memory:"
+    
+        def __enter__(self):
+            self.conn = sqlite3.connect(self._file)
+            self.curs = self.conn.cursor()
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            if exc_val:
+                self.conn.close()
+                # return falsy to raise exc_val
+            else:
+                # commit ommited to preserve database
+                self.conn.close()
+
+    mocker.patch.object(store, "Database", MockDatabase)
 
 @pytest.fixture
-def mock_sqlite(mocker):
-    """Mock the Sqlite library to prevent database creation."""
-    mocker.patch.object(sqlite3, "connect")
-    mocker.patch.object(store.Check, "database_version_is_latest",
-                        return_value=True)
+def test_db(mocker):
+    """Set Home directory as a temp directory."""
+    class MockDatabase:
+        def __init__(self):
+            self._file = "tests/database/test.db"
+    
+        def __enter__(self):
+            self.conn = sqlite3.connect(self._file)
+            self.curs = self.conn.cursor()
+            return self
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            if exc_val:
+                self.conn.close()
+                # return falsy to raise exc_val
+            else:
+                self.conn.commit()
+                self.conn.close()
+
+    mocker.patch.object(store, "Database", MockDatabase)
 
 @pytest.fixture
 def mock_task_file(mocker) -> None:

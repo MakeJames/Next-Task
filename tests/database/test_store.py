@@ -12,17 +12,9 @@ from next_task.database import store
 class TestSetupClass:
     """Test the methods of the Database Class."""
 
-    def test_database_target_is_as_expected(self, mock_sqlite, tmpdir) -> None:
+    def test_database_version_attribute_is_same_as_setup_file(
+        self,
+        test_db
+    ) -> None:
         """R-BICEP: Right."""
-        expected_database = f"{tmpdir}/Notes/nextTask/task.db"
-        database = store.Setup()
-        assert expected_database == database._file
-
-    def test_database_version_attribute_is_same_as_setup_file(self) -> None:
-        """R-BICEP: Right."""
-        database = store.Setup()
-        database.curs.execute("""
-            SELECT version FROM task_database_version
-        """)
-        db_version = database.curs.fetchone()[0]
-        assert database._version == db_version
+        assert store.Setup().create_database() == store.version

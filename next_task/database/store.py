@@ -2,55 +2,79 @@
 
 import sqlite3
 import os
+import sys
+
+
+version = 0.4
+folder = f"{os.path.expanduser('~')}/Notes/nextTask"
 
 
 class Database:
     """Database detail."""
 
-    _version = 0.2
-    _folder = f"{os.path.expanduser('~')}/Notes/nextTask"
-    _file = f"{_folder}/task.db"
+    def __init__(self, database=f"{folder}/task.db"):
+        """Instansiate the class."""
+        self._file = f"{database}"
+        self.conn = None
+        self.curs = None
 
-    def connect(self):
-        """Establish database connection."""
+    def __enter__(self):
+        """Establish Database connection."""
         self.conn = sqlite3.connect(self._file)
         self.curs = self.conn.cursor()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """Gracefully exit the db connection."""
+        if exc_val:
+            print(exc_val)
+            self.conn.close()
+            sys.exit(exc_val)
+        else:
+            self.conn.commit()
+            print(self.conn.total_changes)
+            self.conn.close()
 
 
-class Setup(Database):
+class CheckDatabase:
     """Establish database connection."""
 
     def __init__(self):
         """Instansiate the class."""
-        Database.__init__(self)
-        os.makedirs(self._folder, exist_ok=True)
-        self.connect()
-        self.curs = self.conn.cursor()
-        Check().database_schema_exists(self.curs)
-        Check().database_version_is_latest(self.curs, self._version)
-
-
-class Check:
-    """Check functions to make sure Database is valid."""
-
-    def database_schema_exists(self, curs) -> None:
-        """Check that the schema exists."""
-        curs.execute("""
-            SELECT count(name) FROM sqlite_master
-            WHERE type='table'
-            AND name='task_database_version';
-        """)
-        if curs.fetchone()[0] == 0:
-            _setup_file = os.path.join(os.path.dirname(__file__), "setup.sql")
-            with open(_setup_file, "r") as file:
-                curs.executescript(file.read())
-
-    def database_version_is_latest(self, curs, version):
-        """Validate that the database is running the latest version."""
-        curs.execute("SELECT version FROM task_database_version")
-        self.database_version = curs.fetchone()[0]
-        if self.database_version == version:
+        os.makedirs(folder, exist_ok=True)
+        if self.database_schema_exists() == 0:
+            Setup().create_database()
             return
-        print(f"Database running on {self.database_version}.",
-              f"Current database version is {version}")
-        return
+        if version != self.database_version_is_latest():
+            os.remove(f"{folder}/task.db")
+            Setup().create_database()
+            return
+
+    def database_schema_exists(self) -> None:
+        """Check that the schema exists."""
+        with Database() as conn:
+            conn.curs.execute("""
+                SELECT count(name)
+                FROM sqlite_master
+                WHERE name='task_database_version';
+            """)
+            return conn.curs.fetchone()[0]
+
+    def database_version_is_latest(self):
+        """Validate that the database is running the latest version."""
+        with Database() as conn:
+            conn.curs.execute("SELECT db_version FROM task_database_version")
+            return conn.curs.fetchone()[0]
+
+
+class Setup:
+    """Setup methods to instansiate and update the database."""
+
+    _setup = os.path.join(os.path.dirname(__file__), "setup.sql")
+
+    def create_database(self):
+        """Create the database from sql setup file."""
+        with Database() as conn, open(self._setup, "r") as file:
+            conn.curs.executescript(file.read())
+            conn.curs.execute("SELECT db_version FROM task_database_version")
+            return conn.curs.fetchone()[0]
