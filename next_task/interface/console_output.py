@@ -30,7 +30,7 @@ class TaskTable:
 
     def __init__(self, data: list, title="Open Tasks"):
         """Insttansiate the class."""
-        if data is None:
+        if data == []:
             return
         table = Table(title=title)
         table.box = box.SIMPLE_HEAD
