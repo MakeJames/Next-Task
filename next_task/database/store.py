@@ -20,6 +20,7 @@ class Database:
     def __enter__(self):
         """Establish Database connection."""
         self.conn = sqlite3.connect(self._file)
+        self.conn.row_factory = sqlite3.Row
         self.curs = self.conn.cursor()
         return self
 
