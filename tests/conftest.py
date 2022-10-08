@@ -7,7 +7,7 @@ from pytest_mock import mocker
 
 import next_task
 from pathlib import Path
-from next_task.database import store
+from next_task.services import database
 from next_task.services.tasks import GetNextTask
 
 
@@ -24,14 +24,14 @@ def mock_read(request, mocker):
         return first
     def mock_2():
         return second
-    mocker.patch.object(store.Database, "read", side_effect=[mock_1(), mock_2()])
+    mocker.patch.object(database.Database, "read", side_effect=[mock_1(), mock_2()])
 
 @pytest.fixture
 def mock_write(mocker):
     """Mock the read functions."""
     def mock(self, sql):
         return 1
-    mocker.patch.object(store.Database, "write", mock)
+    mocker.patch.object(database.Database, "write", mock)
 
 @pytest.fixture(autouse=True)
 def mock_database(mocker, tmpdir):
@@ -39,20 +39,20 @@ def mock_database(mocker, tmpdir):
     class mock_db:
         def __init__(self):
             self._file = f"{tmpdir}/task.db"
-    mocker.patch.object(store.Connection, "__init__", mock_db.__init__)
+    mocker.patch.object(database.Connection, "__init__", mock_db.__init__)
 
 @pytest.fixture
 def empty_db(mock_database):
     """Set Home directory as a temp directory."""
-    store.Setup().create_database()
+    database.Setup().create_database()
 
 
 @pytest.fixture
 def test_db(mock_database):
     """Set Home directory as a temp directory."""
-    store.Setup().create_database()
+    database.Setup().create_database()
     setup_file = "tests/database/setup/simple_db.sql"
-    with store.Connection() as conn, open(setup_file, "r") as file:
+    with database.Connection() as conn, open(setup_file, "r") as file:
         conn.curs.executescript(file.read())
 
 @pytest.fixture

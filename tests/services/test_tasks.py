@@ -3,7 +3,7 @@
 import sqlite3
 import pytest
 from next_task.services import tasks
-from next_task.database import store
+from next_task.services import database
 
 from pytest_mock import mocker
 
@@ -24,7 +24,7 @@ class TestCreateTask:
         """R-BICEP: Right."""
         expected = 1
         task = tasks.CreateTask("a test task); DROP TABLE task")
-        with store.Connection() as conn:
+        with database.Connection() as conn:
             conn.curs.execute("SELECT COUNT(*) FROM task;")
             res = conn.curs.fetchone()
         assert res[0] == expected

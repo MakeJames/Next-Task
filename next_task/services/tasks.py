@@ -3,7 +3,7 @@
 from pypika import Query, Table
 
 from rich.markup import escape
-from next_task.database.store import Database
+from next_task.services.database import Database
 from next_task.interface.console_output import Style, TaskTable
 
 console = Style().console()

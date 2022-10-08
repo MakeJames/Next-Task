@@ -6,7 +6,7 @@ import os
 import pytest
 from pytest_mock import mocker
 
-from next_task.database import store
+from next_task.services import database
 
 
 class TestSetupClass:
@@ -19,8 +19,8 @@ class TestSetupClass:
     ) -> None:
         """R-BICEP: Right."""
         expected = 0
-        store.Setup().create_database()
-        with store.Connection() as conn:
+        database.Setup().create_database()
+        with database.Connection() as conn:
             conn.curs.execute("Select COUNT(*) FROM task;")
             task_count = conn.curs.fetchone()[0]
         assert task_count == expected
