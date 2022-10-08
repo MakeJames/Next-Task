@@ -2,8 +2,6 @@
 
 CREATE TABLE task_database_version(db_version REAL);
 
-INSERT INTO task_database_version(db_version) VALUES (0.4);
-
 -- Create Task Tables
 CREATE TABLE task (
     id INTEGER PRIMARY KEY,
@@ -34,7 +32,7 @@ CREATE TABLE project (
 CREATE TABLE project_status(
     project_id INT NOT NULL,
     p_status TEXT DEFAULT 'open',
-    updated DATETIME NOT NULL DEFAULT (DATE(current_timestamp)),
+    updated DATETIME NOT NULL DEFAULT (DATETIME(current_timestamp)),
     PRIMARY KEY (project_id, updated),
     FOREIGN KEY (project_id) REFERENCES project(id)
     );
@@ -101,11 +99,23 @@ BEFORE INSERT ON
     project_status
 WHEN
     (
-    	SELECT COUNT(project_id)
-		FROM project_status
-		WHERE p_status = 'active'
-		ORDER BY updated DESC
-    ) IS 1
+        WITH _current_status as (
+    	    SELECT
+    	    	project_id,
+    	    	p_status,
+    	    	MAX(updated)
+    	    FROM
+    	    	project_status
+    	    GROUP BY
+    	    	project_id
+    	    )
+    	SELECT
+            project_id
+		FROM
+            _current_status
+		WHERE
+            p_status = 'active'
+    ) != NEW.project_id
     AND NEW.p_status = 'active'
 BEGIN
     INSERT INTO
@@ -120,3 +130,52 @@ BEGIN
 		LIMIT 1
     );
 END;
+
+-- Create Views
+CREATE VIEW task_list AS
+	WITH _current_proect AS (
+		SELECT
+			project_id,
+			p_status,
+			MAX(updated)
+		FROM
+			project_status
+		GROUP BY
+			project_id
+	), _current_status AS (
+		SELECT
+			task_id,
+			t_status,
+			MAX(updated)
+		FROM
+			task_status
+		GROUP BY
+			task_id
+	)
+SELECT
+	t.id as task_id,
+	t.summary,
+	COUNT(st.task_id) as skip_count,
+	(t.id + t.t_priority * COUNT(st.task_id)) as _rank,
+	pt.project_id
+FROM
+	task AS t
+LEFT JOIN task_skips AS st ON
+	t.id = st.task_id
+LEFT JOIN _current_status AS cs ON
+	t.id = cs.task_id
+LEFT JOIN project_tasks AS pt ON
+	t.id = pt.task_id
+WHERE
+	cs.t_status != 'closed'
+	AND pt.project_id IS (
+	SELECT
+		project_id
+	FROM
+		_current_proect
+	WHERE
+		p_status = 'active')
+GROUP BY
+	t.id
+ORDER BY
+	_rank ASC;
