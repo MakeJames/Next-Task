@@ -51,7 +51,7 @@ def empty_db(mock_database):
 def test_db(mock_database):
     """Set Home directory as a temp directory."""
     database.Setup().create_database()
-    setup_file = "tests/database/setup/simple_db.sql"
+    setup_file = "tests/database/simple_db.sql"
     with database.Connection() as conn, open(setup_file, "r") as file:
         conn.curs.executescript(file.read())
 
