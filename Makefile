@@ -43,10 +43,11 @@ lint:
 	$(EXECUTE) pydocstyle $(LINT_GROUP) $(TEST_GROUP)
 	$(EXECUTE) pyflakes $(LINT_GROUP)
 	$(EXECUTE) bandit -r $(LINT_GROUP) -q
-	$(EXECUTE) mypy $(LINT_GROUP)
+	$(EXECUTE) mypy $(LINT_GROUP) --ignore-missing-imports
 
 test:
-	$(EXECUTE) pytest $(TEST_GROUP) -v --durations=0 --sw --benchmark-skip
+	$(EXECUTE) pytest $(TEST_GROUP) -vv --benchmark-skip -m "not integration"
+	$(EXECUTE) pytest $(TEST_GROUP) -vv --benchmark-skip -m "integration"
 
 performance:
 	$(EXECUTE) pytest tests/performance_tests.py -v --durations=0 --sw --benchmark-name=normal --benchmark-compare --benchmark-autosave

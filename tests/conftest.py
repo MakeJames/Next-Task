@@ -5,61 +5,71 @@ import pytest
 import pytest_mock
 from pytest_mock import mocker
 
+import next_task
 from pathlib import Path
 from next_task.database import store
+from next_task.services.tasks import GetNextTask
 
-
-@pytest.fixture(autouse=True, scope="function")
-def empty_db(mocker):
-    """Set Home directory as a temp directory."""
-    class MockDatabase:
-        def __init__(self):
-            self._file = ":memory:"
-    
-        def __enter__(self):
-            self.conn = sqlite3.connect(self._file)
-            self.curs = self.conn.cursor()
-            return self
-
-        def __exit__(self, exc_type, exc_val, exc_tb):
-            if exc_val:
-                self.conn.close()
-                # return falsy to raise exc_val
-            else:
-                # commit ommited to preserve database
-                self.conn.close()
-
-    mocker.patch.object(store, "Database", MockDatabase)
 
 @pytest.fixture
-def test_db(mocker):
-    """Set Home directory as a temp directory."""
-    class MockDatabase:
-        def __init__(self):
-            self._file = "tests/database/test.db"
-    
-        def __enter__(self):
-            self.conn = sqlite3.connect(self._file)
-            self.curs = self.conn.cursor()
-            return self
-
-        def __exit__(self, exc_type, exc_val, exc_tb):
-            if exc_val:
-                self.conn.close()
-                # return falsy to raise exc_val
-            else:
-                self.conn.commit()
-                self.conn.close()
-
-    mocker.patch.object(store, "Database", MockDatabase)
+def mock_read(request, mocker):
+    """Mock the read functions."""
+    first = request.param
+    try:
+        second = [request.param[1], request.param[0]]
+    except:
+        second = None
+    print(second)
+    def mock_1():
+        return first
+    def mock_2():
+        return second
+    mocker.patch.object(store.Database, "read", side_effect=[mock_1(), mock_2()])
 
 @pytest.fixture
-def mock_task_file(mocker) -> None:
-    """Return a mock task file."""
-    def mock_file_path():
-        return "tests/data_mocks/task_file"
-    mocker.patch.object(
-        Path,
-        "home",
-        return_value=mock_file_path()
-    )
+def mock_write(mocker):
+    """Mock the read functions."""
+    def mock(self, sql):
+        return 1
+    mocker.patch.object(store.Database, "write", mock)
+
+@pytest.fixture(autouse=True)
+def mock_database(mocker, tmpdir):
+    """Set Home directory as a temp directory."""
+    class mock_db:
+        def __init__(self):
+            self._file = f"{tmpdir}/task.db"
+    mocker.patch.object(store.Connection, "__init__", mock_db.__init__)
+
+@pytest.fixture
+def empty_db(mock_database):
+    """Set Home directory as a temp directory."""
+    store.Setup().create_database()
+
+
+@pytest.fixture
+def test_db(mock_database):
+    """Set Home directory as a temp directory."""
+    store.Setup().create_database()
+    setup_file = "tests/database/setup/simple_db.sql"
+    with store.Connection() as conn, open(setup_file, "r") as file:
+        conn.curs.executescript(file.read())
+
+@pytest.fixture
+def mock_next_task(mocker):
+    """Mock the call to return the next task."""
+    class mock:
+        def __init__(self):
+            self.task = [{
+                "task_id": 430,
+                "summary": "A mocked test task" 
+            },]
+    mocker.patch.object(GetNextTask, "__init__", mock.__init__)
+
+@pytest.fixture
+def mock_no_next_task(mocker):
+    """Mock the call to return the next task."""
+    class mock:
+        def __init__(self):
+            self.task = []
+    mocker.patch.object(GetNextTask, "__init__", mock.__init__)

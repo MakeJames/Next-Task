@@ -156,7 +156,7 @@ SELECT
 	t.id as task_id,
 	t.summary,
 	COUNT(st.task_id) as skip_count,
-	(t.id + t.t_priority * COUNT(st.task_id)) as _rank,
+	(t.id + t.t_priority * COUNT(st.task_id)) as _rank
 FROM
 	task AS t
 LEFT JOIN task_skips AS st ON

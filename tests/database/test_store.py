@@ -12,9 +12,15 @@ from next_task.database import store
 class TestSetupClass:
     """Test the methods of the Database Class."""
 
-    def test_database_version_attribute_is_same_as_setup_file(
+    @pytest.mark.integration
+    def test_mock_database_is_instansiated(
         self,
-        test_db
+        mock_database
     ) -> None:
         """R-BICEP: Right."""
-        assert store.Setup().create_database() == store.version
+        expected = 0
+        store.Setup().create_database()
+        with store.Connection() as conn:
+            conn.curs.execute("Select COUNT(*) FROM task;")
+            task_count = conn.curs.fetchone()[0]
+        assert task_count == expected

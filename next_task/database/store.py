@@ -3,17 +3,16 @@
 import sqlite3
 import os
 
-
 version = 0.5
 folder = f"{os.path.expanduser('~')}/Notes/nextTask"
 
 
-class Database:
-    """Database detail."""
+class Connection:
+    """Database connection context manager."""
 
-    def __init__(self, database=f"{folder}/task.db"):
+    def __init__(self):
         """Instansiate the class."""
-        self._file = f"{database}"
+        self._file = f"{folder}/task.db"
         self.conn = None
         self.curs = None
 
@@ -34,6 +33,24 @@ class Database:
             self.conn.close()
 
 
+class Database:
+    """Manage the connections to the database."""
+
+    def write(self, sql):
+        """Write information to the database."""
+        with Connection() as conn:
+            conn.curs.execute(sql)
+            lastrowid = conn.curs.lastrowid
+        return lastrowid
+
+    def read(self, sql):
+        """Read and return information from the database."""
+        with Connection() as conn:
+            conn.curs.execute(sql)
+            result = conn.curs.fetchall()
+        return result
+
+
 class CheckDatabase:
     """Establish database connection."""
 
@@ -50,7 +67,7 @@ class CheckDatabase:
 
     def database_schema_exists(self) -> None:
         """Check that the schema exists."""
-        with Database() as conn:
+        with Connection() as conn:
             conn.curs.execute("""
                 SELECT count(name)
                 FROM sqlite_master
@@ -61,7 +78,7 @@ class CheckDatabase:
     def database_version_is_latest(self):
         """Validate that the database is running the latest version."""
         select_db_version = "SELECT db_version FROM task_database_version"
-        with Database() as conn:
+        with Connection() as conn:
             conn.curs.execute(select_db_version)
             return conn.curs.fetchone()[0]
 
@@ -81,7 +98,7 @@ class Setup:
         """
         select_db_version = "SELECT db_version FROM task_database_version"
 
-        with Database() as conn, open(self._setup, "r") as file:
+        with Connection() as conn, open(self._setup, "r") as file:
             conn.curs.executescript(file.read())
             conn.curs.execute(db_version, [version])
             conn.curs.execute(select_db_version)
