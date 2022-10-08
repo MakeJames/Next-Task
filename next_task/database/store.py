@@ -2,10 +2,9 @@
 
 import sqlite3
 import os
-import sys
 
 
-version = 0.4
+version = 0.5
 folder = f"{os.path.expanduser('~')}/Notes/nextTask"
 
 
@@ -27,12 +26,10 @@ class Database:
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Gracefully exit the db connection."""
         if exc_val:
-            print(exc_val)
             self.conn.close()
-            sys.exit(exc_val)
+            return False
         else:
             self.conn.commit()
-            print(self.conn.total_changes)
             self.conn.close()
 
 
@@ -62,8 +59,9 @@ class CheckDatabase:
 
     def database_version_is_latest(self):
         """Validate that the database is running the latest version."""
+        select_db_version = "SELECT db_version FROM task_database_version"
         with Database() as conn:
-            conn.curs.execute("SELECT db_version FROM task_database_version")
+            conn.curs.execute(select_db_version)
             return conn.curs.fetchone()[0]
 
 
@@ -74,7 +72,16 @@ class Setup:
 
     def create_database(self):
         """Create the database from sql setup file."""
+        db_version = """
+            INSERT INTO task_database_version
+                (db_version)
+            VALUES
+                (?)
+        """
+        select_db_version = "SELECT db_version FROM task_database_version"
+
         with Database() as conn, open(self._setup, "r") as file:
             conn.curs.executescript(file.read())
-            conn.curs.execute("SELECT db_version FROM task_database_version")
+            conn.curs.execute(db_version, [version])
+            conn.curs.execute(select_db_version)
             return conn.curs.fetchone()[0]
