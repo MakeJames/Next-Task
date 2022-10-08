@@ -16,7 +16,7 @@ class CreateTask:
         """Instansiate the class."""
         task = Table('task')
         query = Query.into(task).columns('summary')
-        new_task = Database().write(str(query.insert(id)))
+        new_task = Database().write(str(query.insert(task_summary)))
         console.print(f"[info][b]Created Task {new_task}:[/b][/info]",
                       f"[highlight]{escape(task_summary)}[/highlight]")
 
@@ -76,7 +76,7 @@ class CloseTask:
         if task.confirm_next_task():
             task_id = task.task[0]['task_id']
             task_summary = task.task[0]['summary']
-            Database().write(query.insert(task_id, "closed"))
+            Database().write(str(query.insert(task_id, "closed")))
             console.print(f"[green]Closed {task_id}: {task_summary}[/green]")
             GetNextTask().print()
             return
