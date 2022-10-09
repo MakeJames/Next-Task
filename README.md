@@ -30,12 +30,13 @@ Type `Next` to view a complete list of open tasks.
 
 ### Projects
 
-Projects are less transiant than tasks and give the user the ability to create a subset of their task list that is grouped by theme or larger project. They can be long running or have defined scope and completed. Unlike tasks, 
-projects are not prioritised by due date, but are user selected. 
+Projects are less transiant than tasks and give the user the ability to create a subset of
+their task list that is grouped by theme or larger project. They can be long running or have
+defined scope and completed. Unlike tasks, projects are not prioritised by due date, but are 
+user selected. 
 
-Within each project there is a defined task list and when there is an active project, next tasks will be 
-returned from the project tasks.
-
+Within each project there is a defined task list and when there is an active project, next
+tasks will be returned from the project tasks.
 
 ## Development
 
@@ -46,33 +47,7 @@ make dev
 poetry run Next --version
 ```
 
-New functionality should be made on a feature branch `feature/feature_name` and merged to `main` 
-
-```mermaid
-%%{ init: { 'logLevel': 'debug', 'theme': 'neutral', 'gitGraph': { 'mainBranchOrder': 1 } }%%
-    gitGraph
-        commit id: "INIT"
-        branch feature/feature_name order:3
-        checkout feature/feature_name
-        commit
-        commit
-        checkout main
-        merge feature/feature_name tag: "0.1.0"
-        branch feature/another_feature order:4
-        checkout feature/another_feature
-        commit
-        checkout main
-        branch fix/resolve_issue order: 2
-        checkout fix/resolve_issue
-        commit
-        checkout main
-        merge fix/resolve_issue tag: "0.1.1"
-        checkout feature/another_feature
-        commit
-        merge main
-        checkout main
-        merge feature/another_feature tag: "0.2.0"
-```
+New functionality should be made on a feature branch `feature/feature_name` and merged to `main`
 
 
 ### Versioning
@@ -83,9 +58,19 @@ poetry version
 
 Version increments are definbed as Major.Minor.Patch
 
-Don't forget to update
+Merge Checklist:
+
+**Pre-merge**
+- Unit tests are written and coverage is at 85%
+- README and Documentation is up to date
+- Changelog for tag is completed
+- iSort is run on import statements using Make Format
 - pyproject.toml
 - next_tasks/VERSION
+
+**Post-merge**
+- feature branch is deleted
+- tag is created on Main
 
 ### Lint and Test
 
@@ -114,59 +99,4 @@ REFACTOR # Non functional changes to functions improving performance or readabil
 
 dev tools come with code2flow, can generate an up-to-date structure diagram with `code2flow -o docs/class_diagram.png -q next_task/`
 
-```mermaid
-stateDiagram-v2
-    state next_task {
-        # direction LR
-        [*] --> task:--task
-        [*] --> add:--add
-        [*] --> list:--list
-        [*] --> skip:--skip
-        [*] --> done:--done
-        state interface {
-            state cli {
-                task --> GetNextTask
-                add --> CreateTask
-                list --> GetNextTask
-                skip --> SkipTask
-                done --> MarkAsClosed
-            }
-            state console_output {
-                GetNextTask --> ListTasks
-                CreateTask --> Format
-                GetNextTask --> Format
-                SkipTask --> Format
-                MarkAsClosed --> Format
-                GetNextTask --> Congratulations
-            }
-        }
-        state services {
-            state Store {
-                CreateTask --> WriteTask
-                WriteTask --> CheckTaskStore
-                WriteTask --> CheckFormatting
-                GetTasks
-                CreateTask --> GetTasks
-                GetNextTask --> GetTasks
-                GetTasks --> CheckTaskStore
-                GetTasks --> CheckFormatting
-                GetTasks --> CreateTask
-                GetTasks --> GetNextTask
-                CheckTaskStore
-                CheckFormatting
-            }
-            state Task {
-                GetNextTask
-                GetPriority
-                GetNextTask --> GetPriority
-                GetPriority --> GetNextTask
-                SkipTask --> GetNextTask
-                MarkAsClosed --> GetNextTask
-                SkipTask
-                MarkAsClosed
-                CreateTask
-            }
-        }
-    
-    }
-```
+![class diagram](docs/class_diagram.png)
