@@ -32,13 +32,16 @@ class TaskTable:
         """Insttansiate the class."""
         if data == []:
             return
-        table = Table(title=title)
+        table = Table(title=title, title_justify="left",
+                      row_styles=["highlight", "info"])
         table.box = box.SIMPLE_HEAD
-        table.add_column("Id", style="#C69400", no_wrap=True)
-        table.add_column("Summary", style="#ADD9F4", no_wrap=True)
+        table.add_column("Id", no_wrap=True)
+        table.add_column("Summary", no_wrap=True)
         for row in data:
             table.add_row(
                 f"{row[0]}",
                 f"{row[1]}",
             )
-        Console().print(table, justify="left")
+        console = Style().console()
+        console.line()
+        console.print(table, justify="left")

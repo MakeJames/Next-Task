@@ -1,7 +1,7 @@
 """Service module containing methods relating to the task file."""
 
-import sqlite3
 import os
+import sqlite3
 
 version = 0.5
 folder = f"{os.path.expanduser('~')}/Notes/nextTask"

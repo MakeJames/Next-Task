@@ -1,10 +1,11 @@
 """Module containing the methods relating to task creation."""
 
 from pypika import Query, Table
-
 from rich.markup import escape
-from next_task.services.database import Database
+
 from next_task.interface.console_output import Style, TaskTable
+
+from .database import Database
 
 console = Style().console()
 
