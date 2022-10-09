@@ -30,10 +30,14 @@ class TaskTable:
 
     def __init__(self, data: list, title="Open Tasks"):
         """Insttansiate the class."""
+        console = Style().console()
         if data == []:
+            if title != "Open Tasks":
+                return
+            console.print("There are no Tasks", style="green")
             return
         table = Table(title=title, title_justify="left",
-                      row_styles=["highlight", "info"])
+                      row_styles=["highlight", ""])
         table.box = box.SIMPLE_HEAD
         table.add_column("Id", no_wrap=True)
         table.add_column("Summary", no_wrap=True)
@@ -42,6 +46,5 @@ class TaskTable:
                 f"{row[0]}",
                 f"{row[1]}",
             )
-        console = Style().console()
         console.line()
         console.print(table, justify="left")

@@ -57,7 +57,7 @@ eg:
     )
     group.add_argument(
         "-ap",
-        "--add_project",
+        "--add-project",
         help="Create a project [Next --add_project 'Project Name'",
         type=str
     )
